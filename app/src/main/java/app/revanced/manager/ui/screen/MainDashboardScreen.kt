@@ -1,6 +1,9 @@
 package app.revanced.manager.ui.screen
 
-import androidx.compose.animation.*
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,8 +22,8 @@ import com.xinto.taxi.rememberNavigator
 @Composable
 fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-        decayAnimationSpec = rememberSplineBasedDecay(),
-        state = rememberTopAppBarState()
+        state = rememberTopAppBarState(),
+        canScroll = { true }
     )
 
     val mainRootNavigator = rememberNavigator(DashboardDestination.DASHBOARD)
@@ -31,7 +34,7 @@ fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            MediumTopAppBar(
+            LargeTopAppBar(
                 title = {
                     Text(
                         text = stringResource(mainRootNavigator.currentDestination.label),
@@ -64,7 +67,10 @@ fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
             ) { destination ->
                 when (destination) {
                     DashboardDestination.DASHBOARD -> DashboardScreen()
-                    DashboardDestination.PATCHER -> PatcherScreen()
+                    DashboardDestination.PATCHER -> PatcherScreen(
+                        onClickAppSelector = { navigator.push(AppDestination.AppSelector) },
+                        onClickPatchSelector = { navigator.push(AppDestination.PatchSelector) }
+                    )
                     DashboardDestination.SETTINGS -> SettingsScreen()
                 }
             }

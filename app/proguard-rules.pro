@@ -14,8 +14,41 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
+-dontobfuscate
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    static <1>$Companion Companion;
+}
+-if @kotlinx.serialization.Serializable class ** {
+    static **$* *;
+}
+-keepclassmembers class <2>$<3> {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-if @kotlinx.serialization.Serializable class ** {
+    public static ** INSTANCE;
+}
+-keepclassmembers class <1> {
+    public static <1> INSTANCE;
+    kotlinx.serialization.KSerializer serializer(...);
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# These classes required for the patcher to function correctly.
+-keep class app.revanced.patcher.** {
+  *;
+}
+-keep class brut.** {
+  *;
+}
+-keep class org.xmlpull.** {
+  *;
+}
+-keep class kotlin.** {
+  *;
+}
+-keep class org.jf.** {
+  *;
+}
+
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault

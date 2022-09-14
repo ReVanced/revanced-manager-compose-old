@@ -3,7 +3,7 @@ package app.revanced.manager.dto.github
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ApiCommit(
+class APICommit(
     val sha: String,
     val commit: Object
 ) {

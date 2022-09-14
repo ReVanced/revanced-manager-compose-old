@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ApiRelease(
+data class APIRelease(
     @SerialName("tag_name") val tagName: String,
     @SerialName("published_at") val publishedAt: String,
     val prerelease: Boolean,

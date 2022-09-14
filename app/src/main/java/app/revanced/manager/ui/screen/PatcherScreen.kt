@@ -1,155 +1,96 @@
 package app.revanced.manager.ui.screen
 
-import android.widget.Toast
-import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.revanced.manager.R
-import app.revanced.manager.ui.component.ApplicationItem
-import app.revanced.manager.ui.component.HeadlineWithCard
-import app.revanced.manager.ui.viewmodel.DashboardViewModel
+import app.revanced.manager.Variables.patches
+import app.revanced.manager.Variables.selectedAppPackage
+import app.revanced.manager.Variables.selectedPatches
+import app.revanced.manager.ui.Resource
+import app.revanced.manager.ui.component.FloatingActionButton
 import app.revanced.manager.ui.viewmodel.PatcherViewModel
 import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatcherScreen(viewModel: DashboardViewModel = getViewModel()) {
-    val context = LocalContext.current
-    val padHoriz = 16.dp
-    val padVert = 10.dp
+fun PatcherScreen(
+    onClickAppSelector: () -> Unit,
+    onClickPatchSelector: () -> Unit,
+    viewModel: PatcherViewModel = getViewModel()
+) {
+    val selectedAmount = selectedPatches.size
+    val selectedAppPackage by selectedAppPackage
+    val hasAppSelected = selectedAppPackage.isPresent
+    val patchesLoaded = patches.value is Resource.Success
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 18.dp)
-            .verticalScroll(state = rememberScrollState()),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        HeadlineWithCard(R.string.updates) {
-            Row(
+    Scaffold(floatingActionButton = {
+        FloatingActionButton(
+            enabled = hasAppSelected && viewModel.anyPatchSelected(),
+            onClick = { viewModel.startPatcher() },
+            icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
+            text = { Text(text = "Patch") }
+        )
+    }) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+        ) {
+            Card(
                 modifier = Modifier
-                    .padding(horizontal = padHoriz, vertical = padVert)
+                    .padding(4.dp)
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                enabled = patchesLoaded,
+                onClick = onClickAppSelector
             ) {
-                Column {
-                    CommitDate(
-                        label = R.string.patcher,
-                        date = viewModel.patcherCommitDate
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.card_application_header),
+                        style = MaterialTheme.typography.titleMedium
                     )
-                    CommitDate(
-                        label = R.string.manager,
-                        date = viewModel.managerCommitDate
+                    Text(
+                        text = if (patchesLoaded) {
+                            selectedAppPackage.orElse(stringResource(R.string.card_application_not_selected))
+                        } else {
+                            stringResource(R.string.card_application_not_loaded)},
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(0.dp, 8.dp)
                     )
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Button(
-                        enabled = false, // needs update
-                        onClick = {
-                            Toast.makeText(context, "Already up-to-date!", Toast.LENGTH_SHORT)
-                                .show()
+            }
+            Card(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth(),
+                enabled = hasAppSelected,
+                onClick = onClickPatchSelector
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.card_patches_header),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = if (!hasAppSelected) {
+                            "Select an application first."
+                        } else if (viewModel.anyPatchSelected()) {
+                            "$selectedAmount patches selected."
+                        } else {
+                            stringResource(R.string.card_patches_body_patches)
                         },
-                    ) { Text(stringResource(R.string.update_patch_bundle)) }
-                    Text(
-                        text = "No updates available",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 10.sp,
-                    )
-                }
-            }
-        }
-
-        HeadlineWithCard(R.string.patched_apps) {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = padHoriz, vertical = padVert)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    val amount = 2 // TODO
-                    Text(
-                        text = "${stringResource(R.string.updates_available)}: $amount",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                }
-                Button(
-                    enabled = true, // needs update
-                    onClick = {
-                        Toast.makeText(context, "Already up-to-date!", Toast.LENGTH_SHORT).show()
-                    }
-                ) { Text(stringResource(R.string.update_all)) }
-            }
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = padHoriz)
-                    .padding(bottom = padVert)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                ApplicationItem(
-                    name = "ReVanced",
-                    released = "Released 2 days ago",
-                    icon = { Icon(Icons.Default.Dashboard, "ReVanced") }
-                ) {
-                    ChangelogText(
-                        """
-                            fix: aaaaaa
-                            fix: aaaaaa
-                            fix: aaaaaa
-                            fix: aaaaaa
-                            fix: aaaaaa
-                        """.trimIndent()
-                    )
-                }
-                ApplicationItem(
-                    name = "ReReddit",
-                    released = "Released 1 month ago",
-                    icon = { Icon(Icons.Default.Build, "ReReddit") }
-                ) {
-                    ChangelogText(
-                        """
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                        """.trimIndent()
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(0.dp, 8.dp)
                     )
                 }
             }

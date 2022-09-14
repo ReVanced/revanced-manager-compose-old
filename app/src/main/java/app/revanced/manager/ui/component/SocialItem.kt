@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import app.revanced.manager.R
 import app.revanced.manager.util.ghOrganization
 import app.revanced.manager.util.openUrl
@@ -34,7 +33,6 @@ fun SocialItem(@StringRes label: Int, vec: ImageVector, fn: () -> Unit) {
     )
 }
 
-@Preview
 @Composable
 fun SocialItemPreview() {
     val ctx = LocalContext.current.applicationContext

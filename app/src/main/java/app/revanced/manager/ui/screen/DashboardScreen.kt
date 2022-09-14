@@ -91,46 +91,24 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ApplicationItem(
-                    name = "ReVanced",
-                    released = "com.google.android.youtube",
+                    name = "Youtube ReVanced",
+                    released = "Released [who knows] centuries ago",
                     icon = { Icon(Icons.Default.Dashboard, "ReVanced") }
                 ) {
                     ChangelogText(
                         """
-                            fix: aaaaaa
-                            fix: aaaaaa
-                            fix: aaaaaa
-                            fix: aaaaaa
-                            fix: aaaaaa
+                            cossal will explode
                         """.trimIndent()
                     )
                 }
                 ApplicationItem(
-                    name = "ReReddit",
-                    released = "Released 1 month ago",
+                    name = "Reddit ReVanced",
+                    released = "Released [REDACTED] month ago",
                     icon = { Icon(Icons.Default.Build, "ReReddit") }
                 ) {
                     ChangelogText(
                         """
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
-                            fix: bbbbbb
+                            hi ushie
                         """.trimIndent()
                     )
                 }
