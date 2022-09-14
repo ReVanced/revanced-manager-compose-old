@@ -38,7 +38,7 @@
     <string name="loading_body">One moment, please…</string>
     <string name="loading_fetching_patches">Fetching patches</string>
     <string name="unsupported">Unsupported version</string>
-    <string name="only_compatible">This patch is only compatible with version:</string>
+    <string name="only_compatible">This patch is only compatible with version: </string>
     <string name="card_announcement_button_changelog">Changelog</string>
     <string name="button_patch">Patch</string>
     <string name="navigation_dashboard">Dashboard</string>
