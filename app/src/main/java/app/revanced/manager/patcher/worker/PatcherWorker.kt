@@ -134,7 +134,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters) :
             Log.d(tag, "Adding ${patches.size} patch(es)")
             patcher.addPatches(patches)
 
-            // patcher.addFiles(listOf(integrations)) {}
+            patcher.addFiles(listOf(integrations)) {}
 
             patcher.applyPatches().forEach { (patch, result) ->
                 if (result.isSuccess) {

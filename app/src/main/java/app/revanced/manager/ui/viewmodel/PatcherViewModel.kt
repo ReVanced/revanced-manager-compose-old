@@ -109,6 +109,15 @@ class PatcherViewModel(private val app: Application, private val api: API) : Vie
         }
     }
 
+    fun checkSplitApk(): Boolean {
+    if (getSelectedPackageInfo()!!.applicationInfo!!.metaData!!.getBoolean("com.android.vending.splits.required", false)) {
+        Log.d(tag, "APK is split.")
+        return true
+    }
+    Log.d(tag, "APK is not split.")
+    return false
+    }
+
     private fun loadPatches() = viewModelScope.launch {
         try {
             val file = api.downloadPatchBundle(app.filesDir)
