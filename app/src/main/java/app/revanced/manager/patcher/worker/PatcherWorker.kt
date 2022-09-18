@@ -107,7 +107,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters) :
                 PatcherOptions(
                     inputFile,
                     cacheDirectory.absolutePath,
-                    patchResources = false,
+                    patchResources = checkForResourcePatch(patches),
                     aaptPath = aaptPath,
                     frameworkFolderLocation = frameworkPath,
                     logger = object : Logger {
@@ -172,5 +172,19 @@ class PatcherWorker(context: Context, parameters: WorkerParameters) :
     private fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<Data>>> {
         val (patches) = patches.value as? Resource.Success ?: return listOf()
         return patches.filter { patch -> ids.any { it == patch.patchName } }
+    }
+
+    private fun checkForResourcePatch(patches: List<Class<out Patch<Data>>>): Boolean {
+        patches.forEach { patch ->
+            patch.dependencies?.forEach {
+                if (ResourcePatch::class.java.isAssignableFrom(patch)) { // check for resource patches in normal patches
+                    return true
+                }
+                if (ResourcePatch::class.java.isAssignableFrom(it.java)) { // do the same thing in dependency patches
+                    return true
+                }
+            }
+        }
+        return false
     }
 }
