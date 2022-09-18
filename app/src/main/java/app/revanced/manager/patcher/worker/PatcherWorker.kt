@@ -24,10 +24,13 @@ import app.revanced.manager.ui.Resource
 import app.revanced.patcher.Patcher
 import app.revanced.patcher.PatcherOptions
 import app.revanced.patcher.data.Data
+import app.revanced.patcher.extensions.PatchExtensions.dependencies
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.logging.Logger
 import app.revanced.patcher.patch.Patch
+import app.revanced.patcher.patch.impl.ResourcePatch
 import java.io.File
+import java.nio.file.Files
 
 class PatcherWorker(context: Context, parameters: WorkerParameters) :
     CoroutineWorker(context, parameters) {
@@ -77,96 +80,94 @@ class PatcherWorker(context: Context, parameters: WorkerParameters) :
     private fun runPatcher(
         workdir: File
     ): Boolean {
-            val aaptPath = Aapt.binary(applicationContext).absolutePath
-            val frameworkPath =
-                applicationContext.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
+        val aaptPath = Aapt.binary(applicationContext).absolutePath
+        val frameworkPath =
+            applicationContext.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
 
-            Log.d(tag, "Checking prerequisites")
-            val patches = findPatchesByIds(selectedPatches)
-            if (patches.isEmpty()) return true
+        Log.d(tag, "Checking prerequisites")
+        val patches = findPatchesByIds(selectedPatches)
+        if (patches.isEmpty()) return true
 
 
-            Log.d(tag, "Creating directories")
+        Log.d(tag, "Creating directories")
 
-            File(inputData.getString("input")!!).copyTo(
-                applicationContext.filesDir.resolve("base.apk"),
-                true
+        File(inputData.getString("input")!!).copyTo(
+            applicationContext.filesDir.resolve("base.apk"),
+            true
+        )
+
+        val inputFile = File(applicationContext.filesDir, "base.apk")
+        val patchedFile = File(workdir, "patched.apk")
+        val outputFile = File(applicationContext.filesDir, "out.apk")
+        val cacheDirectory = workdir.resolve("cache")
+        val integrations = workdir.resolve("integrations.apk")
+        try {
+            Log.d(tag, "Creating patcher")
+            val patcher = Patcher( // start patcher
+                PatcherOptions(
+                    inputFile,
+                    cacheDirectory.absolutePath,
+                    patchResources = false,
+                    aaptPath = aaptPath,
+                    frameworkFolderLocation = frameworkPath,
+                    logger = object : Logger {
+                        override fun error(msg: String) {
+                            Log.e(tag, msg)
+                        }
+
+                        override fun warn(msg: String) {
+                            Log.w(tag, msg)
+                        }
+
+                        override fun info(msg: String) {
+                            Log.i(tag, msg)
+                        }
+
+                        override fun trace(msg: String) {
+                            Log.v(tag, msg)
+                        }
+                    }
+                )
             )
 
-            val inputFile = File(applicationContext.filesDir, "base.apk")
-            val patchedFile = File(workdir, "patched.apk")
-            val outputFile = File(applicationContext.filesDir, "out.apk")
-            val cacheDirectory = workdir.resolve("cache")
-            val integrations = workdir.resolve("integrations.apk")
-            try {
-                Log.d(tag, "Creating patcher")
-                val patcher = Patcher(
-                    PatcherOptions(
-                        inputFile,
-                        cacheDirectory.absolutePath,
-                        patchResources = false,
-                        aaptPath = aaptPath,
-                        frameworkFolderLocation = frameworkPath,
-                        logger = object : Logger {
-                            override fun error(msg: String) {
-                                Log.e(tag, msg)
-                            }
 
-                            override fun warn(msg: String) {
-                                Log.w(tag, msg)
-                            }
+            Log.d(tag, "Adding ${patches.size} patch(es)")
+            patcher.addPatches(patches)
 
-                            override fun info(msg: String) {
-                                Log.i(tag, msg)
-                            }
+            // patcher.addFiles(listOf(integrations)) {}
 
-                            override fun trace(msg: String) {
-                                Log.v(tag, msg)
-                            }
-                        }
-                    )
-                )
-
-
-                Log.d(tag, "Adding ${patches.size} patch(es)")
-                patcher.addPatches(patches)
-
-
-                Log.d(tag, "Applying patches")
-                patcher.applyPatches().forEach { (patch, result) ->
-                    if (result.isSuccess) {
-                        Log.i(tag, "[success] $patch")
-                        return@forEach
-                    }
-                    Log.e(tag, "[error] $patch:", result.exceptionOrNull()!!)
+            patcher.applyPatches().forEach { (patch, result) ->
+                if (result.isSuccess) {
+                    Log.i(tag, "[success] $patch")
+                    return@forEach
                 }
-                Log.d(tag, "Saving file")
-
-                    val result = patcher.save() // this function uses quite a bit of resources
-                    ZipFile(patchedFile).use { fs ->
-                        result.dexFiles.forEach { it ->
-                            Log.d(tag, "Writing dex file ${it.name}")
-                            fs.addEntryCompressData(
-                                ZipEntry.createWithName(it.name),
-                                it.stream.readBytes()
-                            )
-                        result.resourceFile?.let {
-                            fs.copyEntriesFromFileAligned(ZipFile(it), ZipAligner::getEntryAlignment)
-                        }
-                        fs.copyEntriesFromFileAligned(ZipFile(inputFile), ZipAligner::getEntryAlignment)
-                    }
-                }
-
-
-                Log.d(tag, "Signing apk")
-                Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
-                Log.i(tag, "Successfully patched into $outputFile")
-            } finally {
-                Log.d(tag, "Deleting workdir")
-                workdir.deleteRecursively()
+                Log.e(tag, "[error] $patch:", result.exceptionOrNull()!!)
             }
-            return false
+            Log.d(tag, "Saving file")
+
+            val result = patcher.save() // compile apk
+
+            if (patchedFile.exists()) Files.delete(patchedFile.toPath())
+
+            ZipFile(patchedFile).use { fs -> // somehow this function is the most resource intensive
+                result.dexFiles.forEach { Log.d(tag, "Writing dex file ${it.name}")
+                    fs.addEntryCompressData(ZipEntry.createWithName(it.name), it.stream.readBytes())}
+
+
+                result.resourceFile?.let {
+                    fs.copyEntriesFromFileAligned(ZipFile(it), ZipAligner::getEntryAlignment)
+                }
+                fs.copyEntriesFromFileAligned(ZipFile(inputFile), ZipAligner::getEntryAlignment)
+            }
+
+            Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
+            Log.i(tag, "Successfully patched into $outputFile")
+        } finally {
+            Log.d(tag, "Deleting workdir")
+            // workdir.deleteRecursively()
         }
+        return false
+    }
 
     private fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<Data>>> {
         val (patches) = patches.value as? Resource.Success ?: return listOf()

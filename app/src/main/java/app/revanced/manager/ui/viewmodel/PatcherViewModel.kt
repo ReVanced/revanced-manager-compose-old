@@ -144,7 +144,7 @@ class PatcherViewModel(private val app: Application, private val api: API) : Vie
                     .setInputData(
                         androidx.work.Data.Builder()
                             .putString("workdir", workdir.toString())
-                            .put("input",
+                            .putString("input",
                                 getSelectedPackageInfo()?.applicationInfo?.publicSourceDir
                             )
                             .build()).build()
