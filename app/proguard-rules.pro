@@ -50,5 +50,8 @@
 -keep class org.jf.** {
   *;
 }
+-keep class com.android.** {
+  *;
+}
 
 -keepattributes RuntimeVisibleAnnotations,AnnotationDefault
