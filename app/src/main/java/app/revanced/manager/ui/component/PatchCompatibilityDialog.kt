@@ -10,14 +10,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.ui.viewmodel.PatchClass
-import app.revanced.manager.ui.viewmodel.PatcherViewModel
+import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import app.revanced.patcher.annotation.Package
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun PatchCompatibilityDialog(
-    patchClass: PatchClass, pvm: PatcherViewModel = getViewModel(), onClose: () -> Unit
+    patchClass: PatchClass, pvm: PatcherScreenViewModel = getViewModel(), onClose: () -> Unit
 ) {
     val patch = patchClass.patch
     val packageName = pvm.getSelectedPackageInfo()?.packageName

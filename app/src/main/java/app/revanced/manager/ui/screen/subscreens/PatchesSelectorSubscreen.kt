@@ -23,7 +23,7 @@ import app.revanced.manager.ui.component.PatchCompatibilityDialog
 import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.theme.Typography
 import app.revanced.manager.ui.viewmodel.PatchClass
-import app.revanced.manager.ui.viewmodel.PatcherViewModel
+import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import app.revanced.patcher.extensions.PatchExtensions.description
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.extensions.PatchExtensions.version
@@ -34,7 +34,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun PatchesSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
-    pvm: PatcherViewModel = getViewModel(),
+    pvm: PatcherScreenViewModel = getViewModel(),
 ) {
     val patches = rememberSaveable { pvm.getFilteredPatchesAndCheckOptions() }
     var query by mutableStateOf("")

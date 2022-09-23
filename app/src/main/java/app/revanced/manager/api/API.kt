@@ -29,7 +29,7 @@ val client = HttpClient(Android) {
 
 class API(private val repository: GitHubRepository, private val prefs: PreferencesManager) {
 
-    private suspend fun findAsset(repo: String, file: String): PatchesAsset {
+    suspend fun findAsset(repo: String, file: String): PatchesAsset {
         val release = repository.getLatestRelease(repo)
         val asset = release.assets.findAsset(file) ?: throw MissingAssetException()
         return PatchesAsset(release, asset)
@@ -47,7 +47,6 @@ class API(private val repository: GitHubRepository, private val prefs: Preferenc
             throw Exception("Failed to download patch bundle", e)
         }
     }
-
     suspend fun downloadIntegrations(workdir: File): File {
         return try {
             val (_, out) = downloadAsset(
@@ -60,7 +59,7 @@ class API(private val repository: GitHubRepository, private val prefs: Preferenc
         }
     }
 
-    private suspend fun downloadAsset(
+    suspend fun downloadAsset(
         workdir: File,
         patchesAsset: PatchesAsset
     ): Pair<PatchesAsset, File> {

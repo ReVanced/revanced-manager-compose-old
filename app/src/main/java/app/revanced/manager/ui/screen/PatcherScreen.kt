@@ -4,14 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.Variables.patches
@@ -20,7 +18,7 @@ import app.revanced.manager.Variables.selectedPatches
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.FloatingActionButton
 import app.revanced.manager.ui.component.SplitAPKDialog
-import app.revanced.manager.ui.viewmodel.PatcherViewModel
+import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +26,8 @@ import org.koin.androidx.compose.getViewModel
 fun PatcherScreen(
     onClickAppSelector: () -> Unit,
     onClickPatchSelector: () -> Unit,
-    viewModel: PatcherViewModel = getViewModel()
+    onClickPatch: () -> Unit,
+    viewModel: PatcherScreenViewModel = getViewModel()
 ) {
     val selectedAmount = selectedPatches.size
     val selectedAppPackage by selectedAppPackage
@@ -39,9 +38,7 @@ fun PatcherScreen(
     Scaffold(floatingActionButton = {
         FloatingActionButton(
             enabled = hasAppSelected && viewModel.anyPatchSelected(),
-            onClick = {
-                if (viewModel.checkSplitApk()) { showDialog = true } else viewModel.startPatcher()
-            },
+            onClick = { if (viewModel.checkSplitApk()) { showDialog = true } else onClickPatch()},
             icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
             text = { Text(text = "Patch") }
         )
@@ -53,7 +50,7 @@ fun PatcherScreen(
                 .padding(16.dp),
         ) {
             if (showDialog)
-                SplitAPKDialog(onDismiss = { showDialog = false }, onConfirm = { viewModel.startPatcher() })
+                SplitAPKDialog(onDismiss = { showDialog = false }, onConfirm = onClickPatch)
             Card(
                 modifier = Modifier
                     .padding(4.dp)

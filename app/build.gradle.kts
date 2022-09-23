@@ -86,6 +86,7 @@ dependencies {
     val koinVersion = "3.2.0"
     implementation("io.insert-koin:koin-android:$koinVersion")
     implementation("io.insert-koin:koin-androidx-compose:$koinVersion")
+    implementation("io.insert-koin:koin-androidx-workmanager:3.2.1")
 
     // Compose
     val composeVersion = "1.3.0-alpha03"
@@ -117,7 +118,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
     // ReVanced
-    implementation("app.revanced:revanced-patcher:4.2.3")
+    implementation("app.revanced:revanced-patcher:4.4.2")
 
     // Coil for network image
     implementation("io.coil-kt:coil-compose:2.1.0")
@@ -125,4 +126,5 @@ dependencies {
     // Signing & aligning
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("com.android.tools.build:apksig:7.2.2")
+
 }

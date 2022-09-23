@@ -1,11 +1,9 @@
 package app.revanced.manager
 
 import android.app.Application
-import app.revanced.manager.di.httpModule
-import app.revanced.manager.di.preferencesModule
-import app.revanced.manager.di.repositoryModule
-import app.revanced.manager.di.viewModelModule
+import app.revanced.manager.di.*
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 
 class ManagerApplication : Application() {
@@ -14,7 +12,8 @@ class ManagerApplication : Application() {
 
         startKoin {
             androidContext(this@ManagerApplication)
-            modules(httpModule, preferencesModule, viewModelModule, repositoryModule)
+            workManagerFactory()
+            modules(httpModule, preferencesModule, viewModelModule, repositoryModule, workerModule)
         }
     }
 }

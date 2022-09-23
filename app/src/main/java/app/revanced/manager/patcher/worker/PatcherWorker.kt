@@ -14,13 +14,16 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import app.revanced.manager.R
 import app.revanced.manager.Variables.patches
+import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
+import app.revanced.manager.api.API
 import app.revanced.manager.patcher.aapt.Aapt
 import app.revanced.manager.patcher.aligning.ZipAligner
 import app.revanced.manager.patcher.aligning.zip.ZipFile
 import app.revanced.manager.patcher.aligning.zip.structures.ZipEntry
 import app.revanced.manager.patcher.signing.Signer
 import app.revanced.manager.ui.Resource
+import app.revanced.manager.ui.viewmodel.Logging
 import app.revanced.patcher.Patcher
 import app.revanced.patcher.PatcherOptions
 import app.revanced.patcher.data.Data
@@ -29,15 +32,19 @@ import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.logging.Logger
 import app.revanced.patcher.patch.Patch
 import app.revanced.patcher.patch.impl.ResourcePatch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
-class PatcherWorker(context: Context, parameters: WorkerParameters) :
-    CoroutineWorker(context, parameters) {
+class PatcherWorker(context: Context, parameters: WorkerParameters, private val api: API): CoroutineWorker(context, parameters) ,KoinComponent {
+
     val tag = "ReVanced Manager"
-    private val workdir = File(inputData.getString("workdir")!!)
-
+    private val workdir = createWorkDir()
     override suspend fun doWork(): Result {
+
         if (runAttemptCount > 0) {
             return Result.failure(
                 androidx.work.Data.Builder()
@@ -77,32 +84,41 @@ class PatcherWorker(context: Context, parameters: WorkerParameters) :
         }
     }
 
-    private fun runPatcher(
+    private suspend fun runPatcher(
         workdir: File
     ): Boolean {
         val aaptPath = Aapt.binary(applicationContext).absolutePath
         val frameworkPath =
             applicationContext.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
+        val integrationsCacheDir =
+            applicationContext.filesDir.resolve("integrations-cache").also { it.mkdirs() }
+        val appInfo = applicationContext.packageManager.getApplicationInfo(selectedAppPackage.value.get(), 3)
 
-        Log.d(tag, "Checking prerequisites")
+        Logging.log += "Checking prerequisites\n"
         val patches = findPatchesByIds(selectedPatches)
         if (patches.isEmpty()) return true
 
 
-        Log.d(tag, "Creating directories")
-
-        File(inputData.getString("input")!!).copyTo(
-            applicationContext.filesDir.resolve("base.apk"),
-            true
-        )
-
-        val inputFile = File(applicationContext.filesDir, "base.apk")
+        Logging.log += "Creating directories\n"
+        val inputFile = File(applicationContext.filesDir, "input.apk")
         val patchedFile = File(workdir, "patched.apk")
-        val outputFile = File(applicationContext.filesDir, "out.apk")
+        val outputFile = File(applicationContext.filesDir, "output.apk")
         val cacheDirectory = workdir.resolve("cache")
-        val integrations = workdir.resolve("integrations.apk")
+
+        Logging.log += "Downloading integrations\n"
+        val integrations = api.downloadIntegrations(integrationsCacheDir)
+
+        Logging.log += "Copying base.apk from device\n"
+        withContext(Dispatchers.IO) {
+            Files.copy(
+                File(appInfo.publicSourceDir).toPath(),
+                inputFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING
+            )
+        }
+
         try {
-            Log.d(tag, "Creating patcher")
+            Logging.log += "Decoding resources\n"
             val patcher = Patcher( // start patcher
                 PatcherOptions(
                     inputFile,
@@ -134,37 +150,42 @@ class PatcherWorker(context: Context, parameters: WorkerParameters) :
             Log.d(tag, "Adding ${patches.size} patch(es)")
             patcher.addPatches(patches)
 
+            Logging.log += "Merging integrations\n"
             patcher.addFiles(listOf(integrations)) {}
 
             patcher.applyPatches().forEach { (patch, result) ->
+                Logging.log += "Applying $patch\n"
                 if (result.isSuccess) {
-                    Log.i(tag, "[success] $patch")
+                    Logging.log +=  "$patch has been applied successfully\n"
                     return@forEach
                 }
-                Log.e(tag, "[error] $patch:", result.exceptionOrNull()!!)
+                Logging.log +=  "Failed to apply $patch \n" + result.exceptionOrNull()!!
             }
-            Log.d(tag, "Saving file")
+            Logging.log += "Saving file\n"
 
             val result = patcher.save() // compile apk
 
-            if (patchedFile.exists()) Files.delete(patchedFile.toPath())
+            if (patchedFile.exists()) withContext(Dispatchers.IO) {
+                Files.delete(patchedFile.toPath())
+            }
 
             ZipFile(patchedFile).use { fs -> // somehow this function is the most resource intensive
-                result.dexFiles.forEach { Log.d(tag, "Writing dex file ${it.name}")
+                result.dexFiles.forEach { Logging.log +=  "Writing dex file ${it.name}\n"
                     fs.addEntryCompressData(ZipEntry.createWithName(it.name), it.stream.readBytes())}
 
-
+                Logging.log +=  "Aligning apk!\n"
                 result.resourceFile?.let {
                     fs.copyEntriesFromFileAligned(ZipFile(it), ZipAligner::getEntryAlignment)
                 }
                 fs.copyEntriesFromFileAligned(ZipFile(inputFile), ZipAligner::getEntryAlignment)
             }
 
+            Logging.log +=  "Signing apk\n"
             Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
-            Log.i(tag, "Successfully patched into $outputFile")
+            Logging.log +=  "Successfully patched!\n"
         } finally {
             Log.d(tag, "Deleting workdir")
-            // workdir.deleteRecursively()
+            workdir.deleteRecursively()
         }
         return false
     }
@@ -186,5 +207,9 @@ class PatcherWorker(context: Context, parameters: WorkerParameters) :
             }
         }
         return false
+    }
+    private fun createWorkDir(): File {
+        return applicationContext.filesDir.resolve("tmp-${System.currentTimeMillis()}")
+            .also { it.mkdirs() }
     }
 }

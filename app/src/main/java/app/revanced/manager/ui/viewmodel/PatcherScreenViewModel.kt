@@ -6,15 +6,10 @@ import android.os.Parcelable
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkManager
 import app.revanced.manager.Variables.patches
 import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
 import app.revanced.manager.api.API
-import app.revanced.manager.patcher.worker.PatcherWorker
 import app.revanced.manager.ui.Resource
 import app.revanced.patcher.data.Data
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
@@ -24,29 +19,20 @@ import app.revanced.patcher.patch.Patch
 import app.revanced.patcher.util.patch.impl.DexPatchBundle
 import dalvik.system.DexClassLoader
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
-import java.io.File
 
-class PatcherViewModel(private val app: Application, private val api: API) : ViewModel() {
-    private val workdir = createWorkDir()
+class PatcherScreenViewModel(private val app: Application, private val api: API) : ViewModel() {
     private lateinit var patchBundleFile: String
     private val tag = "ReVanced Manager"
 
     init {
-        runBlocking {
+        viewModelScope.launch {
             loadPatches()
-            downloadIntegrations()
         }
     }
-
     fun selectPatch(patchId: String, state: Boolean) {
         if (state) selectedPatches.add(patchId)
         else selectedPatches.remove(patchId)
-    }
-
-    private suspend fun downloadIntegrations() {
-        api.downloadIntegrations(workdir).renameTo(File(workdir,"integrations.apk"))
     }
 
     fun selectAllPatches(patchList: List<PatchClass>, selectAll: Boolean) {
@@ -85,6 +71,38 @@ class PatcherViewModel(private val app: Application, private val api: API) : Vie
             )
         else null
 
+    fun checkSplitApk(): Boolean {
+    if (getSelectedPackageInfo()!!.applicationInfo!!.metaData!!.getBoolean("com.android.vending.splits.required", false)) {
+        Log.d(tag, "APK is split.")
+        return true
+    }
+    Log.d(tag, "APK is not split.")
+    return false
+    }
+
+    private fun loadPatches() = viewModelScope.launch {
+        try {
+            val file = api.downloadPatchBundle(app.filesDir)
+            patchBundleFile = file.absolutePath
+            loadPatches0(file.absolutePath)
+        } catch (e: Exception) {
+            Log.e("ReVancedManager", "An error occurred while loading patches", e)
+        }
+    }
+
+    private fun loadPatches0(path: String) {
+        val patchClasses = DexPatchBundle(
+            path, DexClassLoader(
+                path,
+                app.codeCacheDir.absolutePath,
+                null,
+                javaClass.classLoader
+            )
+        ).loadPatches()
+        patches.value = Resource.Success(patchClasses)
+        Log.d("ReVanced Manager", "Finished loading patches")
+    }
+
     fun getFilteredPatchesAndCheckOptions(): List<PatchClass> {
         return buildList {
             val selected = getSelectedPackageInfo() ?: return@buildList
@@ -107,61 +125,6 @@ class PatcherViewModel(private val app: Application, private val api: API) : Vie
                 }
             }
         }
-    }
-
-    fun checkSplitApk(): Boolean {
-    if (getSelectedPackageInfo()!!.applicationInfo!!.metaData!!.getBoolean("com.android.vending.splits.required", false)) {
-        Log.d(tag, "APK is split.")
-        return true
-    }
-    Log.d(tag, "APK is not split.")
-    return false
-    }
-
-    private fun loadPatches() = viewModelScope.launch {
-        try {
-            val file = api.downloadPatchBundle(app.filesDir)
-            patchBundleFile = file.absolutePath
-            loadPatches0(file.absolutePath)
-        } catch (e: Exception) {
-            Log.e("ReVancedManager", "An error occurred while loading patches", e)
-        }
-    }
-
-
-    private fun loadPatches0(path: String) {
-        val patchClasses = DexPatchBundle(
-            path, DexClassLoader(
-                path,
-                app.codeCacheDir.absolutePath,
-                null,
-                javaClass.classLoader
-            )
-        ).loadPatches()
-        patches.value = Resource.Success(patchClasses)
-        Log.d("ReVanced Manager", "Finished loading patches")
-    }
-
-    fun startPatcher() {
-        WorkManager
-            .getInstance(app)
-            .enqueueUniqueWork(
-                "patching",
-                ExistingWorkPolicy.KEEP,
-                OneTimeWorkRequest.Builder(PatcherWorker::class.java)
-                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    .setInputData(
-                        androidx.work.Data.Builder()
-                            .putString("workdir", workdir.toString())
-                            .putString("input",
-                                getSelectedPackageInfo()?.applicationInfo?.publicSourceDir
-                            )
-                            .build()).build()
-            )
-    }
-    private fun createWorkDir(): File {
-        return app.filesDir.resolve("tmp-${System.currentTimeMillis()}")
-            .also { it.mkdirs() }
     }
 }
 

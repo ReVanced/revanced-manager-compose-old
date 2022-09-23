@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.revanced.manager.ui.viewmodel.PatcherViewModel
+import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,7 +24,7 @@ import org.koin.androidx.compose.getViewModel
 fun NewPatcherScreen(
     onClickAppSelector: () -> Unit,
     onClickPatchSelector: () -> Unit,
-    viewModel: PatcherViewModel = getViewModel()
+    viewModel: PatcherScreenViewModel = getViewModel()
 ) {
     var validBundle = false
     Column(
