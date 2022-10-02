@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
+    id("com.mikepenz.aboutlibraries.plugin") version "10.4.0"
     kotlin("plugin.serialization") version "1.7.10"
 }
 
@@ -127,4 +128,6 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("com.android.tools.build:apksig:7.2.2")
 
+    // Licenses
+    implementation("com.mikepenz:aboutlibraries-compose:10.4.0")
 }

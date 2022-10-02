@@ -78,4 +78,5 @@
     <string name="apply">Apply</string>
     <string name="warning">Warning</string>
     <string name="split_apk_warning">You have selected a resource patch and a split APK installation was detected so patching errors can occur.\nAre you sure you want to proceed with patching a split base APK?</string>
+    <string name="opensource_licenses">Open source licenses</string>
 </resources>

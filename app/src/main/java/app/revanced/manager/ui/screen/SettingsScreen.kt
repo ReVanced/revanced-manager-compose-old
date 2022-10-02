@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.*
@@ -26,7 +27,10 @@ import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel = getViewModel()) {
+fun SettingsScreen(
+    onClickLicenses: () -> Unit,
+    viewModel: SettingsViewModel = getViewModel()
+) {
     val prefs = viewModel.prefs
 
     Column(
@@ -47,9 +51,11 @@ fun SettingsScreen(viewModel: SettingsViewModel = getViewModel()) {
             modifier = Modifier.clickable { viewModel.showThemePicker() },
             headlineText = { Text(stringResource(R.string.theme)) },
             leadingContent = { Icon(Icons.Default.Style, contentDescription = null) },
-            trailingContent = { FilledTonalButton(onClick = { viewModel.showThemePicker() }) {
-                Text(text = prefs.theme.displayName)
-            } }
+            trailingContent = {
+                FilledTonalButton(onClick = { viewModel.showThemePicker() }) {
+                    Text(text = prefs.theme.displayName)
+                }
+            }
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ListItem(
@@ -66,6 +72,11 @@ fun SettingsScreen(viewModel: SettingsViewModel = getViewModel()) {
         }
 
         Divider()
+        ListItem(
+            modifier = Modifier.clickable(onClick = onClickLicenses),
+            headlineText = { Text(stringResource(R.string.opensource_licenses)) },
+            leadingContent = { Icon(Icons.Default.LibraryBooks, contentDescription = null) },
+        )
         SocialItem(R.string.github, Icons.Default.Code, viewModel::openGitHub)
     }
 }

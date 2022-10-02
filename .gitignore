@@ -79,3 +79,4 @@ lint/outputs/
 lint/tmp/
 *.hprof
 /.idea/deploymentTargetDropDown.xml
+.idea/discord.xml
