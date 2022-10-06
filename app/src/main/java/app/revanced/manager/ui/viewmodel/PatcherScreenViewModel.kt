@@ -84,16 +84,16 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
         try {
             val file = api.downloadPatchBundle(app.filesDir)
             patchBundleFile = file.absolutePath
-            loadPatches0(file.absolutePath)
+            loadPatches0()
         } catch (e: Exception) {
             Log.e("ReVancedManager", "An error occurred while loading patches", e)
         }
     }
 
-    private fun loadPatches0(path: String) {
+    fun loadPatches0() {
         val patchClasses = PatchBundle.Dex(
-            path, DexClassLoader(
-                path,
+            patchBundleFile, DexClassLoader(
+                patchBundleFile,
                 app.codeCacheDir.absolutePath,
                 null,
                 javaClass.classLoader
