@@ -32,7 +32,7 @@ fun FloatingActionButton(
             icon = icon,
             onClick = {
                 if (!enabled) {
-                    Toast.makeText(context, "Please select an application.", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Please select an application.", Toast.LENGTH_SHORT).show()
                 }
                 if (enabled) onClick()
             },
