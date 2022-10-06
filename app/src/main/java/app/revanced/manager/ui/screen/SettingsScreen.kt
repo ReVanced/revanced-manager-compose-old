@@ -71,11 +71,7 @@ fun SettingsScreen(
 
         Divider()
         SocialItem(R.string.github, Icons.Default.Code, viewModel::openGitHub)
-        ListItem(
-            modifier = Modifier.clickable(onClick = onClickLicenses),
-            headlineText = { Text(stringResource(R.string.opensource_licenses)) },
-            leadingContent = { Icon(Icons.Default.LibraryBooks, contentDescription = null) },
-        )
+        SocialItem(R.string.opensource_licenses, Icons.Default.LibraryBooks, onClickLicenses)
         SocialItem(R.string.screen_contributors_title, Icons.Default.Group, onClickContributors)
     }
 }
