@@ -15,9 +15,9 @@ import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SocialItem(@StringRes label: Int, imageVector: ImageVector? = null, fn: () -> Unit) {
+fun SocialItem(@StringRes label: Int, imageVector: ImageVector? = null, onClick: () -> Unit) {
     ListItem(
-        modifier = Modifier.clickable { fn() },
+        modifier = Modifier.clickable { onClick() },
         leadingContent = {
             if (imageVector != null) {
                 Icon(
@@ -32,9 +32,9 @@ fun SocialItem(@StringRes label: Int, imageVector: ImageVector? = null, fn: () -
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SocialItem(@StringRes label: Int, @DrawableRes painterResource: Int? = null, fn: () -> Unit) {
+fun SocialItem(@StringRes label: Int, @DrawableRes painterResource: Int? = null, onClick: () -> Unit) {
     ListItem(
-        modifier = Modifier.clickable { fn() },
+        modifier = Modifier.clickable { onClick() },
         leadingContent = {
             if (painterResource != null) {
                 Icon(
