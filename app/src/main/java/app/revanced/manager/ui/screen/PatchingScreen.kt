@@ -50,7 +50,11 @@ fun PatchingScreen(
                 ) {
 
                     if (vm.patchingInProgress) {
-                        CircularProgressIndicator(modifier = Modifier.padding(vertical = 16.dp).size(30.dp))
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .padding(vertical = 16.dp)
+                                .size(30.dp)
+                        )
                         Text(text = "Patching...", fontSize = 30.sp)
                     }
                 }
@@ -63,7 +67,9 @@ fun PatchingScreen(
                 Card {
                     Text(
                         text = Logging.log,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp).fillMaxSize(),
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp, vertical = 10.dp)
+                            .fillMaxSize(),
                         fontSize = 20.sp,
                         lineHeight = 35.sp
                     )

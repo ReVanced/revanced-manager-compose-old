@@ -27,6 +27,9 @@ sealed interface AppDestination : Destination {
 
     @Parcelize
     object Licenses : AppDestination
+
+    @Parcelize
+    object Contributors : AppDestination
 }
 
 @Parcelize

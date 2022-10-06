@@ -17,6 +17,7 @@ import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.screen.MainDashboardScreen
 import app.revanced.manager.ui.screen.PatchingScreen
 import app.revanced.manager.ui.screen.subscreens.AppSelectorSubscreen
+import app.revanced.manager.ui.screen.subscreens.ContributorsSubscreen
 import app.revanced.manager.ui.screen.subscreens.LicensesSubscreen
 import app.revanced.manager.ui.screen.subscreens.PatchesSelectorSubscreen
 import app.revanced.manager.ui.theme.ReVancedManagerTheme
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
                         is AppDestination.Dashboard -> MainDashboardScreen(navigator = navigator)
                         is AppDestination.AppSelector -> AppSelectorSubscreen(navigator = navigator)
                         is AppDestination.PatchSelector -> PatchesSelectorSubscreen(navigator = navigator)
+                        is AppDestination.Contributors -> ContributorsSubscreen(navigator = navigator)
                         is AppDestination.Licenses -> LicensesSubscreen(navigator = navigator)
                         is AppDestination.Patcher -> PatchingScreen(navigator = navigator)
                     }

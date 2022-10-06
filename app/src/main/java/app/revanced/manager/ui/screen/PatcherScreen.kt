@@ -38,7 +38,13 @@ fun PatcherScreen(
     Scaffold(floatingActionButton = {
         FloatingActionButton(
             enabled = hasAppSelected && viewModel.anyPatchSelected(),
-            onClick = { if (viewModel.checkSplitApk()) { showDialog = true } else {onClickPatch(); viewModel.loadPatches0()}},
+            onClick = {
+                if (viewModel.checkSplitApk()) {
+                    showDialog = true
+                } else {
+                    onClickPatch(); viewModel.loadPatches0()
+                }
+            }, // TODO: replace this with something better
             icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
             text = { Text(text = "Patch") }
         )
@@ -50,7 +56,7 @@ fun PatcherScreen(
                 .padding(16.dp),
         ) {
             if (showDialog)
-                SplitAPKDialog(onDismiss = { showDialog = false }, onConfirm = onClickPatch) // TODO: replace this with something better
+                SplitAPKDialog(onDismiss = { showDialog = false }, onConfirm = onClickPatch)
             Card(
                 modifier = Modifier
                     .padding(4.dp)

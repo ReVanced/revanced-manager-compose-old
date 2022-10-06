@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.LibraryBooks
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Style
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,8 +25,9 @@ import org.koin.androidx.compose.getViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel = getViewModel(),
+    onClickContributors: () -> Unit,
     onClickLicenses: () -> Unit,
-    viewModel: SettingsViewModel = getViewModel()
 ) {
     val prefs = viewModel.prefs
 
@@ -72,12 +70,13 @@ fun SettingsScreen(
         }
 
         Divider()
+        SocialItem(R.string.github, Icons.Default.Code, viewModel::openGitHub)
         ListItem(
             modifier = Modifier.clickable(onClick = onClickLicenses),
             headlineText = { Text(stringResource(R.string.opensource_licenses)) },
             leadingContent = { Icon(Icons.Default.LibraryBooks, contentDescription = null) },
         )
-        SocialItem(R.string.github, Icons.Default.Code, viewModel::openGitHub)
+        SocialItem(R.string.screen_contributors_title, Icons.Default.Group, onClickContributors)
     }
 }
 

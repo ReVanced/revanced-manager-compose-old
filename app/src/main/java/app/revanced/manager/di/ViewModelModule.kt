@@ -10,4 +10,5 @@ val viewModelModule = module {
     viewModelOf(::PatcherScreenViewModel)
     viewModelOf(::AppSelectorViewModel)
     viewModelOf(::PatchingScreenViewModel)
+    viewModelOf(::ContributorsViewModel)
 }

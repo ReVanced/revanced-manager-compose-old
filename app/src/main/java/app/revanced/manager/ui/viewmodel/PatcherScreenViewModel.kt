@@ -30,6 +30,7 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
             loadPatches()
         }
     }
+
     fun selectPatch(patchId: String, state: Boolean) {
         if (state) selectedPatches.add(patchId)
         else selectedPatches.remove(patchId)
@@ -72,12 +73,16 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
         else null
 
     fun checkSplitApk(): Boolean {
-    if (getSelectedPackageInfo()!!.applicationInfo!!.metaData!!.getBoolean("com.android.vending.splits.required", false)) {
-        Log.d(tag, "APK is split.")
-        return true
-    }
-    Log.d(tag, "APK is not split.")
-    return false
+        if (getSelectedPackageInfo()!!.applicationInfo!!.metaData!!.getBoolean(
+                "com.android.vending.splits.required",
+                false
+            )
+        ) {
+            Log.d(tag, "APK is split.")
+            return true
+        }
+        Log.d(tag, "APK is not split.")
+        return false
     }
 
     private fun loadPatches() = viewModelScope.launch {
