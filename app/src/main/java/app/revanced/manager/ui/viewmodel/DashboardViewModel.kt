@@ -1,40 +1,63 @@
 package app.revanced.manager.ui.viewmodel
 
+import android.annotation.SuppressLint
 import android.text.format.DateUtils
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.revanced.manager.dto.github.Assets
 import app.revanced.manager.repository.GitHubRepository
 import app.revanced.manager.util.ghManager
 import app.revanced.manager.util.ghPatcher
-import kotlinx.coroutines.runBlocking
+import app.revanced.manager.util.tag
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class DashboardViewModel(private val repository: GitHubRepository) : ViewModel() {
-    var patcherCommitDate by mutableStateOf("")
-        private set
-    var managerCommitDate by mutableStateOf("")
-        private set
+    private var _latestPatcherCommit: Assets? by mutableStateOf(null)
+    val patcherCommitDate: String
+        get() = _latestPatcherCommit?.commitDate ?: "unknown"
+
+    private var _latestManagerCommit: Assets? by mutableStateOf(null)
+    val managerCommitDate: String
+        get() = _latestManagerCommit?.commitDate ?: "unknown"
 
     init {
-        runBlocking {
-            patcherCommitDate = commitDateOf(ghPatcher)
-            managerCommitDate = commitDateOf(ghManager)
+        fetchLastCommit()
+    }
+
+    private fun fetchLastCommit() {
+        viewModelScope.launch {
+            try {
+                val repo = repository.fetchAssets()
+                for (asset in repo.tools) {
+                    when (asset.repository) {
+                        ghPatcher -> {
+                            _latestPatcherCommit = asset
+                        }
+                        ghManager -> {
+                            _latestManagerCommit = asset
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(tag, "Failed to fetch latest patcher release", e)
+            }
         }
     }
 
-    private suspend fun commitDateOf(repo: String, ref: String = "HEAD"): String {
-        val commit = repository.getLatestCommit(repo, ref).commit
-        return DateUtils.getRelativeTimeSpanString(
-            formatter.parse(commit.committer.date)!!.time,
+    private val Assets.commitDate: String
+        get() = DateUtils.getRelativeTimeSpanString(
+            formatter.parse(timestamp)!!.time,
             Calendar.getInstance().timeInMillis,
             DateUtils.MINUTE_IN_MILLIS
         ).toString()
-    }
-
     private companion object {
+        @SuppressLint("ConstantLocale")
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
     }
 }
