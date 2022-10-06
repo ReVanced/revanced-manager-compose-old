@@ -26,12 +26,9 @@ import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.viewmodel.Logging
 import app.revanced.patcher.Patcher
 import app.revanced.patcher.PatcherOptions
-import app.revanced.patcher.data.Data
-import app.revanced.patcher.extensions.PatchExtensions.dependencies
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.logging.Logger
 import app.revanced.patcher.patch.Patch
-import app.revanced.patcher.patch.impl.ResourcePatch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -123,7 +120,6 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
                 PatcherOptions(
                     inputFile,
                     cacheDirectory.absolutePath,
-                    patchResources = checkForResourcePatch(patches),
                     aaptPath = aaptPath,
                     frameworkFolderLocation = frameworkPath,
                     logger = object : Logger {
@@ -153,7 +149,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Logging.log += "Merging integrations\n"
             patcher.addFiles(listOf(integrations)) {}
 
-            patcher.applyPatches().forEach { (patch, result) ->
+            patcher.executePatches().forEach { (patch, result) ->
                 Logging.log += "Applying $patch\n"
                 if (result.isSuccess) {
                     Logging.log +=  "$patch has been applied successfully\n"
@@ -190,23 +186,9 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
         return false
     }
 
-    private fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<Data>>> {
+    private fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<app.revanced.patcher.data.Context>>> {
         val (patches) = patches.value as? Resource.Success ?: return listOf()
         return patches.filter { patch -> ids.any { it == patch.patchName } }
-    }
-
-    private fun checkForResourcePatch(patches: List<Class<out Patch<Data>>>): Boolean {
-        patches.forEach { patch ->
-            patch.dependencies?.forEach {
-                if (ResourcePatch::class.java.isAssignableFrom(patch)) { // check for resource patches in normal patches
-                    return true
-                }
-                if (ResourcePatch::class.java.isAssignableFrom(it.java)) { // do the same thing in dependency patches
-                    return true
-                }
-            }
-        }
-        return false
     }
     private fun createWorkDir(): File {
         return applicationContext.filesDir.resolve("tmp-${System.currentTimeMillis()}")

@@ -11,12 +11,12 @@ import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
 import app.revanced.manager.api.API
 import app.revanced.manager.ui.Resource
-import app.revanced.patcher.data.Data
+import app.revanced.patcher.data.Context
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
 import app.revanced.patcher.extensions.PatchExtensions.options
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.patch.Patch
-import app.revanced.patcher.util.patch.impl.DexPatchBundle
+import app.revanced.patcher.util.patch.PatchBundle
 import dalvik.system.DexClassLoader
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -91,7 +91,7 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
     }
 
     private fun loadPatches0(path: String) {
-        val patchClasses = DexPatchBundle(
+        val patchClasses = PatchBundle.Dex(
             path, DexClassLoader(
                 path,
                 app.codeCacheDir.absolutePath,
@@ -130,7 +130,7 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
 
 @Parcelize
 data class PatchClass(
-    val patch: Class<out Patch<Data>>,
+    val patch: Class<out Patch<Context>>,
     val unsupported: Boolean,
     val hasPatchOptions: Boolean,
 ) : Parcelable
