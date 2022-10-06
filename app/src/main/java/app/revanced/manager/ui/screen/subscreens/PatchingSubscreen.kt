@@ -1,4 +1,4 @@
-package app.revanced.manager.ui.screen
+package app.revanced.manager.ui.screen.subscreens
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.LinearEasing
@@ -28,7 +28,7 @@ import org.koin.androidx.compose.getViewModel
 @SuppressLint("UnrememberedMutableState")
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun PatchingScreen(
+fun PatchingSubscreen(
     navigator: BackstackNavigator<AppDestination>,
     vm: PatchingScreenViewModel = getViewModel()
 ) {
