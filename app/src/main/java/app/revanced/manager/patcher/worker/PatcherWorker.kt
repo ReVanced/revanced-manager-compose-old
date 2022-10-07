@@ -149,13 +149,14 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Logging.log += "Merging integrations\n"
             patcher.addFiles(listOf(integrations)) {}
 
+            Logging.log += "Applying ${patches.size} patch(es)"
             patcher.executePatches().forEach { (patch, result) ->
-                Logging.log += "Applying $patch\n"
-                if (result.isSuccess) {
-                    Logging.log +=  "$patch has been applied successfully\n"
+
+                if (result.isFaliure) {
+                    Logging.log +=  "Failed to apply $patch \n" + result.exceptionOrNull()!!.message
                     return@forEach
                 }
-                Logging.log +=  "Failed to apply $patch \n" + result.exceptionOrNull()!!
+
             }
             Logging.log += "Saving file\n"
 
