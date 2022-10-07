@@ -149,7 +149,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Logging.log += "Merging integrations\n"
             patcher.addFiles(listOf(integrations)) {}
 
-            Logging.log += "Applying ${patches.size} patch(es)"
+            Logging.log += "Applying ${patches.size} patch(es)\n"
             patcher.executePatches().forEach { (patch, result) ->
 
                 if (result.isFailure) {
