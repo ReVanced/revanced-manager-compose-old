@@ -36,7 +36,7 @@ fun PatchesSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
     pvm: PatcherScreenViewModel = getViewModel(),
 ) {
-    val patches = rememberSaveable { pvm.getFilteredPatchesAndCheckOptions() }
+    val patches = pvm.getFilteredPatchesAndCheckOptions()
     var query by mutableStateOf("")
 
 
