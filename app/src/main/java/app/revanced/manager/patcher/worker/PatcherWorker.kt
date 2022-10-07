@@ -152,7 +152,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Logging.log += "Applying ${patches.size} patch(es)"
             patcher.executePatches().forEach { (patch, result) ->
 
-                if (result.isFaliure) {
+                if (result.isFailure) {
                     Logging.log +=  "Failed to apply $patch \n" + result.exceptionOrNull()!!.message
                     return@forEach
                 }
