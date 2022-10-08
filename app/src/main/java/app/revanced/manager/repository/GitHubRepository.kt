@@ -22,6 +22,6 @@ class GitHubRepository(val client: HttpClient) {
     }
 
     private companion object {
-        private const val apiUrl = "https://revanced-releases-api.afterst0rm.xyz"
+        private const val apiUrl = "https://releases.rvcd.win/"
     }
 }
