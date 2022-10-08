@@ -1,14 +1,19 @@
 package app.revanced.manager.ui.screen.subscreens
 
 import android.annotation.SuppressLint
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.SdStorage
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import app.revanced.manager.R
 import app.revanced.manager.Variables.filteredApps
@@ -28,32 +33,45 @@ fun AppSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
     vm: AppSelectorViewModel = getViewModel(),
 ) {
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+        it?.let { uri ->
+            vm.setSelectedAppPackageFromFile(uri)
+            navigator.pop()
+            return@rememberLauncherForActivityResult
+        }
+        Toast.makeText(context, "Couldn't load APK file.", Toast.LENGTH_SHORT).show()
+    }
+
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = { Text(stringResource(R.string.app_selector_title)) },
+            MediumTopAppBar(title = { Text(stringResource(R.string.app_selector_title)) },
                 navigationIcon = {
                     IconButton(onClick = navigator::pop) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = null
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
-                },
+                })
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { launcher.launch(arrayOf("application/vnd.android.package-archive")) },
+                icon = { Icon(Icons.Default.SdStorage, contentDescription = null) },
+                text = { Text("Storage") },
             )
-        }
+        },
     ) { paddingValues ->
         when (patchesState) {
             is Resource.Success -> {
                 LazyColumn(modifier = Modifier.padding(paddingValues)) {
                     items(count = filteredApps.size) {
-                        val app = filteredApps[it]
+                        val app = filteredApps.distinct()[it]
                         val label = vm.applicationLabel(app)
                         val packageName = app.packageName
 
                         val same = packageName == label
                         ListItem(modifier = Modifier.clickable {
-                            vm.setSelectedAppPackage(app.packageName)
+                            vm.setSelectedAppPackage(app)
                             navigator.pop()
                         }, leadingContent = {
                             AppIcon(vm.loadIcon(app), packageName)

@@ -89,7 +89,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             applicationContext.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
         val integrationsCacheDir =
             applicationContext.filesDir.resolve("integrations-cache").also { it.mkdirs() }
-        val appInfo = applicationContext.packageManager.getApplicationInfo(selectedAppPackage.value.get(), 3)
+        val appInfo = selectedAppPackage.value.get()
 
         Logging.log += "Checking prerequisites\n"
         val patches = findPatchesByIds(selectedPatches)
@@ -151,9 +151,8 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
 
             Logging.log += "Applying ${patches.size} patch(es)\n"
             patcher.executePatches().forEach { (patch, result) ->
-
                 if (result.isFailure) {
-                    Logging.log +=  "Failed to apply $patch \n" + result.exceptionOrNull()!!.message
+                    Logging.log +=  "Failed to apply $patch" + result.exceptionOrNull()!!.cause + "\n"
                     return@forEach
                 }
 

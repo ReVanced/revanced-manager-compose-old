@@ -11,7 +11,7 @@ import java.util.*
 
 
 object Variables {
-    val selectedAppPackage = mutableStateOf(Optional.empty<String>())
+    val selectedAppPackage = mutableStateOf(Optional.empty<ApplicationInfo>())
     val selectedPatches = mutableStateListOf<String>()
     val patches = mutableStateOf<Resource<List<Class<out Patch<Context>>>>>(Resource.Loading)
     val patchesState by patches

@@ -80,7 +80,7 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.0")
 
     // AndroidX activity
-    implementation("androidx.activity:activity-compose:1.6.0-rc02")
+    implementation("androidx.activity:activity-compose:1.6.0")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
 
     // Koin
@@ -93,7 +93,7 @@ dependencies {
     val composeVersion = "1.3.0-alpha03"
     implementation("androidx.compose.ui:ui:${composeVersion}")
     debugImplementation("androidx.compose.ui:ui-tooling:${composeVersion}")
-    implementation("androidx.compose.material3:material3:1.0.0-beta02")
+    implementation("androidx.compose.material3:material3:1.0.0-beta03")
     implementation("androidx.compose.material:material-icons-extended:${composeVersion}")
 
     // Accompanist
@@ -134,5 +134,5 @@ dependencies {
     // ListenableFuture
     implementation("com.google.guava:guava:31.0.1-android")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.4")
 }

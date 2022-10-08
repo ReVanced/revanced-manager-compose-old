@@ -1,6 +1,7 @@
 package app.revanced.manager.ui.viewmodel
 
 import android.app.Application
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Parcelable
 import android.util.Log
@@ -64,13 +65,15 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
     }
 
 
-    fun getSelectedPackageInfo() =
-        if (selectedAppPackage.value.isPresent)
-            app.packageManager.getPackageInfo(
-                selectedAppPackage.value.get(),
+    fun getSelectedPackageInfo(): PackageInfo? {
+        if (selectedAppPackage.value.isPresent) {
+            return app.packageManager.getPackageArchiveInfo(
+                selectedAppPackage.value.get().publicSourceDir,
                 PackageManager.GET_META_DATA
             )
-        else null
+        }
+        else {return null}
+    }
 
     fun checkSplitApk(): Boolean {
         if (getSelectedPackageInfo()!!.applicationInfo!!.metaData!!.getBoolean(

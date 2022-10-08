@@ -71,7 +71,10 @@ fun PatcherScreen(
                     )
                     Text(
                         text = if (patchesLoaded) {
-                            selectedAppPackage.orElse(stringResource(R.string.card_application_not_selected))
+                            if (selectedAppPackage.isPresent) {
+                                selectedAppPackage.get().packageName
+                            }
+                            else {stringResource(R.string.card_application_not_selected)}
                         } else {
                             stringResource(R.string.card_application_not_loaded)
                         },

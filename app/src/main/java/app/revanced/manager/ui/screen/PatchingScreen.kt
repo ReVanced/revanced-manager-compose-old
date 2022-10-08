@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,7 +30,7 @@ fun PatchingScreen(
     navigator: BackstackNavigator<AppDestination>,
     vm: PatchingScreenViewModel = getViewModel()
 ) {
-    var patching by rememberSaveable {mutableStateOf(false)}
+    var patching by mutableStateOf(false)
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(patching) {
