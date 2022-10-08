@@ -40,6 +40,8 @@ class PatchingScreenViewModel(val app: Application) : ViewModel() {
 
     fun startPatcher() {
         cancelPatching() //  cancel patching if its still running
+        Logging.log = "" // clear logs
+
         WorkManager.getInstance(app)
             .enqueueUniqueWork("patching", ExistingWorkPolicy.KEEP, patcherWorker) // enqueue patching process
         liveData.observeForever(observer) // start observing patch status

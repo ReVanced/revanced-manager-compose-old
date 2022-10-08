@@ -36,20 +36,17 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-class PatcherWorker(context: Context, parameters: WorkerParameters, private val api: API): CoroutineWorker(context, parameters) ,KoinComponent {
+class PatcherWorker(context: Context, parameters: WorkerParameters, private val api: API) :
+    CoroutineWorker(context, parameters), KoinComponent {
 
     val tag = "ReVanced Manager"
     private val workdir = createWorkDir()
-    override suspend fun doWork(): Result {
 
-        if (runAttemptCount > 0) {
-            return Result.failure(
-                androidx.work.Data.Builder()
-                    .putString("error", "Android requested retrying but retrying is disabled")
-                    .build()
-            ) // don't retry
-        }
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return ForegroundInfo(1, createNotification())
+    }
 
+    private fun createNotification(): Notification {
         val notificationIntent = Intent(applicationContext, PatcherWorker::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             applicationContext, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE
@@ -60,24 +57,32 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
         val notificationManager =
             ContextCompat.getSystemService(applicationContext, NotificationManager::class.java)
         notificationManager!!.createNotificationChannel(channel)
-        val notification: Notification = Notification.Builder(applicationContext, channel.id)
+        return Notification.Builder(applicationContext, channel.id)
             .setContentTitle(applicationContext.getText(R.string.patcher_notification_title))
             .setContentText(applicationContext.getText(R.string.patcher_notification_message))
             .setLargeIcon(Icon.createWithResource(applicationContext, R.drawable.manager))
             .setSmallIcon(Icon.createWithResource(applicationContext, R.drawable.manager))
             .setContentIntent(pendingIntent).build()
+    }
 
-        setForeground(ForegroundInfo(1, notification))
+    override suspend fun doWork(): Result {
+        if (runAttemptCount > 0) {
+            Log.d(tag, "Android requested retrying but retrying is disabled.")
+            return Result.failure() // don't retry
+        }
+
+        try {
+            setForeground(ForegroundInfo(1, createNotification()))
+        } catch (e: Exception) {
+            Log.d(tag, "Failed to set foreground info:", e)
+        }
+
         return try {
             runPatcher(workdir)
             Result.success()
         } catch (e: Exception) {
-            Log.e(tag, "Error while patching", e)
-            Result.failure(
-                androidx.work.Data.Builder()
-                    .putString("error", "Error while patching: ${e.message ?: e::class.simpleName}")
-                    .build()
-            )
+            Log.e(tag, "Error while patching: ${e.message ?: e::class.simpleName}")
+            Result.failure()
         }
     }
 
@@ -152,7 +157,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Logging.log += "Applying ${patches.size} patch(es)\n"
             patcher.executePatches().forEach { (patch, result) ->
                 if (result.isFailure) {
-                    Logging.log +=  "Failed to apply $patch" + result.exceptionOrNull()!!.cause + "\n"
+                    Logging.log += "Failed to apply $patch" + result.exceptionOrNull()!!.cause + "\n"
                     return@forEach
                 }
 
@@ -166,19 +171,21 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             }
 
             ZipFile(patchedFile).use { fs -> // somehow this function is the most resource intensive
-                result.dexFiles.forEach { Logging.log +=  "Writing dex file ${it.name}\n"
-                    fs.addEntryCompressData(ZipEntry.createWithName(it.name), it.stream.readBytes())}
+                result.dexFiles.forEach {
+                    Logging.log += "Writing dex file ${it.name}\n"
+                    fs.addEntryCompressData(ZipEntry.createWithName(it.name), it.stream.readBytes())
+                }
 
-                Logging.log +=  "Aligning apk!\n"
+                Logging.log += "Aligning apk!\n"
                 result.resourceFile?.let {
                     fs.copyEntriesFromFileAligned(ZipFile(it), ZipAligner::getEntryAlignment)
                 }
                 fs.copyEntriesFromFileAligned(ZipFile(inputFile), ZipAligner::getEntryAlignment)
             }
 
-            Logging.log +=  "Signing apk\n"
+            Logging.log += "Signing apk\n"
             Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
-            Logging.log +=  "Successfully patched!\n"
+            Logging.log += "Successfully patched!\n"
         } finally {
             Log.d(tag, "Deleting workdir")
             workdir.deleteRecursively()
@@ -190,6 +197,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
         val (patches) = patches.value as? Resource.Success ?: return listOf()
         return patches.filter { patch -> ids.any { it == patch.patchName } }
     }
+
     private fun createWorkDir(): File {
         return applicationContext.filesDir.resolve("tmp-${System.currentTimeMillis()}")
             .also { it.mkdirs() }
