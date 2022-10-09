@@ -188,8 +188,8 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
             Logging.log += "Successfully patched!\n"
         } finally {
-            Log.d(tag, "Deleting workdir")
-            workdir.deleteRecursively()
+            // Log.d(tag, "Deleting workdir")
+            // workdir.deleteRecursively()
         }
         return false
     }
