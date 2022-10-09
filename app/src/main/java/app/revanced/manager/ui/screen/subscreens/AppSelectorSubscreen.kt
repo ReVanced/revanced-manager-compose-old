@@ -12,13 +12,11 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.SdStorage
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import app.revanced.manager.R
-import app.revanced.manager.Variables.filteredApps
-import app.revanced.manager.Variables.patchesState
-import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.LoadingIndicator
 import app.revanced.manager.ui.navigation.AppDestination
@@ -27,7 +25,7 @@ import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("QueryPermissionsNeeded")
+@SuppressLint("QueryPermissionsNeeded", "UnrememberedMutableState")
 @Composable
 fun AppSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
@@ -35,7 +33,9 @@ fun AppSelectorSubscreen(
 ) {
     val context = LocalContext.current
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+    val filtered = mutableStateOf(vm.filteredApps.isNotEmpty())
+
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
             vm.setSelectedAppPackageFromFile(uri)
             navigator.pop()
@@ -55,17 +55,17 @@ fun AppSelectorSubscreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { launcher.launch(arrayOf("application/vnd.android.package-archive")) },
+                onClick = {
+                    filePicker.launch(arrayOf("application/vnd.android.package-archive")) },
                 icon = { Icon(Icons.Default.SdStorage, contentDescription = null) },
                 text = { Text("Storage") },
             )
         },
     ) { paddingValues ->
-        when (patchesState) {
-            is Resource.Success -> {
+        if (filtered.value) {
                 LazyColumn(modifier = Modifier.padding(paddingValues)) {
-                    items(count = filteredApps.size) {
-                        val app = filteredApps.distinct()[it]
+                    items(count = vm.filteredApps.size) { int ->
+                        val app = vm.filteredApps[int]
                         val label = vm.applicationLabel(app)
                         val packageName = app.packageName
 
@@ -88,8 +88,7 @@ fun AppSelectorSubscreen(
                         })
                     }
                 }
-            }
-            else -> LoadingIndicator(null)
         }
+        else LoadingIndicator(null)
     }
 }

@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import java.io.File
+import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
@@ -89,7 +90,11 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
     private suspend fun runPatcher(
         workdir: File
     ): Boolean {
-        val aaptPath = Aapt.binary(applicationContext).absolutePath
+        val aaptPath = Aapt.binary(applicationContext)?.absolutePath
+        if (aaptPath == null) {
+            Logging.log += "AAPT2 not found.\n"
+            throw FileNotFoundException()
+        }
         val frameworkPath =
             applicationContext.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
         val integrationsCacheDir =
@@ -162,13 +167,9 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
                 }
 
             }
+
             Logging.log += "Saving file\n"
-
             val result = patcher.save() // compile apk
-
-            if (patchedFile.exists()) withContext(Dispatchers.IO) {
-                Files.delete(patchedFile.toPath())
-            }
 
             ZipFile(patchedFile).use { fs -> // somehow this function is the most resource intensive
                 result.dexFiles.forEach {
@@ -197,6 +198,8 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
         val (patches) = patches.value as? Resource.Success ?: return listOf()
         return patches.filter { patch -> ids.any { it == patch.patchName } }
     }
+
+
 
     private fun createWorkDir(): File {
         return applicationContext.filesDir.resolve("tmp-${System.currentTimeMillis()}")

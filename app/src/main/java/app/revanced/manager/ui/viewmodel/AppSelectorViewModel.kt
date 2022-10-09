@@ -7,12 +7,14 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import app.revanced.manager.Variables
-import app.revanced.manager.Variables.filteredApps
 import app.revanced.manager.Variables.patches
 import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.ui.Resource
+import app.revanced.manager.util.tag
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
+import kotlinx.coroutines.launch
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.*
@@ -21,18 +23,20 @@ class AppSelectorViewModel(
     val app: Application,
 ) : ViewModel() {
 
+    val filteredApps = mutableListOf<ApplicationInfo>()
+
     init {
-        filterApps()
+        viewModelScope.launch { filterApps() }
     }
 
-    private fun filterApps(): List<ApplicationInfo> {
+    private fun filterApps() {
         try {
             val (patches) = patches.value as Resource.Success
             patches.forEach patch@{ patch ->
                 patch.compatiblePackages?.forEach { pkg ->
                     try {
-                        val appInfo = app.packageManager.getApplicationInfo(pkg.name, 0)
-                        if (!filteredApps.contains(appInfo)) {
+                        if (!(filteredApps.any { it.packageName == pkg.name })) {
+                            val appInfo = app.packageManager.getApplicationInfo(pkg.name, 0)
                             filteredApps.add(appInfo)
                             return@forEach
                         }
@@ -41,10 +45,10 @@ class AppSelectorViewModel(
                     }
                 }
             }
+            Log.d(tag, "Filtered apps.")
         } catch (e: Exception) {
-            Log.e("ReVanced Manager", "An error occurred while filtering", e)
+            Log.e(tag, "An error occurred while filtering", e)
         }
-        return emptyList()
     }
 
     fun applicationLabel(info: ApplicationInfo): String {

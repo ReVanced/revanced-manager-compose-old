@@ -15,5 +15,4 @@ object Variables {
     val selectedPatches = mutableStateListOf<String>()
     val patches = mutableStateOf<Resource<List<Class<out Patch<Context>>>>>(Resource.Loading)
     val patchesState by patches
-    val filteredApps = mutableListOf<ApplicationInfo>()
 }
