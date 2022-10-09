@@ -1,29 +1,26 @@
 package app.revanced.manager.di
 
+import android.content.Context
+import com.niusounds.ktor.client.engine.cronet.Cronet
 import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.cache.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import okhttp3.Dns
-import org.koin.core.module.dsl.singleOf
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-import java.net.Inet4Address
-import java.net.InetAddress
 
 val httpModule = module {
-    fun provideHttpClient() = HttpClient(OkHttp) {
-        engine {
-            config {
-                dns(object : Dns {
-                    override fun lookup(hostname: String): List<InetAddress> {
-                        val addresses = Dns.SYSTEM.lookup(hostname)
-                        return addresses.filterIsInstance<Inet4Address>()
-                    }
-                })
+    fun provideHttpClient(appContext: Context) = HttpClient(
+        engine = Cronet.create {
+            context = appContext
+            config = {
+                enableBrotli(true)
+                enableQuic(true)
             }
         }
+    ) {
         BrowserUserAgent()
         install(ContentNegotiation) {
             json(Json {
@@ -32,7 +29,13 @@ val httpModule = module {
                 ignoreUnknownKeys = true
             })
         }
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 5)
+        }
+        install(HttpCache)
     }
 
-    singleOf(::provideHttpClient)
+    single {
+        provideHttpClient(androidContext())
+    }
 }

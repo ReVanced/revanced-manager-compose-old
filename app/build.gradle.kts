@@ -135,4 +135,6 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-android")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.4")
+
+    implementation("com.github.niusounds:cronet-engine:0.1.0")
 }
