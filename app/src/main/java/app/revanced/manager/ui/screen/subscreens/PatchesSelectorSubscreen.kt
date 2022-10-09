@@ -1,5 +1,9 @@
 package app.revanced.manager.ui.screen.subscreens
 
+import android.annotation.SuppressLint
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,9 +13,9 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,7 +33,10 @@ import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.extensions.PatchExtensions.version
 import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatchesSelectorSubscreen(
@@ -38,6 +45,23 @@ fun PatchesSelectorSubscreen(
 ) {
     val patches = pvm.getFilteredPatchesAndCheckOptions()
     var query by mutableStateOf("")
+    val context = LocalContext.current
+
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+        it?.let { uri ->
+            val patchesFile = context.cacheDir.resolve("patches.jar")
+            Files.copy(
+                context.contentResolver.openInputStream(uri),
+                patchesFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING
+            )
+            pvm.patchBundleFile = patchesFile.absolutePath
+            pvm.loadPatches0()
+            navigator.pop()
+            return@rememberLauncherForActivityResult
+        }
+        Toast.makeText(context, "Couldn't load local patch bundle.", Toast.LENGTH_SHORT).show()
+    }
 
 
     Scaffold(
@@ -69,6 +93,14 @@ fun PatchesSelectorSubscreen(
                 }
             )
         },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    filePicker.launch(arrayOf("application/java-archive")) },
+                icon = { Icon(Icons.Default.FolderZip, contentDescription = null) },
+                text = { Text("Storage") },
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -76,59 +108,67 @@ fun PatchesSelectorSubscreen(
         ) {
             when (patchesState) {
                 is Resource.Success -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp, 4.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
+                    if (patches.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp, 4.dp),
                         ) {
-                            OutlinedTextField(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                value = query,
-                                onValueChange = { newValue ->
-                                    query = newValue
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Search, "Search")
-                                },
-                                trailingIcon = {
-                                    if (query.isNotEmpty()) {
-                                        IconButton(onClick = {
-                                            query = ""
-                                        }) {
-                                            Icon(Icons.Default.Clear, "Clear")
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                OutlinedTextField(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    value = query,
+                                    onValueChange = { newValue ->
+                                        query = newValue
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Search, "Search")
+                                    },
+                                    trailingIcon = {
+                                        if (query.isNotEmpty()) {
+                                            IconButton(onClick = {
+                                                query = ""
+                                            }) {
+                                                Icon(Icons.Default.Clear, "Clear")
+                                            }
                                         }
-                                    }
-                                },
-                            )
-                        }
-                    }
-                    LazyColumn(Modifier.padding(0.dp, 2.dp)) {
-
-                        if (query.isEmpty() || query.isBlank()) {
-                            items(count = patches.size) {
-                                val patch = patches[it]
-                                val name = patch.patch.patchName
-                                PatchCard(patch, pvm.isPatchSelected(name)) {
-                                    pvm.selectPatch(name, !pvm.isPatchSelected(name))
-                                }
+                                    },
+                                )
                             }
-                        } else {
-                            items(count = patches.size) {
-                                val patch = patches[it]
-                                val name = patch.patch.patchName
-                                if (name.contains(query.lowercase())) {
+                        }
+                        LazyColumn(Modifier.padding(0.dp, 2.dp)) {
+
+                            if (query.isEmpty() || query.isBlank()) {
+                                items(count = patches.size) {
+                                    val patch = patches[it]
+                                    val name = patch.patch.patchName
                                     PatchCard(patch, pvm.isPatchSelected(name)) {
                                         pvm.selectPatch(name, !pvm.isPatchSelected(name))
                                     }
                                 }
+                            } else {
+                                items(count = patches.size) {
+                                    val patch = patches[it]
+                                    val name = patch.patch.patchName
+                                    if (name.contains(query.lowercase())) {
+                                        PatchCard(patch, pvm.isPatchSelected(name)) {
+                                            pvm.selectPatch(name, !pvm.isPatchSelected(name))
+                                        }
+                                    }
+                                }
                             }
                         }
+                    }
+                    else {
+                        Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
+                            Text(text = "No compatible patches found.")
+                        }
+
                     }
                 }
                 else -> LoadingIndicator(null)
