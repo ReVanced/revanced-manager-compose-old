@@ -101,6 +101,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-placeholder-material:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-drawablepainter:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 
     // Coil (async image loading)
     implementation("io.coil-kt:coil-compose:2.1.0")
@@ -136,5 +137,6 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.4")
 
+    // Networking
     implementation("com.github.niusounds:cronet-engine:0.1.0")
 }
