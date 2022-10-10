@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
@@ -70,7 +71,7 @@ fun SettingsScreen(
         }
 
         Divider()
-        SocialItem(R.string.github, Icons.Default.Code, viewModel::openGitHub)
+        SocialItem(R.string.github, R.drawable.ic_github, viewModel::openGitHub)
         SocialItem(R.string.opensource_licenses, Icons.Default.LibraryBooks, onClickLicenses)
         SocialItem(R.string.screen_contributors_title, Icons.Default.Group, onClickContributors)
     }
