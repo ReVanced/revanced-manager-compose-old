@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
@@ -90,6 +91,13 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
     private suspend fun runPatcher(
         workdir: File
     ): Boolean {
+        val wakeLock: PowerManager.WakeLock =
+            (applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.FULL_WAKE_LOCK, "$tag::Patcher").apply {
+                    acquire(10*60*1000L)
+                }
+            }
+        Log.d(tag, "Acquired wakelock.")
         val aaptPath = Aapt.binary(applicationContext)?.absolutePath
         if (aaptPath == null) {
             Logging.log += "AAPT2 not found.\n"
@@ -188,8 +196,10 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
             Logging.log += "Successfully patched!\n"
         } finally {
-            // Log.d(tag, "Deleting workdir")
-            // workdir.deleteRecursively()
+            Log.d(tag, "Deleting workdir")
+            workdir.deleteRecursively()
+            wakeLock.release()
+            Log.d(tag, "Released wakelock.")
         }
         return false
     }
