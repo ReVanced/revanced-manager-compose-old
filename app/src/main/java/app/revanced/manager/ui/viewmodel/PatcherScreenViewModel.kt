@@ -12,6 +12,7 @@ import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
 import app.revanced.manager.api.API
 import app.revanced.manager.ui.Resource
+import app.revanced.manager.util.tag
 import app.revanced.patcher.data.Context
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
 import app.revanced.patcher.extensions.PatchExtensions.options
@@ -24,7 +25,6 @@ import kotlinx.parcelize.Parcelize
 
 class PatcherScreenViewModel(private val app: Application, private val api: API) : ViewModel() {
     private lateinit var patchBundleFile: String
-    private val tag = "ReVanced Manager"
 
     init {
         viewModelScope.launch {
@@ -71,8 +71,9 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
                 selectedAppPackage.value.get().publicSourceDir,
                 PackageManager.GET_META_DATA
             )
+        } else {
+            return null
         }
-        else {return null}
     }
 
     fun checkSplitApk(): Boolean {
