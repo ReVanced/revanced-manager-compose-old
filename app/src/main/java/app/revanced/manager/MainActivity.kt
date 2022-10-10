@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-            request(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+            request(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
         } else {
             requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
             requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
