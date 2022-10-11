@@ -1,10 +1,4 @@
 buildscript {
-    extra.apply {
-        // Global variable for some dependencies
-        set("compose_version", "1.3.0-rc01")
-        set("ktor_version", "2.1.2")
-        set("room_version", "2.7.1")
-    }
     repositories {
         google()
     }

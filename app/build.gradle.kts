@@ -113,13 +113,6 @@ dependencies {
     // Taxi (navigation)
     implementation("com.github.X1nto:Taxi:1.2.0")
 
-    val ktorVersion = "2.1.2"
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-android:$ktorVersion")
-    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-
     // ReVanced
     implementation("app.revanced:revanced-patcher:6.0.0")
 
