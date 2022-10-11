@@ -4,14 +4,14 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.revanced.manager.dto.github.Contributor
-import app.revanced.manager.repository.GitHubRepository
+import app.revanced.manager.api.ReVancedAPI
+import app.revanced.manager.dto.revanced.Contributor
 import app.revanced.manager.util.*
 import kotlinx.coroutines.launch
 
 class ContributorsViewModel(
     private val app: Application,
-    private val repository: GitHubRepository
+    private val reVancedAPI: ReVancedAPI
 ) : ViewModel() {
     val patcherContributorsList = mutableStateListOf<Contributor>()
     val patchesContributorsList = mutableStateListOf<Contributor>()
@@ -21,7 +21,7 @@ class ContributorsViewModel(
 
     private fun loadContributors() {
         viewModelScope.launch {
-            val contributors = repository.fetchContributors()
+            val contributors = reVancedAPI.fetchContributors()
             contributors.repositories.forEach { repo ->
                 when (repo.name) {
                     ghCli -> {

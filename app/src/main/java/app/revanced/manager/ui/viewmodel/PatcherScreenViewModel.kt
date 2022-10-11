@@ -10,8 +10,11 @@ import androidx.lifecycle.viewModelScope
 import app.revanced.manager.Variables.patches
 import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
-import app.revanced.manager.api.API
+import app.revanced.manager.api.GitHubAPI
+import app.revanced.manager.api.ReVancedAPI
+import app.revanced.manager.preferences.PreferencesManager
 import app.revanced.manager.ui.Resource
+import app.revanced.manager.util.ghPatches
 import app.revanced.manager.util.tag
 import app.revanced.patcher.data.Context
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
@@ -23,7 +26,12 @@ import dalvik.system.DexClassLoader
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
-class PatcherScreenViewModel(private val app: Application, private val api: API) : ViewModel() {
+class PatcherScreenViewModel(
+    private val app: Application,
+    private val reVancedApi: ReVancedAPI,
+    private val gitHubAPI: GitHubAPI,
+    private val prefs: PreferencesManager
+) : ViewModel() {
     private lateinit var patchBundleFile: String
 
     init {
@@ -66,13 +74,13 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
 
 
     fun getSelectedPackageInfo(): PackageInfo? {
-        if (selectedAppPackage.value.isPresent) {
-            return app.packageManager.getPackageArchiveInfo(
+        return if (selectedAppPackage.value.isPresent) {
+            app.packageManager.getPackageArchiveInfo(
                 selectedAppPackage.value.get().publicSourceDir,
                 PackageManager.GET_META_DATA
             )
         } else {
-            return null
+            null
         }
     }
 
@@ -91,11 +99,15 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
 
     private fun loadPatches() = viewModelScope.launch {
         try {
-            val file = api.downloadPatchBundle(app.filesDir)
+            val file = if (prefs.srcPatches != ghPatches || !reVancedApi.ping()) {
+                gitHubAPI.downloadAsset(app.cacheDir, prefs.srcPatches!!, ".jar")
+            } else {
+                reVancedApi.downloadAsset(app.cacheDir, prefs.srcPatches!!, ".jar")
+            }
             patchBundleFile = file.absolutePath
             loadPatches0()
         } catch (e: Exception) {
-            Log.e("ReVancedManager", "An error occurred while loading patches", e)
+            Log.e(tag, "An error occurred while loading patches", e)
         }
     }
 

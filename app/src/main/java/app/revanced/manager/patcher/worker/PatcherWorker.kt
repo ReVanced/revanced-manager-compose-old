@@ -18,14 +18,17 @@ import app.revanced.manager.R
 import app.revanced.manager.Variables.patches
 import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
-import app.revanced.manager.api.API
+import app.revanced.manager.api.GitHubAPI
+import app.revanced.manager.api.ReVancedAPI
 import app.revanced.manager.patcher.aapt.Aapt
 import app.revanced.manager.patcher.aligning.ZipAligner
 import app.revanced.manager.patcher.aligning.zip.ZipFile
 import app.revanced.manager.patcher.aligning.zip.structures.ZipEntry
 import app.revanced.manager.patcher.signing.Signer
+import app.revanced.manager.preferences.PreferencesManager
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.viewmodel.Logging
+import app.revanced.manager.util.ghIntegrations
 import app.revanced.patcher.Patcher
 import app.revanced.patcher.PatcherOptions
 import app.revanced.patcher.extensions.PatchExtensions.patchName
@@ -38,8 +41,9 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.time.LocalDateTime
 
-class PatcherWorker(context: Context, parameters: WorkerParameters, private val api: API) :
+class PatcherWorker(context: Context, parameters: WorkerParameters, private val reVancedAPI: ReVancedAPI, private val gitHubAPI: GitHubAPI, private val prefs: PreferencesManager) :
     CoroutineWorker(context, parameters), KoinComponent {
     val tag = "ReVanced Manager"
     private val workdir = createWorkDir()
@@ -122,8 +126,16 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
         val outputFile = File(applicationContext.filesDir, "output.apk")
         val cacheDirectory = workdir.resolve("cache")
 
-        Logging.log += "Downloading integrations\n"
-        val integrations = api.downloadIntegrations(integrationsCacheDir)
+        val integrations = if (prefs.srcIntegrations != ghIntegrations || !reVancedAPI.ping()) {
+            Logging.log += "Downloading integrations from GitHub API\n"
+            gitHubAPI.downloadAsset(integrationsCacheDir, prefs.srcIntegrations!!, ".apk")
+        } else {
+            Logging.log += "Downloading integrations from ReVanced API\n"
+            reVancedAPI.downloadAsset(
+                integrationsCacheDir,
+                prefs.srcIntegrations!!, ".apk"
+            )
+        }
 
         Logging.log += "Copying base.apk from device\n"
         withContext(Dispatchers.IO) {
@@ -181,7 +193,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Logging.log += "Saving file\n"
             val result = patcher.save() // compile apk
 
-            ZipFile(patchedFile).use { fs -> // somehow this function is the most resource intensive
+            ZipFile(patchedFile).use { fs ->
                 result.dexFiles.forEach {
                     Logging.log += "Writing dex file ${it.name}\n"
                     fs.addEntryCompressData(ZipEntry.createWithName(it.name), it.stream.readBytes())
@@ -200,7 +212,7 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             withContext(Dispatchers.IO) {
                 Files.copy(
                     outputFile.inputStream(),
-                    reVancedFolder.resolve(appInfo.packageName + ".apk").toPath(),
+                    reVancedFolder.resolve(appInfo.packageName + "-" + LocalDateTime.now() + ".apk").toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
             }

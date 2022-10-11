@@ -1,4 +1,4 @@
-package app.revanced.manager.dto.github
+package app.revanced.manager.dto.revanced
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
