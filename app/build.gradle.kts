@@ -117,7 +117,7 @@ dependencies {
     implementation("app.revanced:revanced-patcher:6.0.0")
 
     // Signing & aligning
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.72")
     implementation("com.android.tools.build:apksig:7.4.0-beta02")
 
     // Licenses
