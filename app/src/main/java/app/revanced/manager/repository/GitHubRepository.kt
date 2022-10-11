@@ -1,24 +1,28 @@
 package app.revanced.manager.repository
 
-import app.revanced.manager.dto.github.Tools
 import app.revanced.manager.dto.github.Repositories
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
+import app.revanced.manager.dto.github.Tools
+import com.vk.knet.core.Knet
+import com.vk.knet.core.http.HttpMethod
+import com.vk.knet.core.http.HttpRequest
+import com.vk.knet.cornet.CronetKnetEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
-class GitHubRepository(val client: HttpClient) {
+class GitHubRepository(cronet: CronetKnetEngine) {
 
+    val client = Knet.Build(cronet)
 
     suspend fun fetchAssets() = withContext(Dispatchers.IO) {
-        client.get("$apiUrl/tools") {
-            parameter("per_page", 1)
-        }.body() as Tools
+        val stream = client.execute(HttpRequest(HttpMethod.GET, "$apiUrl/tools")).body!!.asString()
+        Json.decodeFromString(stream) as Tools
     }
 
     suspend fun fetchContributors() = withContext(Dispatchers.IO) {
-        client.get("$apiUrl/contributors").body() as Repositories
+        val stream = client.execute(HttpRequest(HttpMethod.GET,"$apiUrl/contributors")).body!!.asString()
+        Json.decodeFromString(stream) as Repositories
     }
 
     private companion object {

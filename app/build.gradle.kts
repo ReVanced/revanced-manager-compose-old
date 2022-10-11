@@ -138,5 +138,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.4")
 
     // Networking
-    implementation("com.github.niusounds:cronet-engine:0.1.0")
+    implementation("com.vk.knet:core:1.0")
+    implementation("com.vk.knet:cronet:1.0")
+    implementation("com.vk.knet:okcronet:1.0")
 }
