@@ -69,6 +69,9 @@ android {
             excludes += "/okhttp3/**"
             excludes += "/DebugProbesKt.bin"
         }
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     buildFeatures.compose = true
