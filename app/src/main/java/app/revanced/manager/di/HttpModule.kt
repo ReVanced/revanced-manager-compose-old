@@ -6,6 +6,7 @@ import com.vk.knet.cornet.CronetKnetEngine
 import com.vk.knet.cornet.config.CronetCache
 import com.vk.knet.cornet.config.CronetQuic
 import com.vk.knet.cornet.pool.buffer.CronetNativeByteBufferPool
+import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
@@ -36,7 +37,16 @@ val httpModule = module {
         }
     }
 
+    fun json() = Json {
+        encodeDefaults = true
+        isLenient = true
+        ignoreUnknownKeys = true
+    }
+
     single {
         client(androidContext())
+    }
+    single {
+        json()
     }
 }

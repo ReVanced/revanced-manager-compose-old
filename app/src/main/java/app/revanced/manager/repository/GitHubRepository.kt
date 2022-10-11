@@ -11,18 +11,18 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-class GitHubRepository(cronet: CronetKnetEngine) {
+class GitHubRepository(cronet: CronetKnetEngine, private val json: Json) {
 
-    val client = Knet.Build(cronet)
+    private val client = Knet.Build(cronet)
 
     suspend fun fetchAssets() = withContext(Dispatchers.Default) {
         val stream = client.execute(HttpRequest(HttpMethod.GET, "$apiUrl/tools")).body!!.asString()
-        Json.decodeFromString(stream) as Tools
+        json.decodeFromString(stream) as Tools
     }
 
     suspend fun fetchContributors() = withContext(Dispatchers.Default) {
         val stream = client.execute(HttpRequest(HttpMethod.GET,"$apiUrl/contributors")).body!!.asString()
-        Json.decodeFromString(stream) as Repositories
+        json.decodeFromString(stream) as Repositories
     }
 
     private companion object {
