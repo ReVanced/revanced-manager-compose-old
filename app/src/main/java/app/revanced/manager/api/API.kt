@@ -8,6 +8,7 @@ import com.vk.knet.core.Knet
 import com.vk.knet.core.http.HttpMethod
 import com.vk.knet.core.http.HttpRequest
 import com.vk.knet.cornet.CronetKnetEngine
+import kotlinx.coroutines.*
 import java.io.File
 
 class API(private val repository: GitHubRepository, private val prefs: PreferencesManager, cronet: CronetKnetEngine) {
@@ -25,8 +26,13 @@ class API(private val repository: GitHubRepository, private val prefs: Preferenc
 
     suspend fun downloadPatchBundle(workdir: File): File {
         return try {
-            val (_, out) = downloadAsset(workdir, findAsset(prefs.srcPatches.toString(), ".jar"))
-            out
+            withContext(Dispatchers.IO) {
+                val (_, out) = downloadAsset(
+                    workdir,
+                    findAsset(prefs.srcPatches.toString(), ".jar")
+                )
+                out
+            }
         } catch (e: Exception) {
             throw Exception("Failed to download patch bundle", e)
         }
@@ -56,9 +62,13 @@ class API(private val repository: GitHubRepository, private val prefs: Preferenc
             return assets to out
         }
         Log.d("ReVanced Manager", "Downloading asset ${assets.asset.name}")
-        val file = client.execute(HttpRequest(HttpMethod.GET, assets.asset.downloadUrl)).body?.asBytes()
-        file?.let { out.writeBytes(it) }
-
+            val file = client.execute(
+                HttpRequest(
+                    HttpMethod.GET,
+                    assets.asset.downloadUrl
+                )
+            ).body!!.asBytes()
+            out.writeBytes(file)
 
         return assets to out
     }
