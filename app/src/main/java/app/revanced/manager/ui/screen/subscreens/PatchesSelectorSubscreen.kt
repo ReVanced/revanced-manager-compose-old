@@ -131,12 +131,14 @@ fun PatchesSelectorSubscreen(
                                 }
                             }
                         }
-                    }
-                    else {
-                        Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
+                    } else {
+                        Column(
+                            Modifier.fillMaxSize(),
+                            Arrangement.Center,
+                            Alignment.CenterHorizontally
+                        ) {
                             Text(text = "No compatible patches found.")
                         }
-
                     }
                 }
                 else -> LoadingIndicator(null)

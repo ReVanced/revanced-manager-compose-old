@@ -43,7 +43,13 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.time.LocalDateTime
 
-class PatcherWorker(context: Context, parameters: WorkerParameters, private val reVancedAPI: ReVancedAPI, private val gitHubAPI: GitHubAPI, private val prefs: PreferencesManager) :
+class PatcherWorker(
+    context: Context,
+    parameters: WorkerParameters,
+    private val reVancedAPI: ReVancedAPI,
+    private val gitHubAPI: GitHubAPI,
+    private val prefs: PreferencesManager
+) :
     CoroutineWorker(context, parameters), KoinComponent {
     val tag = "ReVanced Manager"
     private val workdir = createWorkDir()
@@ -212,7 +218,8 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             withContext(Dispatchers.IO) {
                 Files.copy(
                     outputFile.inputStream(),
-                    reVancedFolder.resolve(appInfo.packageName + "-" + LocalDateTime.now() + ".apk").toPath(),
+                    reVancedFolder.resolve(appInfo.packageName + "-" + LocalDateTime.now() + ".apk")
+                        .toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
             }

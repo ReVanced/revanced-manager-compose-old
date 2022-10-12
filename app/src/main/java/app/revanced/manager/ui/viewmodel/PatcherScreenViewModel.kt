@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Parcelable
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.revanced.manager.Variables.patches
@@ -32,7 +33,7 @@ class PatcherScreenViewModel(
     private val gitHubAPI: GitHubAPI,
     private val prefs: PreferencesManager
 ) : ViewModel() {
-    private lateinit var patchBundleFile: String
+    lateinit var patchBundleFile: String
 
     init {
         viewModelScope.launch {
@@ -112,16 +113,22 @@ class PatcherScreenViewModel(
     }
 
     fun loadPatches0() {
-        val patchClasses = PatchBundle.Dex(
-            patchBundleFile, DexClassLoader(
-                patchBundleFile,
-                app.codeCacheDir.absolutePath,
-                null,
-                javaClass.classLoader
-            )
-        ).loadPatches()
-        patches.value = Resource.Success(patchClasses)
-        Log.d("ReVanced Manager", "Finished loading patches")
+        try {
+            val patchClasses = PatchBundle.Dex(
+                patchBundleFile, DexClassLoader(
+                    patchBundleFile,
+                    app.codeCacheDir.absolutePath,
+                    null,
+                    javaClass.classLoader
+                )
+            ).loadPatches()
+            patches.value = Resource.Success(patchClasses)
+        } catch (e: Exception) {
+            Toast.makeText(app, "Failed to load patch bundle.", Toast.LENGTH_LONG).show()
+            Log.e(tag, "Failed to load patch bundle.", e)
+            return
+        }
+        Toast.makeText(app, "Successfully loaded patch bundle.", Toast.LENGTH_LONG).show()
     }
 
     fun getFilteredPatchesAndCheckOptions(): List<PatchClass> {

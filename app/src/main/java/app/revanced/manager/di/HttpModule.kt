@@ -38,9 +38,9 @@ val httpModule = module {
     }
 
     fun json() = Json {
-    encodeDefaults = true
-    isLenient = true
-    ignoreUnknownKeys = true
+        encodeDefaults = true
+        isLenient = true
+        ignoreUnknownKeys = true
     }
 
     single {

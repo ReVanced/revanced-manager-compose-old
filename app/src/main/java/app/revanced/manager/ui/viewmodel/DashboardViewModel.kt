@@ -35,7 +35,7 @@ class DashboardViewModel(private val reVancedApi: ReVancedAPI) : ViewModel() {
     private fun fetchLastCommit() {
         viewModelScope.launch {
             try {
-                val repo = withContext(Dispatchers.Default) {reVancedApi.fetchAssets()}
+                val repo = withContext(Dispatchers.Default) { reVancedApi.fetchAssets() }
                 for (asset in repo.tools) {
                     when (asset.repository) {
                         ghPatcher -> {

@@ -5,8 +5,8 @@ import app.revanced.manager.dto.github.Release
 import app.revanced.manager.util.tag
 import com.vk.knet.core.Knet
 import com.vk.knet.core.http.HttpMethod
-import com.vk.knet.cornet.CronetKnetEngine
 import com.vk.knet.core.http.HttpRequest
+import com.vk.knet.cornet.CronetKnetEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
@@ -51,6 +51,7 @@ class GitHubAPI(cronet: CronetKnetEngine, val json: Json) {
         out.writeBytes(file)
         return out
     }
+
     private suspend fun getLatestRelease(repo: String) = withContext(Dispatchers.IO) {
         val stream = client.execute(
             HttpRequest(
