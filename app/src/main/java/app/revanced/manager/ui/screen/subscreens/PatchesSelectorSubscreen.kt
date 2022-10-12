@@ -1,5 +1,6 @@
 package app.revanced.manager.ui.screen.subscreens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,7 +10,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -30,6 +30,7 @@ import app.revanced.patcher.extensions.PatchExtensions.version
 import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatchesSelectorSubscreen(
@@ -38,7 +39,6 @@ fun PatchesSelectorSubscreen(
 ) {
     val patches = pvm.getFilteredPatchesAndCheckOptions()
     var query by mutableStateOf("")
-
 
     Scaffold(
         topBar = {
@@ -68,7 +68,7 @@ fun PatchesSelectorSubscreen(
                     }
                 }
             )
-        },
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -76,59 +76,67 @@ fun PatchesSelectorSubscreen(
         ) {
             when (patchesState) {
                 is Resource.Success -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp, 4.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
+                    if (patches.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp, 4.dp),
                         ) {
-                            OutlinedTextField(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                value = query,
-                                onValueChange = { newValue ->
-                                    query = newValue
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Search, "Search")
-                                },
-                                trailingIcon = {
-                                    if (query.isNotEmpty()) {
-                                        IconButton(onClick = {
-                                            query = ""
-                                        }) {
-                                            Icon(Icons.Default.Clear, "Clear")
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                OutlinedTextField(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    value = query,
+                                    onValueChange = { newValue ->
+                                        query = newValue
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Search, "Search")
+                                    },
+                                    trailingIcon = {
+                                        if (query.isNotEmpty()) {
+                                            IconButton(onClick = {
+                                                query = ""
+                                            }) {
+                                                Icon(Icons.Default.Clear, "Clear")
+                                            }
                                         }
-                                    }
-                                },
-                            )
-                        }
-                    }
-                    LazyColumn(Modifier.padding(0.dp, 2.dp)) {
-
-                        if (query.isEmpty() || query.isBlank()) {
-                            items(count = patches.size) {
-                                val patch = patches[it]
-                                val name = patch.patch.patchName
-                                PatchCard(patch, pvm.isPatchSelected(name)) {
-                                    pvm.selectPatch(name, !pvm.isPatchSelected(name))
-                                }
+                                    },
+                                )
                             }
-                        } else {
-                            items(count = patches.size) {
-                                val patch = patches[it]
-                                val name = patch.patch.patchName
-                                if (name.contains(query.lowercase())) {
+                        }
+                        LazyColumn(Modifier.padding(0.dp, 2.dp)) {
+
+                            if (query.isEmpty() || query.isBlank()) {
+                                items(count = patches.size) {
+                                    val patch = patches[it]
+                                    val name = patch.patch.patchName
                                     PatchCard(patch, pvm.isPatchSelected(name)) {
                                         pvm.selectPatch(name, !pvm.isPatchSelected(name))
                                     }
                                 }
+                            } else {
+                                items(count = patches.size) {
+                                    val patch = patches[it]
+                                    val name = patch.patch.patchName
+                                    if (name.contains(query.lowercase())) {
+                                        PatchCard(patch, pvm.isPatchSelected(name)) {
+                                            pvm.selectPatch(name, !pvm.isPatchSelected(name))
+                                        }
+                                    }
+                                }
                             }
                         }
+                    }
+                    else {
+                        Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
+                            Text(text = "No compatible patches found.")
+                        }
+
                     }
                 }
                 else -> LoadingIndicator(null)
