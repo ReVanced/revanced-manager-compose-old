@@ -27,6 +27,7 @@ fun PatcherScreen(
     onClickAppSelector: () -> Unit,
     onClickPatchSelector: () -> Unit,
     onClickPatch: () -> Unit,
+    onClickSourceSelector: () -> Unit,
     viewModel: PatcherScreenViewModel = getViewModel()
 ) {
     val selectedAmount = selectedPatches.size
@@ -35,20 +36,21 @@ fun PatcherScreen(
     val patchesLoaded = patches.value is Resource.Success
     var showDialog by remember { mutableStateOf(false) }
 
-    Scaffold(floatingActionButton = {
-        FloatingActionButton(
-            enabled = hasAppSelected && viewModel.anyPatchSelected(),
-            onClick = {
-                if (viewModel.checkSplitApk()) {
-                    showDialog = true
-                } else {
-                    onClickPatch(); viewModel.loadPatches0()
-                }
-            }, // TODO: replace this with something better
-            icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
-            text = { Text(text = "Patch") }
-        )
-    }) { paddingValues ->
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                enabled = hasAppSelected && viewModel.anyPatchSelected(),
+                onClick = {
+                    if (viewModel.checkSplitApk()) {
+                        showDialog = true
+                    } else {
+                        onClickPatch(); viewModel.loadPatches0()
+                    }
+                }, // TODO: replace this with something better
+                icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
+                text = { Text(text = "Patch") }
+            )
+        }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -57,9 +59,22 @@ fun PatcherScreen(
         ) {
             if (showDialog)
                 SplitAPKDialog(onDismiss = { showDialog = false }, onConfirm = onClickPatch)
-            Card(
+            ElevatedCard(
                 modifier = Modifier
-                    .padding(4.dp)
+                    .padding(vertical = 4.dp)
+                    .fillMaxWidth(),
+                onClick = onClickSourceSelector
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.select_sources),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+            ElevatedCard(
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
                     .fillMaxWidth(),
                 enabled = patchesLoaded,
                 onClick = onClickAppSelector
@@ -73,19 +88,20 @@ fun PatcherScreen(
                         text = if (patchesLoaded) {
                             if (selectedAppPackage.isPresent) {
                                 selectedAppPackage.get().packageName
+                            } else {
+                                stringResource(R.string.card_application_not_selected)
                             }
-                            else {stringResource(R.string.card_application_not_selected)}
                         } else {
                             stringResource(R.string.card_application_not_loaded)
                         },
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(0.dp, 8.dp)
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
             }
-            Card(
+            ElevatedCard(
                 modifier = Modifier
-                    .padding(4.dp)
+                    .padding(vertical = 4.dp)
                     .fillMaxWidth(),
                 enabled = hasAppSelected,
                 onClick = onClickPatchSelector
@@ -104,7 +120,7 @@ fun PatcherScreen(
                             stringResource(R.string.card_patches_body_patches)
                         },
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(0.dp, 8.dp)
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
             }

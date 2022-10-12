@@ -13,7 +13,9 @@ import app.revanced.manager.repository.GitHubRepository
 import app.revanced.manager.util.ghManager
 import app.revanced.manager.util.ghPatcher
 import app.revanced.manager.util.tag
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,7 +35,7 @@ class DashboardViewModel(private val repository: GitHubRepository) : ViewModel()
     private fun fetchLastCommit() {
         viewModelScope.launch {
             try {
-                val repo = repository.fetchAssets()
+                val repo = withContext(Dispatchers.Default) {repository.fetchAssets()}
                 for (asset in repo.tools) {
                     when (asset.repository) {
                         ghPatcher -> {

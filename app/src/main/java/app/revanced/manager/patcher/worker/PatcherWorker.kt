@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Environment
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
@@ -39,7 +41,6 @@ import java.nio.file.StandardCopyOption
 
 class PatcherWorker(context: Context, parameters: WorkerParameters, private val api: API) :
     CoroutineWorker(context, parameters), KoinComponent {
-
     val tag = "ReVanced Manager"
     private val workdir = createWorkDir()
 
@@ -90,6 +91,13 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
     private suspend fun runPatcher(
         workdir: File
     ): Boolean {
+        val wakeLock: PowerManager.WakeLock =
+            (applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.FULL_WAKE_LOCK, "$tag::Patcher").apply {
+                    acquire(10 * 60 * 1000L)
+                }
+            }
+        Log.d(tag, "Acquired wakelock.")
         val aaptPath = Aapt.binary(applicationContext)?.absolutePath
         if (aaptPath == null) {
             Logging.log += "AAPT2 not found.\n"
@@ -99,6 +107,8 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             applicationContext.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
         val integrationsCacheDir =
             applicationContext.filesDir.resolve("integrations-cache").also { it.mkdirs() }
+        val reVancedFolder =
+            Environment.getExternalStorageDirectory().resolve("ReVanced").also { it.mkdirs() }
         val appInfo = selectedAppPackage.value.get()
 
         Logging.log += "Checking prerequisites\n"
@@ -187,9 +197,19 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
             Logging.log += "Signing apk\n"
             Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
             Logging.log += "Successfully patched!\n"
+            withContext(Dispatchers.IO) {
+                Files.copy(
+                    outputFile.inputStream(),
+                    reVancedFolder.resolve(appInfo.packageName + ".apk").toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+                )
+            }
+            Logging.log += "Copied file to storage!\n"
         } finally {
             Log.d(tag, "Deleting workdir")
             workdir.deleteRecursively()
+            wakeLock.release()
+            Log.d(tag, "Released wakelock.")
         }
         return false
     }
@@ -198,7 +218,6 @@ class PatcherWorker(context: Context, parameters: WorkerParameters, private val 
         val (patches) = patches.value as? Resource.Success ?: return listOf()
         return patches.filter { patch -> ids.any { it == patch.patchName } }
     }
-
 
 
     private fun createWorkDir(): File {

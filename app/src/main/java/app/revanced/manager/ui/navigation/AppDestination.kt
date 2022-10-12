@@ -26,6 +26,9 @@ sealed interface AppDestination : Destination {
     object Patcher : AppDestination
 
     @Parcelize
+    object SourceSelector : AppDestination
+
+    @Parcelize
     object Licenses : AppDestination
 
     @Parcelize

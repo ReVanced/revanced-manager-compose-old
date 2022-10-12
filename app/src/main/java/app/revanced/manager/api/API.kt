@@ -4,14 +4,16 @@ import android.util.Log
 import app.revanced.manager.dto.github.Assets
 import app.revanced.manager.preferences.PreferencesManager
 import app.revanced.manager.repository.GitHubRepository
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import com.vk.knet.core.Knet
+import com.vk.knet.core.http.HttpMethod
+import com.vk.knet.core.http.HttpRequest
+import com.vk.knet.cornet.CronetKnetEngine
+import kotlinx.coroutines.*
 import java.io.File
 
-class API(private val repository: GitHubRepository, private val prefs: PreferencesManager, val client: HttpClient) {
+class API(private val repository: GitHubRepository, private val prefs: PreferencesManager, cronet: CronetKnetEngine) {
+
+    val client = Knet.Build(cronet)
 
     suspend fun findAsset(repo: String, file: String): PatchesAsset {
         val asset = repository.fetchAssets().tools.findAsset(repo, file) ?: throw MissingAssetException()
@@ -24,8 +26,13 @@ class API(private val repository: GitHubRepository, private val prefs: Preferenc
 
     suspend fun downloadPatchBundle(workdir: File): File {
         return try {
-            val (_, out) = downloadAsset(workdir, findAsset(prefs.srcPatches.toString(), ".jar"))
-            out
+            withContext(Dispatchers.IO) {
+                val (_, out) = downloadAsset(
+                    workdir,
+                    findAsset(prefs.srcPatches.toString(), ".jar")
+                )
+                out
+            }
         } catch (e: Exception) {
             throw Exception("Failed to download patch bundle", e)
         }
@@ -42,7 +49,7 @@ class API(private val repository: GitHubRepository, private val prefs: Preferenc
         }
     }
 
-    suspend fun downloadAsset(
+    fun downloadAsset(
         workdir: File,
         assets: PatchesAsset
     ): Pair<PatchesAsset, File> {
@@ -55,9 +62,13 @@ class API(private val repository: GitHubRepository, private val prefs: Preferenc
             return assets to out
         }
         Log.d("ReVanced Manager", "Downloading asset ${assets.asset.name}")
-        client.get(assets.asset.downloadUrl)
-            .bodyAsChannel()
-            .copyAndClose(out.writeChannel())
+            val file = client.execute(
+                HttpRequest(
+                    HttpMethod.GET,
+                    assets.asset.downloadUrl
+                )
+            ).body!!.asBytes()
+            out.writeBytes(file)
 
         return assets to out
     }

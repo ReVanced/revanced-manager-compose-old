@@ -71,6 +71,7 @@ fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
                         onClickAppSelector = { navigator.push(AppDestination.AppSelector) },
                         onClickPatchSelector = { navigator.push(AppDestination.PatchSelector) },
                         onClickPatch = { navigator.push(AppDestination.Patcher) },
+                        onClickSourceSelector = { navigator.push(AppDestination.SourceSelector) }
                     )
                     DashboardDestination.SETTINGS -> SettingsScreen(
                         onClickContributors = { navigator.push(AppDestination.Contributors) },

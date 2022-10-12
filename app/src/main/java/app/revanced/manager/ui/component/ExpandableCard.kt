@@ -58,7 +58,9 @@ fun ExpandableCard(
                         contentDescription = stringResource(R.string.expand)
                     )
                 }
-                AssistChip(onClick = { /*TODO*/ }, label = {Text("Update")}, shape = CircleShape)
+            OutlinedButton(onClick = { /*TODO*/ }, shape = CircleShape) {
+                Text("Update")
+            }
             }
             if (expandedState) {
                 Box(modifier = Modifier.padding(bottom = 16.dp)) {

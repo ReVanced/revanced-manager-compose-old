@@ -1,5 +1,6 @@
 package app.revanced.manager.ui.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,7 +9,10 @@ import app.revanced.manager.repository.GitHubRepository
 import app.revanced.manager.util.*
 import kotlinx.coroutines.launch
 
-class ContributorsViewModel(private val repository: GitHubRepository) : ViewModel() {
+class ContributorsViewModel(
+    private val app: Application,
+    private val repository: GitHubRepository
+) : ViewModel() {
     val patcherContributorsList = mutableStateListOf<Contributor>()
     val patchesContributorsList = mutableStateListOf<Contributor>()
     val cliContributorsList = mutableStateListOf<Contributor>()
@@ -53,6 +57,10 @@ class ContributorsViewModel(private val repository: GitHubRepository) : ViewMode
                 }
             }
         }
+    }
+
+    fun openUserProfile(username: String) {
+        app.openUrl("https://github.com/${username}")
     }
 
     init {
