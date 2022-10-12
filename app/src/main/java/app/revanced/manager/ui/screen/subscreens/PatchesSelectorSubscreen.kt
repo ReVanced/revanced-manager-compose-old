@@ -1,9 +1,6 @@
 package app.revanced.manager.ui.screen.subscreens
 
 import android.annotation.SuppressLint
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,8 +29,6 @@ import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.extensions.PatchExtensions.version
 import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,24 +39,6 @@ fun PatchesSelectorSubscreen(
 ) {
     val patches = pvm.getFilteredPatchesAndCheckOptions()
     var query by mutableStateOf("")
-    val context = LocalContext.current
-
-    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
-        it?.let { uri ->
-            val patchesFile = context.cacheDir.resolve("patches.jar")
-            Files.copy(
-                context.contentResolver.openInputStream(uri),
-                patchesFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-            )
-            pvm.patchBundleFile = patchesFile.absolutePath
-            pvm.loadPatches0()
-            navigator.pop()
-            return@rememberLauncherForActivityResult
-        }
-        Toast.makeText(context, "Couldn't load local patch bundle.", Toast.LENGTH_SHORT).show()
-    }
-
 
     Scaffold(
         topBar = {
@@ -92,15 +68,7 @@ fun PatchesSelectorSubscreen(
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    filePicker.launch(arrayOf("application/java-archive")) },
-                icon = { Icon(Icons.Default.FolderZip, contentDescription = null) },
-                text = { Text("Storage") },
-            )
-        },
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
