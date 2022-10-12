@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Parcelable
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.revanced.manager.Variables.patches
@@ -12,7 +13,6 @@ import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
 import app.revanced.manager.api.API
 import app.revanced.manager.ui.Resource
-import app.revanced.manager.util.tag
 import app.revanced.patcher.data.Context
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
 import app.revanced.patcher.extensions.PatchExtensions.options
@@ -24,7 +24,8 @@ import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 class PatcherScreenViewModel(private val app: Application, private val api: API) : ViewModel() {
-    private lateinit var patchBundleFile: String
+    lateinit var patchBundleFile: String
+    private val tag = "ReVanced Manager"
 
     init {
         viewModelScope.launch {
@@ -66,13 +67,13 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
 
 
     fun getSelectedPackageInfo(): PackageInfo? {
-        if (selectedAppPackage.value.isPresent) {
-            return app.packageManager.getPackageArchiveInfo(
+        return if (selectedAppPackage.value.isPresent) {
+            app.packageManager.getPackageArchiveInfo(
                 selectedAppPackage.value.get().publicSourceDir,
                 PackageManager.GET_META_DATA
             )
         } else {
-            return null
+            null
         }
     }
 
@@ -95,21 +96,27 @@ class PatcherScreenViewModel(private val app: Application, private val api: API)
             patchBundleFile = file.absolutePath
             loadPatches0()
         } catch (e: Exception) {
-            Log.e("ReVancedManager", "An error occurred while loading patches", e)
+            Log.e(tag, "An error occurred while loading patches", e)
         }
     }
 
     fun loadPatches0() {
-        val patchClasses = PatchBundle.Dex(
-            patchBundleFile, DexClassLoader(
-                patchBundleFile,
-                app.codeCacheDir.absolutePath,
-                null,
-                javaClass.classLoader
-            )
-        ).loadPatches()
-        patches.value = Resource.Success(patchClasses)
-        Log.d("ReVanced Manager", "Finished loading patches")
+        try {
+            val patchClasses = PatchBundle.Dex(
+                patchBundleFile, DexClassLoader(
+                    patchBundleFile,
+                    app.codeCacheDir.absolutePath,
+                    null,
+                    javaClass.classLoader
+                )
+            ).loadPatches()
+            patches.value = Resource.Success(patchClasses)
+        } catch (e: Exception) {
+            Toast.makeText(app, "Failed to load patch bundle.", Toast.LENGTH_LONG).show()
+            Log.e(tag, "Failed to load patch bundle.", e)
+            return
+        }
+        Toast.makeText(app, "Successfully loaded patch bundle.", Toast.LENGTH_LONG).show()
     }
 
     fun getFilteredPatchesAndCheckOptions(): List<PatchClass> {
