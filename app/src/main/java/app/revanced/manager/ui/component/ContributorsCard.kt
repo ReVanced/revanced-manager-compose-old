@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.dto.github.Contributor
+import app.revanced.manager.dto.revanced.Contributor
 import app.revanced.manager.ui.viewmodel.ContributorsViewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.flowlayout.FlowRow
@@ -62,7 +62,13 @@ fun ContributorsCard(
                                 .combinedClickable(
                                     onClick = { vm.openUserProfile(contributor.username) },
                                     onLongClick = {
-                                        Toast.makeText(context, contributor.username, Toast.LENGTH_SHORT).show()
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                contributor.username,
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
                                     }
                                 )
                         )
