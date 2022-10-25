@@ -1,21 +1,20 @@
-package app.revanced.manager.api
+package app.revanced.manager.network.api
 
 import android.util.Log
-import app.revanced.manager.dto.github.Release
+import app.revanced.manager.network.dto.github.Release
+import app.revanced.manager.util.body
+import app.revanced.manager.util.get
 import app.revanced.manager.util.tag
 import com.vk.knet.core.Knet
-import com.vk.knet.core.http.HttpMethod
-import com.vk.knet.core.http.HttpRequest
-import com.vk.knet.cornet.CronetKnetEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 
-class GitHubAPI(cronet: CronetKnetEngine, val json: Json) {
-
-    private val client = Knet.Build(cronet)
+class GitHubAPI(
+    private val client: Knet,
+    private val json: Json
+) {
 
     private suspend fun findAsset(repo: String, file: String): PatchesAsset {
         val release = getLatestRelease(repo)
@@ -42,25 +41,16 @@ class GitHubAPI(cronet: CronetKnetEngine, val json: Json) {
             return out
         }
         Log.d(tag, "Downloading asset ${asset.name} from GitHub API.")
-        val file = client.execute(
-            HttpRequest(
-                HttpMethod.GET,
-                asset.downloadUrl
-            )
-        ).body!!.asBytes()
+        val file = client.get(asset.downloadUrl).body!!.asBytes()
         out.writeBytes(file)
         return out
     }
 
-    private suspend fun getLatestRelease(repo: String) = withContext(Dispatchers.IO) {
-        val stream = client.execute(
-            HttpRequest(
-                HttpMethod.GET,
-                "$baseUrl/$repo/releases"
-            )
-        ).body!!.asString()
-        val res: List<Release> = json.decodeFromString(stream)
-        res.first()
+    private suspend fun getLatestRelease(repo: String): Release {
+        return withContext(Dispatchers.IO) {
+            val releases = client.get("$baseUrl/$repo/releases").body<List<Release>>(json)
+            releases.first()
+        }
     }
 
     data class PatchesAsset(

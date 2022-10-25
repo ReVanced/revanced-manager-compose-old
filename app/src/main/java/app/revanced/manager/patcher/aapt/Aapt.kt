@@ -9,4 +9,5 @@ object Aapt {
     }
 }
 
-private fun File.resolveAapt() = list { _, f -> !File(f).isDirectory && f.contains("aapt") }?.firstOrNull()?.let { resolve(it) }
+private fun File.resolveAapt() =
+    list { _, f -> !File(f).isDirectory && f.contains("aapt") }?.firstOrNull()?.let { resolve(it) }

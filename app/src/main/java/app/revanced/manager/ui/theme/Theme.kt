@@ -49,6 +49,7 @@ fun ReVancedManagerTheme(
         content = content
     )
 }
+
 enum class Theme(val displayName: String) {
     SYSTEM("System"),
     LIGHT("Light"),

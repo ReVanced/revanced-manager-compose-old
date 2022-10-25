@@ -1,6 +1,7 @@
 package app.revanced.manager.di
 
 import android.content.Context
+import com.vk.knet.core.Knet
 import com.vk.knet.core.utils.ByteArrayPool
 import com.vk.knet.cornet.CronetKnetEngine
 import com.vk.knet.cornet.config.CronetCache
@@ -48,5 +49,8 @@ val httpModule = module {
     }
     single {
         json()
+    }
+    single {
+        Knet.Build(get<CronetKnetEngine>())
     }
 }

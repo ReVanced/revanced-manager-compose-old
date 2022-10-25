@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.revanced.manager.api.ReVancedAPI
-import app.revanced.manager.dto.revanced.Contributor
+import app.revanced.manager.network.api.ReVancedAPI
+import app.revanced.manager.network.dto.revanced.Contributor
 import app.revanced.manager.util.*
 import kotlinx.coroutines.launch
 

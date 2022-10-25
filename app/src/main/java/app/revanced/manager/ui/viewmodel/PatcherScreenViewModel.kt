@@ -11,8 +11,8 @@ import androidx.lifecycle.viewModelScope
 import app.revanced.manager.Variables.patches
 import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
-import app.revanced.manager.api.GitHubAPI
-import app.revanced.manager.api.ReVancedAPI
+import app.revanced.manager.network.api.GitHubAPI
+import app.revanced.manager.network.api.ReVancedAPI
 import app.revanced.manager.preferences.PreferencesManager
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.util.ghPatches

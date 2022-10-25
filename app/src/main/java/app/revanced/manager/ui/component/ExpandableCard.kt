@@ -4,7 +4,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -13,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
@@ -58,9 +56,9 @@ fun ExpandableCard(
                         contentDescription = stringResource(R.string.expand)
                     )
                 }
-            OutlinedButton(onClick = { /*TODO*/ }, shape = CircleShape) {
-                Text("Update")
-            }
+                OutlinedButton(onClick = { /*TODO*/ }, shape = CircleShape) {
+                    Text("Update")
+                }
             }
             if (expandedState) {
                 Box(modifier = Modifier.padding(bottom = 16.dp)) {

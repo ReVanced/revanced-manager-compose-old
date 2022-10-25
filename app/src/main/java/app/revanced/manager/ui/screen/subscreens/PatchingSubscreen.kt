@@ -119,7 +119,10 @@ fun PatchingSubscreen(
                         overflow = TextOverflow.Visible,
                         onTextLayout = {
                             coroutineScope.launch {
-                                scrollState.animateScrollTo(it.size.height, tween(1000, easing = LinearEasing))
+                                scrollState.animateScrollTo(
+                                    it.size.height,
+                                    tween(1000, easing = LinearEasing)
+                                )
                             }
                         }
                     )

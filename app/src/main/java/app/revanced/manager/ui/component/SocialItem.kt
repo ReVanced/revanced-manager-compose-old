@@ -32,7 +32,11 @@ fun SocialItem(@StringRes label: Int, imageVector: ImageVector? = null, onClick:
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SocialItem(@StringRes label: Int, @DrawableRes painterResource: Int? = null, onClick: () -> Unit) {
+fun SocialItem(
+    @StringRes label: Int,
+    @DrawableRes painterResource: Int? = null,
+    onClick: () -> Unit
+) {
     ListItem(
         modifier = Modifier.clickable { onClick() },
         leadingContent = {

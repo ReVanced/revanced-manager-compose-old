@@ -1,28 +1,27 @@
-package app.revanced.manager.api
+package app.revanced.manager.network.api
 
 import android.util.Log
-import app.revanced.manager.dto.revanced.Assets
-import app.revanced.manager.dto.revanced.Repositories
-import app.revanced.manager.dto.revanced.Tools
+import app.revanced.manager.network.dto.revanced.Assets
+import app.revanced.manager.network.dto.revanced.Repositories
+import app.revanced.manager.network.dto.revanced.Tools
+import app.revanced.manager.util.body
+import app.revanced.manager.util.get
 import app.revanced.manager.util.tag
 import com.vk.knet.core.Knet
-import com.vk.knet.core.http.HttpMethod
-import com.vk.knet.core.http.HttpRequest
-import com.vk.knet.cornet.CronetKnetEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 
-class ReVancedAPI(cronet: CronetKnetEngine, val json: Json) {
-
-    val client = Knet.Build(cronet)
+class ReVancedAPI(
+    private val client: Knet,
+    private val json: Json
+) {
 
     suspend fun ping(): Boolean {
         return try {
             withContext(Dispatchers.Default) {
-                client.execute(HttpRequest(HttpMethod.GET, "$apiUrl/")).statusCode == 200
+                client.get("$apiUrl/").statusCode == 200
             }
         } catch (e: Exception) {
             Log.e(tag, "ReVanced API isn't available at the moment. switching to GitHub API")
@@ -30,15 +29,16 @@ class ReVancedAPI(cronet: CronetKnetEngine, val json: Json) {
         }
     }
 
-    suspend fun fetchAssets() = withContext(Dispatchers.Default) {
-        val stream = client.execute(HttpRequest(HttpMethod.GET, "$apiUrl/tools")).body!!.asString()
-        json.decodeFromString(stream) as Tools
+    suspend fun fetchAssets(): Tools {
+        return withContext(Dispatchers.IO) {
+            client.get("$apiUrl/tools").body(json)
+        }
     }
 
-    suspend fun fetchContributors() = withContext(Dispatchers.Default) {
-        val stream =
-            client.execute(HttpRequest(HttpMethod.GET, "$apiUrl/contributors")).body!!.asString()
-        json.decodeFromString(stream) as Repositories
+    suspend fun fetchContributors(): Repositories {
+        return withContext(Dispatchers.IO) {
+            client.get("$apiUrl/contributors").body(json)
+        }
     }
 
     suspend fun findAsset(repo: String, file: String): PatchesAsset {
@@ -65,11 +65,7 @@ class ReVancedAPI(cronet: CronetKnetEngine, val json: Json) {
             return out
         }
         Log.d(tag, "Downloading asset ${asset.name} from ReVanced API.")
-        val file = client.execute(
-            HttpRequest(
-                HttpMethod.GET, asset.downloadUrl
-            )
-        ).body!!.asBytes()
+        val file = client.get(asset.downloadUrl).body!!.asBytes()
         out.writeBytes(file)
 
         return out
