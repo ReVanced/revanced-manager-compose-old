@@ -9,7 +9,6 @@ import app.revanced.patcher.data.Context
 import app.revanced.patcher.patch.Patch
 import java.util.*
 
-
 object Variables {
     val selectedAppPackage = mutableStateOf(Optional.empty<ApplicationInfo>())
     val selectedPatches = mutableStateListOf<String>()

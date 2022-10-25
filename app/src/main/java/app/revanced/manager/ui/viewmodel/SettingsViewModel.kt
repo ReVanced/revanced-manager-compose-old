@@ -28,5 +28,6 @@ class SettingsViewModel(
     fun setTheme(theme: Theme) {
         prefs.theme = theme
     }
+
     fun openGitHub() = app.openUrl(ghOrganization)
 }

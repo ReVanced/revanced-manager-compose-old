@@ -56,39 +56,39 @@ fun AppSelectorSubscreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    filePicker.launch(arrayOf("application/vnd.android.package-archive")) },
+                    filePicker.launch(arrayOf("application/vnd.android.package-archive"))
+                },
                 icon = { Icon(Icons.Default.SdStorage, contentDescription = null) },
                 text = { Text("Storage") },
             )
         },
     ) { paddingValues ->
         if (filtered.value) {
-                LazyColumn(modifier = Modifier.padding(paddingValues)) {
-                    items(count = vm.filteredApps.size) { int ->
-                        val app = vm.filteredApps[int]
-                        val label = vm.applicationLabel(app)
-                        val packageName = app.packageName
+            LazyColumn(modifier = Modifier.padding(paddingValues)) {
+                items(count = vm.filteredApps.size) { int ->
+                    val app = vm.filteredApps[int]
+                    val label = vm.applicationLabel(app)
+                    val packageName = app.packageName
 
-                        val same = packageName == label
-                        ListItem(modifier = Modifier.clickable {
-                            vm.setSelectedAppPackage(app)
-                            navigator.pop()
-                        }, leadingContent = {
-                            AppIcon(vm.loadIcon(app), packageName)
-                        }, headlineText = {
-                            if (same) {
-                                Text(packageName)
-                            } else {
-                                Text(label)
-                            }
-                        }, supportingText = {
-                            if (!same) {
-                                Text(packageName)
-                            }
-                        })
-                    }
+                    val same = packageName == label
+                    ListItem(modifier = Modifier.clickable {
+                        vm.setSelectedAppPackage(app)
+                        navigator.pop()
+                    }, leadingContent = {
+                        AppIcon(vm.loadIcon(app), packageName)
+                    }, headlineText = {
+                        if (same) {
+                            Text(packageName)
+                        } else {
+                            Text(label)
+                        }
+                    }, supportingText = {
+                        if (!same) {
+                            Text(packageName)
+                        }
+                    })
                 }
-        }
-        else LoadingIndicator(null)
+            }
+        } else LoadingIndicator(null)
     }
 }

@@ -11,14 +11,16 @@ import app.revanced.manager.patcher.worker.PatcherWorker
 
 class PatchingScreenViewModel(val app: Application) : ViewModel() {
 
-    private val patcherWorker = OneTimeWorkRequest.Builder(PatcherWorker::class.java) // create Worker
-        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-        .setInputData(
-            Data.Builder()
-                .build()
-        ).build()
+    private val patcherWorker =
+        OneTimeWorkRequest.Builder(PatcherWorker::class.java) // create Worker
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setInputData(
+                Data.Builder()
+                    .build()
+            ).build()
 
-    private val liveData = WorkManager.getInstance(app).getWorkInfoByIdLiveData(patcherWorker.id) // get LiveData
+    private val liveData =
+        WorkManager.getInstance(app).getWorkInfoByIdLiveData(patcherWorker.id) // get LiveData
 
     private val observer = Observer { workInfo: WorkInfo -> // observer for observing patch status
         status = when (workInfo.state) {
@@ -43,7 +45,11 @@ class PatchingScreenViewModel(val app: Application) : ViewModel() {
         Logging.log = "" // clear logs
 
         WorkManager.getInstance(app)
-            .enqueueUniqueWork("patching", ExistingWorkPolicy.KEEP, patcherWorker) // enqueue patching process
+            .enqueueUniqueWork(
+                "patching",
+                ExistingWorkPolicy.KEEP,
+                patcherWorker
+            ) // enqueue patching process
         liveData.observeForever(observer) // start observing patch status
     }
 

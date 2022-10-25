@@ -8,8 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.revanced.manager.api.ReVancedAPI
-import app.revanced.manager.dto.revanced.Assets
+import app.revanced.manager.network.api.ReVancedAPI
+import app.revanced.manager.network.dto.revanced.Assets
 import app.revanced.manager.util.ghManager
 import app.revanced.manager.util.ghPatcher
 import app.revanced.manager.util.tag
@@ -58,6 +58,7 @@ class DashboardViewModel(private val reVancedApi: ReVancedAPI) : ViewModel() {
             Calendar.getInstance().timeInMillis,
             DateUtils.MINUTE_IN_MILLIS
         ).toString()
+
     private companion object {
         @SuppressLint("ConstantLocale")
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())

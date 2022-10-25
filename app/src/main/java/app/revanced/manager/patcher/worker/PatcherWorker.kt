@@ -18,8 +18,8 @@ import app.revanced.manager.R
 import app.revanced.manager.Variables.patches
 import app.revanced.manager.Variables.selectedAppPackage
 import app.revanced.manager.Variables.selectedPatches
-import app.revanced.manager.api.GitHubAPI
-import app.revanced.manager.api.ReVancedAPI
+import app.revanced.manager.network.api.GitHubAPI
+import app.revanced.manager.network.api.ReVancedAPI
 import app.revanced.manager.patcher.aapt.Aapt
 import app.revanced.manager.patcher.aligning.ZipAligner
 import app.revanced.manager.patcher.aligning.zip.ZipFile
@@ -49,8 +49,7 @@ class PatcherWorker(
     private val reVancedAPI: ReVancedAPI,
     private val gitHubAPI: GitHubAPI,
     private val prefs: PreferencesManager
-) :
-    CoroutineWorker(context, parameters), KoinComponent {
+) : CoroutineWorker(context, parameters), KoinComponent {
     val tag = "ReVanced Manager"
     private val workdir = createWorkDir()
 
