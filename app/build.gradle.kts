@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
-    id("com.mikepenz.aboutlibraries.plugin") version "10.5.0"
+    id("com.mikepenz.aboutlibraries.plugin") version "10.5.1"
     kotlin("plugin.serialization") version "1.7.20"
 }
 
@@ -121,7 +121,7 @@ dependencies {
     implementation("com.android.tools.build:apksig:7.4.0-beta02")
 
     // Licenses
-    implementation("com.mikepenz:aboutlibraries-compose:10.5.0")
+    implementation("com.mikepenz:aboutlibraries-compose:10.5.1")
 
     // ListenableFuture
     implementation("com.google.guava:guava:31.1-android")
