@@ -38,6 +38,10 @@ android {
         versionName = "0.0.1"
 
         vectorDrawables.useSupportLibrary = true
+
+        buildConfigField("String", "REVANCED_API_URL", "\"https://releases.revanced.app\"")
+        buildConfigField("String", "GITHUB_API_URL", "\"https://api.github.com\"")
+
     }
 
     buildTypes {
@@ -81,7 +85,7 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.0")
 
     // AndroidX activity
-    implementation("androidx.activity:activity-compose:1.6.0")
+    implementation("androidx.activity:activity-compose:1.6.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
 
     // Koin
@@ -94,7 +98,7 @@ dependencies {
     val composeVersion = "1.3.0-rc01"
     implementation("androidx.compose.ui:ui:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.0.0-rc01")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha01")
     implementation("androidx.compose.material:material-icons-extended:${composeVersion}")
 
     // Accompanist
@@ -118,7 +122,7 @@ dependencies {
 
     // Signing & aligning
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("com.android.tools.build:apksig:7.4.0-beta02")
+    implementation("com.android.tools.build:apksig:7.4.0-beta03")
 
     // Licenses
     implementation("com.mikepenz:aboutlibraries-compose:10.5.1")

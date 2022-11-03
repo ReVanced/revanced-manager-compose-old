@@ -18,6 +18,15 @@ fun Knet.get(
     return execute(HttpRequest(HttpMethod.GET, url, headers, body, payload))
 }
 
+fun Knet.head(
+    url: String,
+    headers: Map<String, List<String>> = emptyMap(),
+    body: HttpRequestBody? = null,
+    payload: Map<HttpPayload, Any>? = null
+): HttpResponse {
+    return execute(HttpRequest(HttpMethod.HEAD, url, headers, body, payload))
+}
+
 inline fun <reified T> HttpResponse.body(json: Json = Json.Default): T {
-    return json.decodeFromString(body!!.toString())
+    return json.decodeFromString(body!!.asString())
 }

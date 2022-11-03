@@ -13,7 +13,7 @@ import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
 val httpModule = module {
-    fun client(appContext: Context) = CronetKnetEngine.Build(appContext) {
+    fun provideKnet(appContext: Context) = CronetKnetEngine.Build(appContext) {
         client {
             setCache(CronetCache.Disk(appContext.filesDir, 1024 * 1024 * 10))
 
@@ -35,6 +35,7 @@ val httpModule = module {
 
             followRedirects(true)
             followSslRedirects(true)
+
         }
     }
 
@@ -45,7 +46,7 @@ val httpModule = module {
     }
 
     single {
-        client(androidContext())
+        provideKnet(androidContext())
     }
     single {
         json()

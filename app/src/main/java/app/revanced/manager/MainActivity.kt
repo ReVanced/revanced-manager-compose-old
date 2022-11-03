@@ -18,7 +18,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import app.revanced.manager.preferences.PreferencesManager
+import app.revanced.manager.domain.manager.PreferencesManager
 import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.screen.MainDashboardScreen
 import app.revanced.manager.ui.screen.subscreens.*

@@ -1,10 +1,10 @@
-package app.revanced.manager.network.dto.revanced
+package app.revanced.manager.network.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Tools(
+class ReVancedReleases(
     @SerialName("tools") val tools: List<Assets>,
 )
 

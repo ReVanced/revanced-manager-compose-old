@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import app.revanced.manager.preferences.PreferencesManager
+import app.revanced.manager.domain.manager.PreferencesManager
 import app.revanced.manager.ui.theme.Theme
 import app.revanced.manager.util.ghOrganization
 import app.revanced.manager.util.openUrl

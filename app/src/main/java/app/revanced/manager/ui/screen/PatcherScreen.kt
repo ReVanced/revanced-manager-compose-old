@@ -12,13 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.Variables.patches
-import app.revanced.manager.Variables.selectedAppPackage
-import app.revanced.manager.Variables.selectedPatches
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.FloatingActionButton
 import app.revanced.manager.ui.component.SplitAPKDialog
-import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
+import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,25 +27,20 @@ fun PatcherScreen(
     onClickPatchSelector: () -> Unit,
     onClickPatch: () -> Unit,
     onClickSourceSelector: () -> Unit,
-    viewModel: PatcherScreenViewModel = getViewModel()
+    patcherUtils: PatcherUtils = get(),
+    psvm: PatchesSelectorViewModel = getViewModel()
 ) {
-    val selectedAmount = selectedPatches.size
-    val selectedAppPackage by selectedAppPackage
+    val selectedAmount = patcherUtils.selectedPatches.size
+    val selectedAppPackage by patcherUtils.selectedAppPackage
     val hasAppSelected = selectedAppPackage.isPresent
-    val patchesLoaded = patches.value is Resource.Success
+    val patchesLoaded = patcherUtils.patches.value is Resource.Success
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                enabled = hasAppSelected && viewModel.anyPatchSelected(),
-                onClick = {
-                    if (viewModel.checkSplitApk()) {
-                        showDialog = true
-                    } else {
-                        onClickPatch(); viewModel.loadPatches0()
-                    }
-                }, // TODO: replace this with something better
+                enabled = hasAppSelected && psvm.anyPatchSelected(),
+                onClick = { onClickPatch(); patcherUtils.loadPatchBundle() }, // TODO: replace this with something better
                 icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
                 text = { Text(text = "Patch") }
             )
@@ -114,7 +108,7 @@ fun PatcherScreen(
                     Text(
                         text = if (!hasAppSelected) {
                             "Select an application first."
-                        } else if (viewModel.anyPatchSelected()) {
+                        } else if (psvm.anyPatchSelected()) {
                             "$selectedAmount patches selected."
                         } else {
                             stringResource(R.string.card_patches_body_patches)

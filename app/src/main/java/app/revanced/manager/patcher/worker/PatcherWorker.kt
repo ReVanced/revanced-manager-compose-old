@@ -15,20 +15,15 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import app.revanced.manager.R
-import app.revanced.manager.Variables.patches
-import app.revanced.manager.Variables.selectedAppPackage
-import app.revanced.manager.Variables.selectedPatches
-import app.revanced.manager.network.api.GitHubAPI
-import app.revanced.manager.network.api.ReVancedAPI
+import app.revanced.manager.network.api.ManagerAPI
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.patcher.aapt.Aapt
 import app.revanced.manager.patcher.aligning.ZipAligner
 import app.revanced.manager.patcher.aligning.zip.ZipFile
 import app.revanced.manager.patcher.aligning.zip.structures.ZipEntry
 import app.revanced.manager.patcher.signing.Signer
-import app.revanced.manager.preferences.PreferencesManager
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.viewmodel.Logging
-import app.revanced.manager.util.ghIntegrations
 import app.revanced.patcher.Patcher
 import app.revanced.patcher.PatcherOptions
 import app.revanced.patcher.extensions.PatchExtensions.patchName
@@ -46,9 +41,8 @@ import java.time.LocalDateTime
 class PatcherWorker(
     context: Context,
     parameters: WorkerParameters,
-    private val reVancedAPI: ReVancedAPI,
-    private val gitHubAPI: GitHubAPI,
-    private val prefs: PreferencesManager
+    private val managerAPI: ManagerAPI,
+    private val patcherUtils: PatcherUtils
 ) : CoroutineWorker(context, parameters), KoinComponent {
     val tag = "ReVanced Manager"
     private val workdir = createWorkDir()
@@ -118,10 +112,10 @@ class PatcherWorker(
             applicationContext.filesDir.resolve("integrations-cache").also { it.mkdirs() }
         val reVancedFolder =
             Environment.getExternalStorageDirectory().resolve("ReVanced").also { it.mkdirs() }
-        val appInfo = selectedAppPackage.value.get()
+        val appInfo = patcherUtils.selectedAppPackage.value.get()
 
         Logging.log += "Checking prerequisites\n"
-        val patches = findPatchesByIds(selectedPatches)
+        val patches = findPatchesByIds(patcherUtils.selectedPatches)
         if (patches.isEmpty()) return true
 
 
@@ -131,16 +125,7 @@ class PatcherWorker(
         val outputFile = File(applicationContext.filesDir, "output.apk")
         val cacheDirectory = workdir.resolve("cache")
 
-        val integrations = if (prefs.srcIntegrations != ghIntegrations || !reVancedAPI.ping()) {
-            Logging.log += "Downloading integrations from GitHub API\n"
-            gitHubAPI.downloadAsset(integrationsCacheDir, prefs.srcIntegrations!!, ".apk")
-        } else {
-            Logging.log += "Downloading integrations from ReVanced API\n"
-            reVancedAPI.downloadAsset(
-                integrationsCacheDir,
-                prefs.srcIntegrations!!, ".apk"
-            )
-        }
+        val integrations = managerAPI.downloadIntegrations(integrationsCacheDir)
 
         Logging.log += "Copying base.apk from device\n"
         withContext(Dispatchers.IO) {
@@ -233,7 +218,7 @@ class PatcherWorker(
     }
 
     private fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<app.revanced.patcher.data.Context>>> {
-        val (patches) = patches.value as? Resource.Success ?: return listOf()
+        val (patches) = patcherUtils.patches.value as? Resource.Success ?: return listOf()
         return patches.filter { patch -> ids.any { it == patch.patchName } }
     }
 

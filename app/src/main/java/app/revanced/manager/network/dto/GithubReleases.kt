@@ -1,10 +1,10 @@
-package app.revanced.manager.network.dto.github
+package app.revanced.manager.network.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Release(
+class GithubReleases(
     val assets: List<Asset>,
 ) {
     @Serializable
