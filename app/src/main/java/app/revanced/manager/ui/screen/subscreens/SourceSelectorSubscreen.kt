@@ -20,11 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.component.SourceItem
 import app.revanced.manager.ui.navigation.AppDestination
-import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import com.xinto.taxi.BackstackNavigator
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.get
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
@@ -32,7 +32,7 @@ import java.nio.file.StandardCopyOption
 @Composable
 fun SourceSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
-    pvm: PatcherScreenViewModel = getViewModel()
+    patcherUtils: PatcherUtils = get()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         state = rememberTopAppBarState(),
@@ -48,8 +48,11 @@ fun SourceSelectorSubscreen(
                 patchesFile.toPath(),
                 StandardCopyOption.REPLACE_EXISTING
             )
-            pvm.patchBundleFile = patchesFile.absolutePath
-            pvm.loadPatches0()
+            patchesFile.absolutePath.also {
+                patcherUtils.patchBundleFile = it
+                patcherUtils.loadPatchBundle(it)
+            }
+
             navigator.pop()
             return@rememberLauncherForActivityResult
         }

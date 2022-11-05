@@ -8,8 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.revanced.manager.network.api.ReVancedAPI
-import app.revanced.manager.network.dto.revanced.Assets
+import app.revanced.manager.domain.repository.ReVancedRepositoryImpl
+import app.revanced.manager.network.dto.Assets
 import app.revanced.manager.util.ghManager
 import app.revanced.manager.util.ghPatcher
 import app.revanced.manager.util.tag
@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
-class DashboardViewModel(private val reVancedApi: ReVancedAPI) : ViewModel() {
+class DashboardViewModel(private val reVancedApi: ReVancedRepositoryImpl) : ViewModel() {
     private var _latestPatcherCommit: Assets? by mutableStateOf(null)
     val patcherCommitDate: String
         get() = _latestPatcherCommit?.commitDate ?: "unknown"
@@ -35,7 +35,7 @@ class DashboardViewModel(private val reVancedApi: ReVancedAPI) : ViewModel() {
     private fun fetchLastCommit() {
         viewModelScope.launch {
             try {
-                val repo = withContext(Dispatchers.Default) { reVancedApi.fetchAssets() }
+                val repo = withContext(Dispatchers.Default) { reVancedApi.getAssets() }
                 for (asset in repo.tools) {
                     when (asset.repository) {
                         ghPatcher -> {

@@ -13,7 +13,15 @@ class ManagerApplication : Application() {
         startKoin {
             androidContext(this@ManagerApplication)
             workManagerFactory()
-            modules(httpModule, preferencesModule, viewModelModule, repositoryModule, workerModule)
+            modules(
+                httpModule,
+                preferencesModule,
+                viewModelModule,
+                repositoryModule,
+                workerModule,
+                patcherModule,
+                serviceModule
+            )
         }
     }
 }

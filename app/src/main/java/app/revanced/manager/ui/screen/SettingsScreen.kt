@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.preferences.PreferencesManager
+import app.revanced.manager.domain.manager.PreferencesManager
 import app.revanced.manager.ui.component.GroupHeader
 import app.revanced.manager.ui.component.SocialItem
 import app.revanced.manager.ui.theme.Theme

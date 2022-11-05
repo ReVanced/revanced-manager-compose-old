@@ -8,28 +8,32 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.revanced.manager.Variables
-import app.revanced.manager.Variables.patches
-import app.revanced.manager.Variables.selectedAppPackage
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.util.tag
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.*
 
 class AppSelectorViewModel(
     val app: Application,
+    patcherUtils: PatcherUtils
 ) : ViewModel() {
 
     val filteredApps = mutableListOf<ApplicationInfo>()
+    val patches = patcherUtils.patches
+    private val selectedAppPackage = patcherUtils.selectedAppPackage
+    private val selectedPatches = patcherUtils.selectedPatches
 
     init {
         viewModelScope.launch { filterApps() }
     }
 
-    private fun filterApps() {
+    private suspend fun filterApps() = withContext(Dispatchers.Main) {
         try {
             val (patches) = patches.value as Resource.Success
             patches.forEach patch@{ patch ->
@@ -61,7 +65,7 @@ class AppSelectorViewModel(
 
     fun setSelectedAppPackage(appId: ApplicationInfo) {
         selectedAppPackage.value.ifPresent { s ->
-            if (s != appId) Variables.selectedPatches.clear()
+            if (s != appId) selectedPatches.clear()
         }
         selectedAppPackage.value = Optional.of(appId)
     }
