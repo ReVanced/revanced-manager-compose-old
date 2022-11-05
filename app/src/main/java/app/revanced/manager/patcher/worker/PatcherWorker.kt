@@ -202,7 +202,7 @@ class PatcherWorker(
             withContext(Dispatchers.IO) {
                 Files.copy(
                     outputFile.inputStream(),
-                    reVancedFolder.resolve(appInfo.packageName + "-" + LocalDateTime.now() + ".apk")
+                    reVancedFolder.resolve(appInfo.packageName + ".apk")
                         .toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
@@ -224,7 +224,7 @@ class PatcherWorker(
 
 
     private fun createWorkDir(): File {
-        return applicationContext.filesDir.resolve("tmp-${System.currentTimeMillis()}")
+        return applicationContext.cacheDir.resolve("tmp-${System.currentTimeMillis()}")
             .also { it.mkdirs() }
     }
 }

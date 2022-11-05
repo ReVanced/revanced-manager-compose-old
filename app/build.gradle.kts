@@ -25,11 +25,6 @@ android {
     compileSdk = 33
     buildToolsVersion = "33.0.0"
 
-    lint {
-        abortOnError = false
-        disable += "DialogFragmentCallbacksDetector"
-    }
-
     defaultConfig {
         applicationId = "app.revanced.manager.compose"
         minSdk = 26
@@ -89,20 +84,20 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.7.1")
 
     // Koin
-    val koinVersion = "3.2.2"
+    val koinVersion = "3.3.0"
     implementation("io.insert-koin:koin-android:$koinVersion")
-    implementation("io.insert-koin:koin-androidx-compose:3.2.1")
+    implementation("io.insert-koin:koin-androidx-compose:3.3.0")
     implementation("io.insert-koin:koin-androidx-workmanager:$koinVersion")
 
     // Compose
-    val composeVersion = "1.3.0-rc01"
+    val composeVersion = "1.4.0-alpha01"
     implementation("androidx.compose.ui:ui:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
     implementation("androidx.compose.material3:material3:1.1.0-alpha01")
     implementation("androidx.compose.material:material-icons-extended:${composeVersion}")
 
     // Accompanist
-    val accompanistVersion = "0.26.5-rc"
+    val accompanistVersion = "0.27.0"
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-placeholder-material:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-drawablepainter:$accompanistVersion")
@@ -112,7 +107,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.2")
 
     // KotlinX
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
     // Taxi (navigation)
     implementation("com.github.X1nto:Taxi:1.2.0")
@@ -122,15 +117,10 @@ dependencies {
 
     // Signing & aligning
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("com.android.tools.build:apksig:7.4.0-beta03")
+    implementation("com.android.tools.build:apksig:8.0.0-alpha07")
 
     // Licenses
     implementation("com.mikepenz:aboutlibraries-compose:10.5.1")
-
-    // ListenableFuture
-    implementation("com.google.guava:guava:31.1-android")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.4")
 
     // Networking
     implementation("com.vk.knet:core:1.0")

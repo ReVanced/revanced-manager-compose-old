@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.network.api.ManagerAPI
 import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.FloatingActionButton
@@ -28,7 +29,8 @@ fun PatcherScreen(
     onClickPatch: () -> Unit,
     onClickSourceSelector: () -> Unit,
     patcherUtils: PatcherUtils = get(),
-    psvm: PatchesSelectorViewModel = getViewModel()
+    psvm: PatchesSelectorViewModel = getViewModel(),
+    managerAPI: ManagerAPI = get()
 ) {
     val selectedAmount = patcherUtils.selectedPatches.size
     val selectedAppPackage by patcherUtils.selectedAppPackage
@@ -36,6 +38,11 @@ fun PatcherScreen(
     val patchesLoaded = patcherUtils.patches.value is Resource.Success
     var showDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(patchesLoaded) {
+        if (!patchesLoaded) {
+            managerAPI.downloadPatches()
+        }
+    }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(

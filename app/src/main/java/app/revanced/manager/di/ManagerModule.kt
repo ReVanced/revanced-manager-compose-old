@@ -12,5 +12,4 @@ val preferencesModule = module {
     ) = PreferencesManager(context.getSharedPreferences("preferences", Context.MODE_PRIVATE))
 
     singleOf(::providePreferences)
-    singleOf(::DownloadManager)
 }
