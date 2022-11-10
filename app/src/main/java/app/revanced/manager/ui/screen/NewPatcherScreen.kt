@@ -16,15 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
-import org.koin.androidx.compose.getViewModel
+import app.revanced.manager.patcher.PatcherUtils
+import org.koin.androidx.compose.get
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewPatcherScreen(
     onClickAppSelector: () -> Unit,
     onClickPatchSelector: () -> Unit,
-    viewModel: PatcherScreenViewModel = getViewModel()
+    patcherUtils: PatcherUtils = get()
 ) {
     var validBundle = false
     Column(
@@ -75,7 +75,7 @@ fun NewPatcherScreen(
                                 fontSize = 13.sp
                             )
                             Text(
-                                text = viewModel.getSelectedPackageInfo()!!.applicationInfo.name,
+                                text = patcherUtils.getSelectedPackageInfo()!!.applicationInfo.name,
                                 fontSize = 13.sp
                             )
                         }

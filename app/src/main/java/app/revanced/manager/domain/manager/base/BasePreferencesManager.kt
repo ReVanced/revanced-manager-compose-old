@@ -1,28 +1,15 @@
-package app.revanced.manager.preferences
+package app.revanced.manager.domain.manager.base
 
 import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
-import app.revanced.manager.ui.theme.Theme
-import app.revanced.manager.util.ghIntegrations
-import app.revanced.manager.util.ghPatches
 import kotlin.reflect.KProperty
-
-class PreferencesManager(
-    sharedPreferences: SharedPreferences
-) : BasePreferenceManager(sharedPreferences) {
-    var dynamicColor by booleanPreference("dynamic_color", true)
-    var theme by enumPreference("theme", Theme.SYSTEM)
-    var srcPatches by stringPreference("src_patches", ghPatches)
-    var srcIntegrations by stringPreference("src_integrations", ghIntegrations)
-}
 
 /**
  * @author Hyperion Authors, zt64
  */
-@Suppress("unused")
 abstract class BasePreferenceManager(
     private val prefs: SharedPreferences
 ) {

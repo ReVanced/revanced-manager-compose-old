@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.network.dto.revanced.Contributor
+import app.revanced.manager.network.dto.ReVancedContributor
 import app.revanced.manager.ui.viewmodel.ContributorsViewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.flowlayout.FlowRow
@@ -27,7 +27,7 @@ import org.koin.androidx.compose.getViewModel
 @ExperimentalMaterial3Api
 fun ContributorsCard(
     title: String,
-    data: SnapshotStateList<Contributor>,
+    data: SnapshotStateList<ReVancedContributor>,
     vm: ContributorsViewModel = getViewModel()
 ) {
     val context = LocalContext.current

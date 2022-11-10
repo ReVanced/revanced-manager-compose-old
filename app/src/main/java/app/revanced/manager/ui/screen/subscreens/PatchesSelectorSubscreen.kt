@@ -16,18 +16,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.Variables.patchesState
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.LoadingIndicator
 import app.revanced.manager.ui.component.PatchCompatibilityDialog
 import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.theme.Typography
 import app.revanced.manager.ui.viewmodel.PatchClass
-import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
+import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
 import app.revanced.patcher.extensions.PatchExtensions.description
+import app.revanced.patcher.extensions.PatchExtensions.options
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.extensions.PatchExtensions.version
 import com.xinto.taxi.BackstackNavigator
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 @SuppressLint("UnrememberedMutableState")
@@ -35,9 +37,11 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun PatchesSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
-    pvm: PatcherScreenViewModel = getViewModel(),
+    psvm: PatchesSelectorViewModel = getViewModel(),
+    patcherUtils: PatcherUtils = get()
 ) {
-    val patches = pvm.getFilteredPatchesAndCheckOptions()
+    val patchesState by patcherUtils.patches
+    val patches = psvm.getFilteredPatches()
     var query by mutableStateOf("")
 
     Scaffold(
@@ -59,9 +63,9 @@ fun PatchesSelectorSubscreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        pvm.selectAllPatches(patches, !pvm.anyPatchSelected())
+                        psvm.selectAllPatches(patches, !psvm.anyPatchSelected())
                     }) {
-                        if (!pvm.anyPatchSelected()) Icon(
+                        if (!psvm.anyPatchSelected()) Icon(
                             Icons.Default.SelectAll,
                             contentDescription = null
                         ) else Icon(Icons.Default.Deselect, contentDescription = null)
@@ -115,8 +119,8 @@ fun PatchesSelectorSubscreen(
                                 items(count = patches.size) {
                                     val patch = patches[it]
                                     val name = patch.patch.patchName
-                                    PatchCard(patch, pvm.isPatchSelected(name)) {
-                                        pvm.selectPatch(name, !pvm.isPatchSelected(name))
+                                    PatchCard(patch, psvm.isPatchSelected(name)) {
+                                        psvm.selectPatch(name, !psvm.isPatchSelected(name))
                                     }
                                 }
                             } else {
@@ -124,8 +128,8 @@ fun PatchesSelectorSubscreen(
                                     val patch = patches[it]
                                     val name = patch.patch.patchName
                                     if (name.contains(query.lowercase())) {
-                                        PatchCard(patch, pvm.isPatchSelected(name)) {
-                                            pvm.selectPatch(name, !pvm.isPatchSelected(name))
+                                        PatchCard(patch, psvm.isPatchSelected(name)) {
+                                            psvm.selectPatch(name, !psvm.isPatchSelected(name))
                                         }
                                     }
                                 }
@@ -190,7 +194,7 @@ fun PatchCard(patchClass: PatchClass, isSelected: Boolean, onSelected: () -> Uni
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(4.dp)
                     ) {
-                        if (patchClass.hasPatchOptions) {
+                        if (patchClass.patch.options != null) {
                             CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides false) {
                                 IconButton(onClick = { }, modifier = Modifier.size(24.dp)) {
                                     Icon(

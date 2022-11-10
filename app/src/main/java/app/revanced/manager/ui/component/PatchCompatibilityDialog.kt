@@ -9,18 +9,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.viewmodel.PatchClass
-import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import app.revanced.patcher.annotation.Package
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.get
 
 @Composable
 fun PatchCompatibilityDialog(
-    patchClass: PatchClass, pvm: PatcherScreenViewModel = getViewModel(), onClose: () -> Unit
+    patchClass: PatchClass, patcherUtils: PatcherUtils = get(), onClose: () -> Unit
 ) {
     val patch = patchClass.patch
-    val packageName = pvm.getSelectedPackageInfo()?.packageName
+    val packageName = patcherUtils.getSelectedPackageInfo()?.packageName
     AlertDialog(onDismissRequest = onClose, shape = RoundedCornerShape(12.dp), title = {
         Text(stringResource(id = R.string.unsupported), textAlign = TextAlign.Center)
     }, text = {

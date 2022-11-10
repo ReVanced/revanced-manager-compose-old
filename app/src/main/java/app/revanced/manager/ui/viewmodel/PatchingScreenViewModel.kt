@@ -1,6 +1,6 @@
 package app.revanced.manager.ui.viewmodel
 
-import android.app.Application
+import  android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

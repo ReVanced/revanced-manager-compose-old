@@ -1,7 +1,7 @@
 package app.revanced.manager.di
 
 import android.content.Context
-import app.revanced.manager.preferences.PreferencesManager
+import app.revanced.manager.domain.manager.PreferencesManager
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 

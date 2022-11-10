@@ -1,56 +1,55 @@
 package app.revanced.manager.di
 
 import android.content.Context
-import com.vk.knet.core.Knet
-import com.vk.knet.core.utils.ByteArrayPool
-import com.vk.knet.cornet.CronetKnetEngine
-import com.vk.knet.cornet.config.CronetCache
-import com.vk.knet.cornet.config.CronetQuic
-import com.vk.knet.cornet.pool.buffer.CronetNativeByteBufferPool
+import android.util.Log
+import app.revanced.manager.util.tag
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import okhttp3.Cache
+import okhttp3.Dns
+import okhttp3.Protocol
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import java.util.concurrent.TimeUnit
+import java.net.Inet4Address
+import java.net.InetAddress
 
 val httpModule = module {
-    fun client(appContext: Context) = CronetKnetEngine.Build(appContext) {
-        client {
-            setCache(CronetCache.Disk(appContext.filesDir, 1024 * 1024 * 10))
-
-            enableHttp2(true)
-            enableQuic(
-                CronetQuic()
-            )
-
-            useBrotli(true)
-            connectTimeout(15, TimeUnit.SECONDS)
-            writeTimeout(15, TimeUnit.SECONDS)
-            readTimeout(15, TimeUnit.SECONDS)
-
-            nativePool(CronetNativeByteBufferPool.DEFAULT)
-            arrayPool(ByteArrayPool.DEFAULT)
-
-            maxConcurrentRequests(50)
-            maxConcurrentRequestsPerHost(10)
-
-            followRedirects(true)
-            followSslRedirects(true)
+    fun provideHttpClient(context: Context, json: Json) = HttpClient(OkHttp) {
+        engine {
+            config {
+                dns(object : Dns {
+                    override fun lookup(hostname: String): List<InetAddress> {
+                        val addresses = Dns.SYSTEM.lookup(hostname)
+                        return if (hostname == "raw.githubusercontent.com") {
+                            addresses.filterIsInstance<Inet4Address>()
+                        } else {
+                            addresses
+                        }
+                    }
+                })
+                cache(Cache(context.cacheDir.resolve("cache").also { it.mkdirs() }, 1024 * 1024 * 100))
+                followRedirects(true)
+                followSslRedirects(true)
+            }
+        }
+        install(ContentNegotiation) {
+            json(json)
         }
     }
 
-    fun json() = Json {
+    fun provideJson() = Json {
         encodeDefaults = true
         isLenient = true
         ignoreUnknownKeys = true
     }
 
     single {
-        client(androidContext())
+        provideHttpClient(androidContext(), get())
     }
-    single {
-        json()
-    }
-    single {
-        Knet.Build(get<CronetKnetEngine>())
-    }
+    singleOf(::provideJson)
 }

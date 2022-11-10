@@ -1,27 +1,28 @@
 package app.revanced.manager.ui.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.revanced.manager.network.api.ReVancedAPI
-import app.revanced.manager.network.dto.revanced.Contributor
+import app.revanced.manager.domain.repository.ReVancedRepositoryImpl
+import app.revanced.manager.network.dto.ReVancedContributor
+import app.revanced.manager.network.utils.getOrNull
 import app.revanced.manager.util.*
 import kotlinx.coroutines.launch
 
 class ContributorsViewModel(
-    private val app: Application,
-    private val reVancedAPI: ReVancedAPI
+    private val app: Application, private val reVancedAPI: ReVancedRepositoryImpl
 ) : ViewModel() {
-    val patcherContributorsList = mutableStateListOf<Contributor>()
-    val patchesContributorsList = mutableStateListOf<Contributor>()
-    val cliContributorsList = mutableStateListOf<Contributor>()
-    val managerContributorsList = mutableStateListOf<Contributor>()
-    val integrationsContributorsList = mutableStateListOf<Contributor>()
+    val patcherContributorsList = mutableStateListOf<ReVancedContributor>()
+    val patchesContributorsList = mutableStateListOf<ReVancedContributor>()
+    val cliContributorsList = mutableStateListOf<ReVancedContributor>()
+    val managerContributorsList = mutableStateListOf<ReVancedContributor>()
+    val integrationsContributorsList = mutableStateListOf<ReVancedContributor>()
 
     private fun loadContributors() {
         viewModelScope.launch {
-            val contributors = reVancedAPI.fetchContributors()
+            val contributors = reVancedAPI.getContributors().getOrNull() ?: return@launch
             contributors.repositories.forEach { repo ->
                 when (repo.name) {
                     ghCli -> {
@@ -65,7 +66,7 @@ class ContributorsViewModel(
 
     init {
         viewModelScope.launch {
-            loadContributors()
+                loadContributors()
         }
     }
 }
