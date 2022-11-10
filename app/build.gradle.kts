@@ -82,7 +82,6 @@ dependencies {
     // AndroidX activity
     implementation("androidx.activity:activity-compose:1.6.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
-    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.8.1")
 
     // Koin
     val koinVersion = "3.3.0"
