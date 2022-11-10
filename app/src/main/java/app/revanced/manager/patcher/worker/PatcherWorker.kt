@@ -36,7 +36,6 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import java.time.LocalDateTime
 
 class PatcherWorker(
     context: Context,
@@ -115,7 +114,7 @@ class PatcherWorker(
         val appInfo = patcherUtils.selectedAppPackage.value.get()
 
         Logging.log += "Checking prerequisites\n"
-        val patches = findPatchesByIds(patcherUtils.selectedPatches)
+        val patches = patcherUtils.findPatchesByIds(patcherUtils.selectedPatches)
         if (patches.isEmpty()) return true
 
 
@@ -208,6 +207,7 @@ class PatcherWorker(
                 )
             }
             Logging.log += "Copied file to storage!\n"
+            patcherUtils.cleanup()
         } finally {
             Log.d(tag, "Deleting workdir")
             workdir.deleteRecursively()
@@ -215,11 +215,6 @@ class PatcherWorker(
             Log.d(tag, "Released wakelock.")
         }
         return false
-    }
-
-    private fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<app.revanced.patcher.data.Context>>> {
-        val (patches) = patcherUtils.patches.value as? Resource.Success ?: return listOf()
-        return patches.filter { patch -> ids.any { it == patch.patchName } }
     }
 
 

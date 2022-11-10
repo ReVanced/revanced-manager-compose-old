@@ -1,14 +1,11 @@
 package app.revanced.manager.ui.viewmodel
 
 import android.os.Parcelable
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
-import app.revanced.manager.util.tag
 import app.revanced.patcher.data.Context
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
-import app.revanced.patcher.extensions.PatchExtensions.options
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.patch.Patch
 import kotlinx.parcelize.Parcelize
@@ -39,24 +36,19 @@ class PatchesSelectorViewModel(
         }
     }
 
-    fun getFilteredPatchesAndCheckOptions(): List<PatchClass> {
+    fun getFilteredPatches(): List<PatchClass> {
         return buildList {
             val selected = patcherUtils.getSelectedPackageInfo() ?: return@buildList
             val (patches) = patcherUtils.patches.value as? Resource.Success ?: return@buildList
             patches.forEach patch@{ patch ->
                 var unsupported = false
-                var hasPatchOptions = false
-                if (patch.options != null) {
-                    hasPatchOptions = true
-                    Log.d(tag, "${patch.patchName} has patch options.")
-                }
                 patch.compatiblePackages?.forEach { pkg ->
                     // if we detect unsupported once, don't overwrite it
                     if (pkg.name == selected.packageName) {
                         if (!unsupported)
                             unsupported =
                                 pkg.versions.isNotEmpty() && !pkg.versions.any { it == selected.versionName }
-                        add(PatchClass(patch, unsupported, hasPatchOptions))
+                        add(PatchClass(patch, unsupported))
                     }
                 }
             }
@@ -68,5 +60,4 @@ class PatchesSelectorViewModel(
 data class PatchClass(
     val patch: Class<out Patch<Context>>,
     val unsupported: Boolean,
-    val hasPatchOptions: Boolean,
 ) : Parcelable

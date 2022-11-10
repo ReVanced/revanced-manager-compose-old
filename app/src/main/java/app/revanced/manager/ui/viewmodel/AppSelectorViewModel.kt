@@ -15,13 +15,11 @@ import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
+import java.io.File
 import java.util.*
 
 class AppSelectorViewModel(
-    val app: Application,
-    patcherUtils: PatcherUtils
+    val app: Application, patcherUtils: PatcherUtils
 ) : ViewModel() {
 
     val filteredApps = mutableListOf<ApplicationInfo>()
@@ -71,17 +69,19 @@ class AppSelectorViewModel(
     }
 
     fun setSelectedAppPackageFromFile(file: Uri?) {
-        val apkDir = app.filesDir.resolve("input.apk").toPath()
-        Files.copy(
-            app.contentResolver.openInputStream(file!!),
-            apkDir,
-            StandardCopyOption.REPLACE_EXISTING
-        )
-        setSelectedAppPackage(
-            app.packageManager.getPackageArchiveInfo(
-                apkDir.toString(),
-                PackageManager.GET_META_DATA
-            )!!.applicationInfo
-        )
+        try {
+            val apkDir = app.cacheDir.resolve(File(file!!.path!!).name)
+            app.contentResolver.openInputStream(file)!!.run {
+                copyTo(apkDir.outputStream())
+                close()
+            }
+            setSelectedAppPackage(
+                app.packageManager.getPackageArchiveInfo(
+                    apkDir.path, PackageManager.GET_META_DATA
+                )!!.applicationInfo
+            )
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to load apk", e)
+        }
     }
 }

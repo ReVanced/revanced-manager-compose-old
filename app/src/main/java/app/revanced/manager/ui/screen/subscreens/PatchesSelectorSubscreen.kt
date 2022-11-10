@@ -25,6 +25,7 @@ import app.revanced.manager.ui.theme.Typography
 import app.revanced.manager.ui.viewmodel.PatchClass
 import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
 import app.revanced.patcher.extensions.PatchExtensions.description
+import app.revanced.patcher.extensions.PatchExtensions.options
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.extensions.PatchExtensions.version
 import com.xinto.taxi.BackstackNavigator
@@ -40,7 +41,7 @@ fun PatchesSelectorSubscreen(
     patcherUtils: PatcherUtils = get()
 ) {
     val patchesState by patcherUtils.patches
-    val patches = psvm.getFilteredPatchesAndCheckOptions()
+    val patches = psvm.getFilteredPatches()
     var query by mutableStateOf("")
 
     Scaffold(
@@ -193,7 +194,7 @@ fun PatchCard(patchClass: PatchClass, isSelected: Boolean, onSelected: () -> Uni
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(4.dp)
                     ) {
-                        if (patchClass.hasPatchOptions) {
+                        if (patchClass.patch.options != null) {
                             CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides false) {
                                 IconButton(onClick = { }, modifier = Modifier.size(24.dp)) {
                                     Icon(

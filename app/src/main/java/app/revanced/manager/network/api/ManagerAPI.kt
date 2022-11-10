@@ -7,11 +7,14 @@ import app.revanced.manager.domain.manager.PreferencesManager
 import app.revanced.manager.domain.repository.GithubRepositoryImpl
 import app.revanced.manager.domain.repository.ReVancedRepositoryImpl
 import app.revanced.manager.patcher.PatcherUtils
-import app.revanced.manager.util.get
 import app.revanced.manager.util.ghIntegrations
 import app.revanced.manager.util.ghPatches
 import app.revanced.manager.util.tag
-import com.vk.knet.core.Knet
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -22,52 +25,42 @@ class ManagerAPI(
     private val patcherUtils: PatcherUtils,
     private val gitHubAPI: GithubRepositoryImpl,
     private val reVancedAPI: ReVancedRepositoryImpl,
-    private val client: Knet
+    private val client: HttpClient
 ) {
 
-    private fun downloadAsset(
+    private suspend fun downloadAsset(
         workdir: File, downloadUrl: String
     ): File {
         val name = URLUtil.guessFileName(downloadUrl, null, null)
         val out = workdir.resolve(name)
-        if (out.exists()) {
-            Log.d(
-                tag, "Skipping downloading asset $name because it exists in cache!"
-            )
-            return out
-        }
-        val file = client.get(downloadUrl).body!!.asBytes()
-        out.writeBytes(file)
+        client.get(downloadUrl).bodyAsChannel().copyAndClose(out.writeChannel())
         return out
     }
 
-    suspend fun downloadPatches() =
-        withContext(Dispatchers.Main) {
-            try {
-                val asset = if (prefs.srcPatches!! == ghPatches) {
-                    reVancedAPI.findAsset(ghPatches, ".jar")
-                } else gitHubAPI.findAsset(prefs.srcPatches!!, ".jar")
-                asset.run {
-                    downloadAsset(app.cacheDir, downloadUrl).run {
-                        absolutePath.also {
-                            patcherUtils.run {
-                                patchBundleFile = it
-                                loadPatchBundle(it)
-                            }
-                        }
+    suspend fun downloadPatches() = withContext(Dispatchers.Main) {
+        try {
+            val asset =
+                if (prefs.srcPatches!! == ghPatches) reVancedAPI.findAsset(ghPatches, ".jar")
+                else gitHubAPI.findAsset(prefs.srcPatches!!, ".jar")
+            asset.run {
+                downloadAsset(app.cacheDir, downloadUrl).run {
+                    patcherUtils.run {
+                        patchBundleFile = absolutePath
+                        loadPatchBundle(absolutePath)
                     }
                 }
-            } catch (e: Exception) {
-                Log.e(tag, "An error occurred while downloading patches", e)
             }
+        } catch (e: Exception) {
+            Log.e(tag, "An error occurred while downloading patches", e)
         }
+    }
 
     suspend fun downloadIntegrations(workdir: File) = withContext(Dispatchers.IO) {
         val asset = if (prefs.srcIntegrations!! == ghIntegrations) {
             reVancedAPI.findAsset(prefs.srcIntegrations!!, ".apk")
         } else gitHubAPI.findAsset(prefs.srcIntegrations!!, ".apk")
         asset.run {
-            val file = downloadAsset(File(name), downloadUrl)
+            val file = downloadAsset(workdir, downloadUrl)
             workdir.resolve(name).writeBytes(file.readBytes())
             file
         }

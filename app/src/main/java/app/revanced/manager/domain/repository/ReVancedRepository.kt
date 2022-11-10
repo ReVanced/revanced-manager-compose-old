@@ -4,13 +4,14 @@ import app.revanced.manager.network.api.PatchesAsset
 import app.revanced.manager.network.dto.ReVancedReleases
 import app.revanced.manager.network.dto.ReVancedRepositories
 import app.revanced.manager.network.service.ReVancedService
+import app.revanced.manager.network.utils.APIResponse
 
 interface ReVancedRepository {
-    suspend fun getAssets(): ReVancedReleases
+    suspend fun getAssets(): APIResponse<ReVancedReleases>
 
-    suspend fun getContributors(): ReVancedRepositories
+    suspend fun getContributors(): APIResponse<ReVancedRepositories>
 
-    suspend fun findAsset(file: String, repo: String): PatchesAsset
+    suspend fun findAsset(repo: String, file: String): PatchesAsset
 }
 
 class ReVancedRepositoryImpl(
@@ -20,5 +21,5 @@ class ReVancedRepositoryImpl(
 
     override suspend fun getContributors() = service.getContributors()
 
-    override suspend fun findAsset(file: String, repo: String) = service.findAsset(file, repo)
+    override suspend fun findAsset(repo: String, file: String) = service.findAsset(repo, file)
 }

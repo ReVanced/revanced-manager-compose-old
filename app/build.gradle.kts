@@ -82,6 +82,7 @@ dependencies {
     // AndroidX activity
     implementation("androidx.activity:activity-compose:1.6.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.8.1")
 
     // Koin
     val koinVersion = "3.3.0"
@@ -122,8 +123,11 @@ dependencies {
     // Licenses
     implementation("com.mikepenz:aboutlibraries-compose:10.5.1")
 
-    // Networking
-    implementation("com.vk.knet:core:1.0")
-    implementation("com.vk.knet:cronet:1.0")
-    implementation("com.vk.knet:okcronet:1.0")
+    // Ktor
+    val ktorVersion = "2.1.3"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 }

@@ -31,8 +31,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        requestAllFilesAccess()
-        requestIgnoreBatteryOptimizations()
         setContent {
             ReVancedManagerTheme(
                 dynamicColor = prefs.dynamicColor,

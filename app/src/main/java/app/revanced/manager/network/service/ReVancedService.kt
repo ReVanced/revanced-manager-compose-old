@@ -3,45 +3,47 @@ package app.revanced.manager.network.service
 import app.revanced.manager.BuildConfig
 import app.revanced.manager.network.api.MissingAssetException
 import app.revanced.manager.network.api.PatchesAsset
-import app.revanced.manager.network.dto.Assets
 import app.revanced.manager.network.dto.ReVancedReleases
 import app.revanced.manager.network.dto.ReVancedRepositories
-import app.revanced.manager.util.body
-import app.revanced.manager.util.get
-import com.vk.knet.core.Knet
+import app.revanced.manager.network.utils.APIResponse
+import app.revanced.manager.network.utils.getOrNull
+import io.ktor.client.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 
 interface ReVancedService {
-    suspend fun getAssets(): ReVancedReleases
+    suspend fun getAssets(): APIResponse<ReVancedReleases>
 
-    suspend fun getContributors(): ReVancedRepositories
+    suspend fun getContributors(): APIResponse<ReVancedRepositories>
 
     suspend fun findAsset(repo: String, file: String): PatchesAsset
-
-    fun List<Assets>.findAsset(repo: String, file: String): Assets?
 }
 
 class ReVancedServiceImpl(
-    private val client: Knet,
-    private val json: Json
+    private val client: HttpService,
 ) : ReVancedService {
-    override suspend fun getAssets(): ReVancedReleases = withContext(Dispatchers.IO) {
-        client.get("$apiUrl/tools").body(json)
+    override suspend fun getAssets(): APIResponse<ReVancedReleases> {
+        return withContext(Dispatchers.IO) {
+            client.request {
+                url("$apiUrl/tools")
+            }
+        }
     }
 
-    override suspend fun getContributors(): ReVancedRepositories = withContext(Dispatchers.IO) {
-        client.get("$apiUrl/contributors").body(json)
+    override suspend fun getContributors(): APIResponse<ReVancedRepositories> {
+        return withContext(Dispatchers.IO) {
+            client.request {
+                url("$apiUrl/contributors")
+            }
+        }
     }
 
     override suspend fun findAsset(repo: String, file: String): PatchesAsset {
-        val asset = getAssets().tools.findAsset(repo, file) ?: throw MissingAssetException()
-        return asset.run { PatchesAsset(downloadUrl, name) }
-    }
-
-    override fun List<Assets>.findAsset(repo: String, file: String) = find { asset ->
-        (asset.name.contains(file) && asset.repository.contains(repo))
+        val releases = getAssets().getOrNull() ?: throw Exception("Cannot retrieve assets")
+        val asset = releases.tools.find { asset ->
+            (asset.name.contains(file) && asset.repository.contains(repo))
+        } ?: throw MissingAssetException()
+        return PatchesAsset(asset.downloadUrl, asset.name)
     }
 
     private companion object {
