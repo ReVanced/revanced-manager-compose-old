@@ -36,7 +36,7 @@ android {
 
         buildConfigField("String", "REVANCED_API_URL", "\"https://releases.revanced.app\"")
         buildConfigField("String", "GITHUB_API_URL", "\"https://api.github.com\"")
-        buildConfigField("String", "SENTRY_DSN", System.getenv("SENTRY_DSN") ?: "\"\"")
+        buildConfigField("String", "SENTRY_DSN", "\"${System.getenv("SENTRY_DSN").orEmpty()}\"")
     }
 
     buildTypes {
