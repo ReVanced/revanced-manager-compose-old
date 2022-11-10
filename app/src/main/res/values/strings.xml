@@ -34,5 +34,6 @@
     <string name="split_apk_warning">You have selected a resource patch and a split APK installation was detected so patching errors can occur.\nAre you sure you want to proceed with patching a split base APK?</string>
     <string name="opensource_licenses">Open source licenses</string>
     <string name="select_sources">Select sources</string>
+    <string name="sentry">Sentry</string>
     <string name="select_bundle_from_storage">Select a bundle from storage</string>
 </resources>

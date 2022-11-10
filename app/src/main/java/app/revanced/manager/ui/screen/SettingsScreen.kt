@@ -68,7 +68,22 @@ fun SettingsScreen(
                 }
             )
         }
-
+        ListItem(
+            modifier = Modifier.clickable { prefs.sentry = !prefs.sentry },
+            headlineText = { Text(stringResource(R.string.sentry)) },
+            leadingContent = {
+                Icon(
+                    Icons.Default.IntegrationInstructions,
+                    contentDescription = null
+                )
+            },
+            trailingContent = {
+                Switch(
+                    checked = prefs.sentry,
+                    onCheckedChange = { prefs.sentry = it }
+                )
+            }
+        )
         Divider()
         SocialItem(R.string.github, R.drawable.ic_github, viewModel::openGitHub)
         SocialItem(R.string.opensource_licenses, Icons.Default.LibraryBooks, onClickLicenses)
