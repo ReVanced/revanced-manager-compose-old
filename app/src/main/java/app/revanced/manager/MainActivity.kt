@@ -18,10 +18,10 @@ import app.revanced.manager.ui.screen.MainDashboardScreen
 import app.revanced.manager.ui.screen.subscreens.*
 import app.revanced.manager.ui.theme.ReVancedManagerTheme
 import app.revanced.manager.ui.theme.Theme
-import app.revanced.manager.util.requestAllFilesAccess
-import app.revanced.manager.util.requestIgnoreBatteryOptimizations
 import com.xinto.taxi.Taxi
 import com.xinto.taxi.rememberBackstackNavigator
+import io.sentry.SentryOptions
+import io.sentry.android.core.SentryAndroid
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -30,6 +30,17 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        SentryAndroid.init(this) {
+            it.dsn = if (prefs.sentry) BuildConfig.SENTRY_DSN else ""
+            it.environment = BuildConfig.BUILD_TYPE
+            it.release = BuildConfig.VERSION_NAME
+
+            it.beforeSend = SentryOptions.BeforeSendCallback { event, _ ->
+                if (prefs.sentry) {
+                    event
+                } else null
+            }
+        }
         super.onCreate(savedInstanceState)
         setContent {
             ReVancedManagerTheme(

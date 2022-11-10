@@ -24,6 +24,7 @@ jobs:
     - name: Build with Gradle
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       run: ./gradlew assembleRelease
     - name: Sign APK
       id: sign_apk

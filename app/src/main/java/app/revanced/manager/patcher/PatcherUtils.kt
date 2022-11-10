@@ -14,6 +14,7 @@ import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.patch.Patch
 import app.revanced.patcher.util.patch.PatchBundle
 import dalvik.system.DexClassLoader
+import io.sentry.Sentry
 import java.util.*
 
 class PatcherUtils(val app: Application) {
@@ -40,6 +41,7 @@ class PatcherUtils(val app: Application) {
             } else throw IllegalStateException("No patch bundle(s) selected.")
         } catch (e: Exception) {
             Log.e(tag, "Failed to load patch bundle.", e)
+            Sentry.captureException(e)
         }
     }
 

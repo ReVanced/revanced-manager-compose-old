@@ -12,6 +12,7 @@ import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.util.tag
 import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,6 +51,7 @@ class AppSelectorViewModel(
             Log.d(tag, "Filtered apps.")
         } catch (e: Exception) {
             Log.e(tag, "An error occurred while filtering", e)
+            Sentry.captureException(e)
         }
     }
 
@@ -82,6 +84,7 @@ class AppSelectorViewModel(
             )
         } catch (e: Exception) {
             Log.e(tag, "Failed to load apk", e)
+            Sentry.captureException(e)
         }
     }
 }

@@ -15,6 +15,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -52,6 +53,7 @@ class ManagerAPI(
             }
         } catch (e: Exception) {
             Log.e(tag, "An error occurred while downloading patches", e)
+            Sentry.captureException(e)
         }
     }
 
@@ -65,7 +67,6 @@ class ManagerAPI(
             file
         }
     }
-
 }
 
 

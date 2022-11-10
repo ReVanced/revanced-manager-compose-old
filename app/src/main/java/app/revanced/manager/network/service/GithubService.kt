@@ -7,7 +7,6 @@ import app.revanced.manager.network.dto.GithubContributor
 import app.revanced.manager.network.dto.GithubReleases
 import app.revanced.manager.network.utils.APIResponse
 import app.revanced.manager.network.utils.getOrNull
-import app.revanced.manager.network.utils.getOrThrow
 import io.ktor.client.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,7 +41,6 @@ class GithubServiceImpl(
 
     override suspend fun findAsset(repo: String, file: String): PatchesAsset {
         val releases = getReleases(repo).getOrNull() ?: throw Exception("Cannot retrieve assets")
-
         val asset = releases.assets.find { asset ->
             (asset.name.contains(file) && !asset.name.contains("-sources") && !asset.name.contains("-javadoc"))
         } ?: throw MissingAssetException()

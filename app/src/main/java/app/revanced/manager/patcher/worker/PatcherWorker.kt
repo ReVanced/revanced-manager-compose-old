@@ -22,13 +22,11 @@ import app.revanced.manager.patcher.aligning.ZipAligner
 import app.revanced.manager.patcher.aligning.zip.ZipFile
 import app.revanced.manager.patcher.aligning.zip.structures.ZipEntry
 import app.revanced.manager.patcher.signing.Signer
-import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.viewmodel.Logging
 import app.revanced.patcher.Patcher
 import app.revanced.patcher.PatcherOptions
-import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.logging.Logger
-import app.revanced.patcher.patch.Patch
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -79,6 +77,7 @@ class PatcherWorker(
             setForeground(ForegroundInfo(1, createNotification()))
         } catch (e: Exception) {
             Log.d(tag, "Failed to set foreground info:", e)
+            Sentry.captureException(e)
         }
 
         return try {
@@ -86,6 +85,7 @@ class PatcherWorker(
             Result.success()
         } catch (e: Exception) {
             Log.e(tag, "Error while patching: ${e.message ?: e::class.simpleName}")
+            Sentry.captureException(e)
             Result.failure()
         }
     }
@@ -176,7 +176,6 @@ class PatcherWorker(
                     Logging.log += "Failed to apply $patch" + result.exceptionOrNull()!!.cause + "\n"
                     return@forEach
                 }
-
             }
 
             Logging.log += "Saving file\n"

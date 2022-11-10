@@ -36,7 +36,7 @@ android {
 
         buildConfigField("String", "REVANCED_API_URL", "\"https://releases.revanced.app\"")
         buildConfigField("String", "GITHUB_API_URL", "\"https://api.github.com\"")
-
+        buildConfigField("String", "SENTRY_DSN", System.getenv("SENTRY_DSN") ?: "\"\"")
     }
 
     buildTypes {
@@ -129,4 +129,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+    // Sentry
+    implementation("io.sentry:sentry-android:6.7.0")
 }

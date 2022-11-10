@@ -16,4 +16,5 @@ class PreferencesManager(
     var theme by enumPreference("theme", Theme.SYSTEM)
     var srcPatches by stringPreference("src_patches", ghPatches)
     var srcIntegrations by stringPreference("src_integrations", ghIntegrations)
+    var sentry by booleanPreference("sentry", true)
 }
