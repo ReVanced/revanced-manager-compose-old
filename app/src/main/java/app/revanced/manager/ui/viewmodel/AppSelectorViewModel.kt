@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.revanced.manager.patcher.PatcherUtils
@@ -23,8 +24,9 @@ class AppSelectorViewModel(
     val app: Application, patcherUtils: PatcherUtils
 ) : ViewModel() {
 
-    val filteredApps = mutableListOf<ApplicationInfo>()
+    val filteredApps = mutableStateListOf<ApplicationInfo>()
     val patches = patcherUtils.patches
+    private val filteredPatches = patcherUtils.filteredPatches
     private val selectedAppPackage = patcherUtils.selectedAppPackage
     private val selectedPatches = patcherUtils.selectedPatches
 
@@ -32,7 +34,7 @@ class AppSelectorViewModel(
         viewModelScope.launch { filterApps() }
     }
 
-    private suspend fun filterApps() = withContext(Dispatchers.Main) {
+    private suspend fun filterApps() = withContext(Dispatchers.Default) {
         try {
             val (patches) = patches.value as Resource.Success
             patches.forEach patch@{ patch ->
@@ -59,13 +61,16 @@ class AppSelectorViewModel(
         return app.packageManager.getApplicationLabel(info).toString()
     }
 
-    fun loadIcon(info: ApplicationInfo): Drawable? {
-        return info.loadIcon(app.packageManager)
+    fun loadIcon(info: ApplicationInfo): Drawable {
+        return app.packageManager.getApplicationIcon(info)
     }
 
     fun setSelectedAppPackage(appId: ApplicationInfo) {
         selectedAppPackage.value.ifPresent { s ->
-            if (s != appId) selectedPatches.clear()
+            if (s != appId) {
+                selectedPatches.clear()
+                filteredPatches.clear()
+            }
         }
         selectedAppPackage.value = Optional.of(appId)
     }

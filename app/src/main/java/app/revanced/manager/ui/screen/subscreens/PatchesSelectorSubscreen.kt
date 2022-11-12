@@ -13,132 +13,122 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.patcher.PatcherUtils
-import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.LoadingIndicator
-import app.revanced.manager.ui.component.PatchCard
 import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import com.xinto.taxi.BackstackNavigator
-import org.koin.androidx.compose.get
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
+import app.revanced.manager.ui.component.PatchCard
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatchesSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
-    psvm: PatchesSelectorViewModel = getViewModel(),
-    patcherUtils: PatcherUtils = get()
+    vm: PatchesSelectorViewModel = getViewModel(),
 ) {
-    val patchesState by patcherUtils.patches
-    val patches = psvm.getFilteredPatches()
+    val patches = vm.filteredPatches
     var query by mutableStateOf("")
 
-    Scaffold(
-        topBar = {
-            MediumTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.card_patches_header),
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = navigator::pop) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        psvm.selectAllPatches(patches, !psvm.anyPatchSelected())
-                    }) {
-                        if (!psvm.anyPatchSelected()) Icon(
-                            Icons.Default.SelectAll,
-                            contentDescription = null
-                        ) else Icon(Icons.Default.Deselect, contentDescription = null)
-                    }
-                }
-            )
+    LaunchedEffect(null) {
+        launch(Dispatchers.Default) {
+            vm.filterPatches()
         }
-    ) { paddingValues ->
+    }
+    Scaffold(topBar = {
+        MediumTopAppBar(title = {
+            Text(
+                text = stringResource(R.string.card_patches_header),
+                style = MaterialTheme.typography.headlineLarge
+            )
+        }, navigationIcon = {
+            IconButton(onClick = navigator::pop) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack, contentDescription = null
+                )
+            }
+        }, actions = {
+            IconButton(onClick = {
+                vm.selectAllPatches(patches, vm.selectedPatches.isEmpty())
+            }) {
+                if (vm.selectedPatches.isEmpty()) Icon(
+                    Icons.Default.SelectAll, contentDescription = null
+                ) else Icon(Icons.Default.Deselect, contentDescription = null)
+            }
+        })
+    }) { paddingValues ->
         Column(
-            modifier = Modifier
-                .padding(paddingValues)
+            modifier = Modifier.padding(paddingValues)
         ) {
-            when (patchesState) {
-                is Resource.Success -> {
-                    if (patches.isNotEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp, 4.dp),
+            if (!vm.loading) {
+                if (patches.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp, 4.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                OutlinedTextField(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp),
-                                    shape = RoundedCornerShape(12.dp),
-                                    value = query,
-                                    onValueChange = { newValue ->
-                                        query = newValue
-                                    },
-                                    leadingIcon = {
-                                        Icon(Icons.Default.Search, stringResource(R.string.search))
-                                    },
-                                    trailingIcon = {
-                                        if (query.isNotEmpty()) {
-                                            IconButton(onClick = {
-                                                query = ""
-                                            }) {
-                                                Icon(Icons.Default.Clear, stringResource(R.string.clear))
-                                            }
-                                        }
-                                    },
-                                )
-                            }
-                        }
-                        LazyColumn(Modifier.padding(0.dp, 2.dp)) {
-
-                            if (query.isEmpty() || query.isBlank()) {
-                                items(count = patches.size) {
-                                    val patch = patches[it]
-                                    val name = patch.patch.patchName
-                                    PatchCard(patch, psvm.isPatchSelected(name)) {
-                                        psvm.selectPatch(name, !psvm.isPatchSelected(name))
-                                    }
-                                }
-                            } else {
-                                items(count = patches.size) {
-                                    val patch = patches[it]
-                                    val name = patch.patch.patchName
-                                    if (name.contains(query.lowercase())) {
-                                        PatchCard(patch, psvm.isPatchSelected(name)) {
-                                            psvm.selectPatch(name, !psvm.isPatchSelected(name))
+                            OutlinedTextField(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                value = query,
+                                onValueChange = { newValue ->
+                                    query = newValue
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Search, "Search")
+                                },
+                                trailingIcon = {
+                                    if (query.isNotEmpty()) {
+                                        IconButton(onClick = {
+                                            query = ""
+                                        }) {
+                                            Icon(Icons.Default.Clear, "Clear")
                                         }
                                     }
-                                }
-                            }
-                        }
-                    } else {
-                        Column(
-                            Modifier.fillMaxSize(),
-                            Arrangement.Center,
-                            Alignment.CenterHorizontally
-                        ) {
-                            Text(stringResource(R.string.no_compatible_patches))
+                                },
+                            )
                         }
                     }
+                    LazyColumn(Modifier.padding(0.dp, 2.dp)) {
+
+                        if (query.isEmpty() || query.isBlank()) {
+                            items(count = patches.size) {
+                                val patch = patches[it]
+                                val name = patch.patch.patchName
+                                PatchCard(patch, vm.isPatchSelected(name)) {
+                                    vm.selectPatch(name, !vm.isPatchSelected(name))
+                                }
+                            }
+                        } else {
+                            items(count = patches.size) {
+                                val patch = patches[it]
+                                val name = patch.patch.patchName
+                                if (name.contains(query.lowercase())) {
+                                    PatchCard(patch, vm.isPatchSelected(name)) {
+                                        vm.selectPatch(name, !vm.isPatchSelected(name))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Column(
+                        Modifier.fillMaxSize(),
+                        Arrangement.Center,
+                        Alignment.CenterHorizontally
+                    ) {
+                        Text(stringResource(R.string.no_compatible_patches))
+                    }
                 }
-                else -> LoadingIndicator(null)
-            }
+            } else LoadingIndicator(null)
         }
     }
 }

@@ -1,7 +1,6 @@
 package app.revanced.manager.ui.screen.subscreens
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -12,9 +11,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.SdStorage
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.AppIcon
@@ -31,17 +28,12 @@ fun AppSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
     vm: AppSelectorViewModel = getViewModel(),
 ) {
-    val context = LocalContext.current
-
-    val filtered = mutableStateOf(vm.filteredApps.isNotEmpty())
 
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
             vm.setSelectedAppPackageFromFile(uri)
             navigator.pop()
-            return@rememberLauncherForActivityResult
         }
-        Toast.makeText(context, "Couldn't load APK file.", Toast.LENGTH_SHORT).show()
     }
 
     Scaffold(
@@ -63,7 +55,7 @@ fun AppSelectorSubscreen(
             )
         },
     ) { paddingValues ->
-        if (filtered.value) {
+        if (vm.filteredApps.isNotEmpty()) {
             LazyColumn(modifier = Modifier.padding(paddingValues)) {
                 items(count = vm.filteredApps.size) { int ->
                     val app = vm.filteredApps[int]

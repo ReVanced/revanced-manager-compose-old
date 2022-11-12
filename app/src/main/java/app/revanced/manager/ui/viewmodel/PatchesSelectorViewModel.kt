@@ -1,6 +1,9 @@
 package app.revanced.manager.ui.viewmodel
 
 import android.os.Parcelable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
@@ -13,14 +16,12 @@ import kotlinx.parcelize.Parcelize
 class PatchesSelectorViewModel(
     private val patcherUtils: PatcherUtils
 ) : ViewModel() {
-    private val selectedPatches = patcherUtils.selectedPatches
+    val filteredPatches = patcherUtils.filteredPatches
+    val selectedPatches = patcherUtils.selectedPatches
+    var loading by mutableStateOf(true)
 
     fun isPatchSelected(patchId: String): Boolean {
         return selectedPatches.contains(patchId)
-    }
-
-    fun anyPatchSelected(): Boolean {
-        return !selectedPatches.isEmpty()
     }
 
     fun selectPatch(patchId: String, state: Boolean) {
@@ -36,23 +37,26 @@ class PatchesSelectorViewModel(
         }
     }
 
-    fun getFilteredPatches(): List<PatchClass> {
-        return buildList {
-            val selected = patcherUtils.getSelectedPackageInfo() ?: return@buildList
-            val (patches) = patcherUtils.patches.value as? Resource.Success ?: return@buildList
-            patches.forEach patch@{ patch ->
-                var unsupported = false
-                patch.compatiblePackages?.forEach { pkg ->
-                    // if we detect unsupported once, don't overwrite it
-                    if (pkg.name == selected.packageName) {
-                        if (!unsupported)
-                            unsupported =
-                                pkg.versions.isNotEmpty() && !pkg.versions.any { it == selected.versionName }
-                        add(PatchClass(patch, unsupported))
-                    }
+    fun filterPatches() {
+        loading = true
+        val selected = patcherUtils.getSelectedPackageInfo() ?: return
+        val (patches) = patcherUtils.patches.value as? Resource.Success ?: return
+        if (filteredPatches.isNotEmpty()) {
+            loading = false; return
+        }
+        patches.forEach patch@{ patch ->
+            var unsupported = false
+            patch.compatiblePackages?.forEach { pkg ->
+                // if we detect unsupported once, don't overwrite it
+                if (pkg.name == selected.packageName) {
+                    if (!unsupported)
+                        unsupported =
+                            pkg.versions.isNotEmpty() && !pkg.versions.any { it == selected.versionName }
+                    filteredPatches.add(PatchClass(patch, unsupported))
                 }
             }
         }
+        loading = false
     }
 }
 

@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import app.revanced.manager.ui.Resource
+import app.revanced.manager.ui.viewmodel.PatchClass
 import app.revanced.manager.util.tag
 import app.revanced.patcher.data.Context
 import app.revanced.patcher.extensions.PatchExtensions.patchName
@@ -19,12 +20,13 @@ import java.util.*
 
 class PatcherUtils(val app: Application) {
     val patches = mutableStateOf<Resource<List<Class<out Patch<Context>>>>>(Resource.Loading)
+    val filteredPatches = mutableStateListOf<PatchClass>()
     val selectedAppPackage = mutableStateOf(Optional.empty<ApplicationInfo>())
     val selectedPatches = mutableStateListOf<String>()
     lateinit var patchBundleFile: String
 
     fun cleanup() {
-        patches.value = Resource.Success(emptyList())
+        patches.value = Resource.Loading
         selectedAppPackage.value = Optional.empty()
         selectedPatches.clear()
     }

@@ -1,6 +1,12 @@
 package app.revanced.manager.ui.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
@@ -11,14 +17,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.network.api.ManagerAPI
-import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.FloatingActionButton
 import app.revanced.manager.ui.component.SplitAPKDialog
-import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
-import org.koin.androidx.compose.get
+import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,27 +31,17 @@ fun PatcherScreen(
     onClickPatchSelector: () -> Unit,
     onClickPatch: () -> Unit,
     onClickSourceSelector: () -> Unit,
-    patcherUtils: PatcherUtils = get(),
-    psvm: PatchesSelectorViewModel = getViewModel(),
-    managerAPI: ManagerAPI = get()
+    vm: PatcherScreenViewModel = getViewModel(),
 ) {
-    val selectedAmount = patcherUtils.selectedPatches.size
-    val selectedAppPackage by patcherUtils.selectedAppPackage
-    val hasAppSelected = selectedAppPackage.isPresent
-    val patchesLoaded = patcherUtils.patches.value is Resource.Success
     var showDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(patchesLoaded) {
-        if (!patchesLoaded) {
-            managerAPI.downloadPatches()
-        }
-    }
+    val hasAppSelected by mutableStateOf(vm.selectedAppPackage.isPresent)
+    val patchesLoaded by mutableStateOf(vm.patchesLoaded is Resource.Success)
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                enabled = hasAppSelected && psvm.anyPatchSelected(),
-                onClick = { onClickPatch(); patcherUtils.loadPatchBundle() }, // TODO: replace this with something better
-                icon = { Icon(Icons.Default.Build, contentDescription = stringResource(R.string.patch)) },
+                enabled = hasAppSelected && vm.selectedPatches.isNotEmpty(),
+                onClick = onClickPatch,
+                icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
                 text = { Text(stringResource(R.string.patch)) }
             )
         }) { paddingValues ->
@@ -89,18 +82,18 @@ fun PatcherScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (selectedAppPackage.isPresent) {
+                        if (vm.selectedAppPackage.isPresent) {
                             AppIcon(
                                 LocalContext.current.packageManager.getApplicationIcon(
-                                    selectedAppPackage.get().packageName
+                                    vm.selectedAppPackage.get().packageName
                                 ), contentDescription = null, size = 18
                             )
                             Spacer(Modifier.width(5.dp))
                         }
                         Text(
                             text = if (patchesLoaded) {
-                                if (selectedAppPackage.isPresent) {
-                                    selectedAppPackage.get().packageName
+                                if (vm.selectedAppPackage.isPresent) {
+                                    vm.selectedAppPackage.get().packageName
                                 } else {
                                     stringResource(R.string.card_application_not_selected)
                                 }
@@ -128,8 +121,8 @@ fun PatcherScreen(
                     Text(
                         text = if (!hasAppSelected) {
                             stringResource(R.string.select_an_application_first)
-                        } else if (psvm.anyPatchSelected()) {
-                            "$selectedAmount patches selected."
+                        } else if (vm.selectedPatches.isNotEmpty()) {
+                            "${vm.selectedPatches.size} patches selected."
                         } else {
                             stringResource(R.string.card_patches_body_patches)
                         },

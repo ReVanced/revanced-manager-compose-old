@@ -38,7 +38,7 @@ class ManagerAPI(
         return out
     }
 
-    suspend fun downloadPatches() = withContext(Dispatchers.Main) {
+    suspend fun downloadPatches() = withContext(Dispatchers.Default) {
         try {
             val asset =
                 if (prefs.srcPatches!! == ghPatches) reVancedAPI.findAsset(ghPatches, ".jar")

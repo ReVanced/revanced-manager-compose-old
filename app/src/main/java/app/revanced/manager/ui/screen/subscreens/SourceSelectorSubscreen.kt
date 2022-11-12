@@ -20,19 +20,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
-import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.component.SourceItem
 import app.revanced.manager.ui.navigation.AppDestination
+import app.revanced.manager.ui.viewmodel.SourceSelectorViewModel
 import com.xinto.taxi.BackstackNavigator
-import org.koin.androidx.compose.get
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
+import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SourceSelectorSubscreen(
     navigator: BackstackNavigator<AppDestination>,
-    patcherUtils: PatcherUtils = get()
+    viewModel: SourceSelectorViewModel = getViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         state = rememberTopAppBarState(),
@@ -42,17 +40,7 @@ fun SourceSelectorSubscreen(
 
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
-            val patchesFile = context.cacheDir.resolve("patches.jar")
-            Files.copy(
-                context.contentResolver.openInputStream(uri),
-                patchesFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-            )
-            patchesFile.absolutePath.also {
-                patcherUtils.patchBundleFile = it
-                patcherUtils.loadPatchBundle(it)
-            }
-
+            viewModel.loadBundle(uri)
             navigator.pop()
             return@rememberLauncherForActivityResult
         }

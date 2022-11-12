@@ -25,11 +25,11 @@ import org.koin.androidx.compose.getViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = getViewModel(),
+    vm: SettingsViewModel = getViewModel(),
     onClickContributors: () -> Unit,
     onClickLicenses: () -> Unit,
 ) {
-    val prefs = viewModel.prefs
+    val prefs = vm.prefs
 
     Column(
         modifier = Modifier
@@ -38,19 +38,19 @@ fun SettingsScreen(
             .verticalScroll(state = rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (viewModel.showThemePicker) {
+        if (vm.showThemePicker) {
             ThemePicker(
-                onDismissRequest = viewModel::dismissThemePicker,
-                onConfirm = viewModel::setTheme
+                onDismissRequest = vm::dismissThemePicker,
+                onConfirm = vm::setTheme
             )
         }
         GroupHeader(stringResource(R.string.appearance))
         ListItem(
-            modifier = Modifier.clickable { viewModel.showThemePicker() },
+            modifier = Modifier.clickable { vm.showThemePicker() },
             headlineText = { Text(stringResource(R.string.theme)) },
             leadingContent = { Icon(Icons.Default.Style, contentDescription = null) },
             trailingContent = {
-                FilledTonalButton(onClick = { viewModel.showThemePicker() }) {
+                FilledTonalButton(onClick = { vm.showThemePicker() }) {
                     Text(text = prefs.theme.displayName)
                 }
             }
@@ -85,7 +85,7 @@ fun SettingsScreen(
             }
         )
         Divider()
-        SocialItem(R.string.github, R.drawable.ic_github, viewModel::openGitHub)
+        SocialItem(R.string.github, R.drawable.ic_github, vm::openGitHub)
         SocialItem(R.string.opensource_licenses, Icons.Default.LibraryBooks, onClickLicenses)
         SocialItem(R.string.screen_contributors_title, Icons.Default.Group, onClickContributors)
     }
