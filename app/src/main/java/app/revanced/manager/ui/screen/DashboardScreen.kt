@@ -91,7 +91,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
             ) {
                 ApplicationItem(
                     name = "Youtube ReVanced",
-                    released = "Released [who knows] centuries ago",
+                    released = "9d ago",
                     icon = { Icon(Icons.Default.Dashboard, "ReVanced") }
                 ) {
                     ChangelogText(
@@ -102,7 +102,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                 }
                 ApplicationItem(
                     name = "Reddit ReVanced",
-                    released = "Released [REDACTED] month ago",
+                    released = "1 month ago",
                     icon = { Icon(Icons.Default.Build, "ReReddit") }
                 ) {
                     ChangelogText(
