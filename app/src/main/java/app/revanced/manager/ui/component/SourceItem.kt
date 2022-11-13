@@ -1,6 +1,5 @@
 package app.revanced.manager.ui.component
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import coil.compose.AsyncImage
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SourceItem() {
     Row(

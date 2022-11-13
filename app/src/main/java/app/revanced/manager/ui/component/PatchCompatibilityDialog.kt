@@ -17,24 +17,30 @@ import org.koin.androidx.compose.get
 
 @Composable
 fun PatchCompatibilityDialog(
-    patchClass: PatchClass, patcherUtils: PatcherUtils = get(), onClose: () -> Unit
+    patchClass: PatchClass,
+    patcherUtils: PatcherUtils = get(),
+    onClose: () -> Unit
 ) {
     val patch = patchClass.patch
     val packageName = patcherUtils.getSelectedPackageInfo()?.packageName
-    AlertDialog(onDismissRequest = onClose, shape = RoundedCornerShape(12.dp), title = {
-        Text(stringResource(id = R.string.unsupported), textAlign = TextAlign.Center)
-    }, text = {
-        (patch.compatiblePackages!!.forEach { p: Package ->
-            if (p.name == packageName) {
-                Text(
-                    stringResource(id = R.string.only_compatible) + p.versions.reversed()
-                        .joinToString(", ")
-                )
+    AlertDialog(
+        onDismissRequest = onClose,
+        shape = RoundedCornerShape(12.dp),
+        title = { Text(stringResource(R.string.unsupported), textAlign = TextAlign.Center) },
+        text = {
+            patch.compatiblePackages!!.forEach { p: Package ->
+                if (p.name == packageName) {
+                    Text(
+                        stringResource(id = R.string.only_compatible) + p.versions.reversed()
+                            .joinToString(", ")
+                    )
+                }
             }
-        })
-    }, confirmButton = {
-        TextButton(onClick = onClose) {
-            Text(text = "Dismiss")
+        },
+        confirmButton = {
+            TextButton(onClick = onClose) {
+                Text(text = "Dismiss")
+            }
         }
-    })
+    )
 }

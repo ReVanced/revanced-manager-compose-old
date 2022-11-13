@@ -50,7 +50,7 @@ fun LicensesSubscreen(
                     contentColor = MaterialTheme.colorScheme.onBackground,
                     badgeBackgroundColor = MaterialTheme.colorScheme.primary,
                     badgeContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                )
             )
         }
     }

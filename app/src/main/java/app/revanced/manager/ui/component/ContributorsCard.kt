@@ -62,13 +62,7 @@ fun ContributorsCard(
                                 .combinedClickable(
                                     onClick = { vm.openUserProfile(contributor.username) },
                                     onLongClick = {
-                                        Toast
-                                            .makeText(
-                                                context,
-                                                contributor.username,
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
+                                        Toast.makeText(context, contributor.username, Toast.LENGTH_SHORT).show()
                                     }
                                 )
                         )

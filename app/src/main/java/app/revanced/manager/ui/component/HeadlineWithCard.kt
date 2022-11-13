@@ -22,6 +22,8 @@ fun HeadlineWithCard(
             modifier = Modifier
                 .padding(top = 12.dp)
                 .fillMaxWidth(),
-        ) { content() }
+        ) {
+            content()
+        }
     }
 }

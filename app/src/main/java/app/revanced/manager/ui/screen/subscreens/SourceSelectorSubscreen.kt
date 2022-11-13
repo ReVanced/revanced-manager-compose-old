@@ -59,7 +59,6 @@ fun SourceSelectorSubscreen(
         Toast.makeText(context, "Couldn't load local patch bundle.", Toast.LENGTH_SHORT).show()
     }
 
-
     Scaffold(
         modifier = Modifier
             .nestedScroll(scrollBehavior.nestedScrollConnection),

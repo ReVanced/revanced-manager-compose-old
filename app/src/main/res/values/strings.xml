@@ -36,4 +36,6 @@
     <string name="select_sources">Select sources</string>
     <string name="sentry">Sentry</string>
     <string name="select_bundle_from_storage">Select a bundle from storage</string>
+    <string name="text_continue">Continue</string>
+    <string name="cancel">Cancel</string>
 </resources>

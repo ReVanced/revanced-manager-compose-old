@@ -15,7 +15,11 @@ import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SocialItem(@StringRes label: Int, imageVector: ImageVector? = null, onClick: () -> Unit) {
+fun SocialItem(
+    @StringRes label: Int,
+    imageVector: ImageVector? = null,
+    onClick: () -> Unit
+) {
     ListItem(
         modifier = Modifier.clickable { onClick() },
         leadingContent = {

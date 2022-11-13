@@ -18,7 +18,7 @@ fun SplitAPKDialog(
 ) {
     AlertDialog(onDismissRequest = onDismiss, shape = RoundedCornerShape(12.dp),
         title = {
-            Text(stringResource(id = R.string.warning), textAlign = TextAlign.Center)
+            Text(stringResource(R.string.warning), textAlign = TextAlign.Center)
         },
         text = {
             Text(stringResource(R.string.split_apk_warning))
@@ -30,12 +30,12 @@ fun SplitAPKDialog(
                     onDismiss()
                 }
             ) {
-                Text(text = "OK")
+                Text(stringResource(R.string.text_continue))
             }
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text(text = "Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

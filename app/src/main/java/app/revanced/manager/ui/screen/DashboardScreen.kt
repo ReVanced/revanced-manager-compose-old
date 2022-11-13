@@ -68,8 +68,6 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
-
             Text(
                 text = "Patched Applications",
                 style = MaterialTheme.typography.headlineSmall
