@@ -49,7 +49,7 @@ fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
                 DashboardDestination.values().forEach { destination ->
                     NavigationBarItem(
                         selected = currentDestination == destination,
-                        icon = { Icon(destination.icon, stringResource(destination.label)) },
+                        icon = { Icon(if (currentDestination == destination) destination.icon else destination.outlinedIcon, stringResource(destination.label)) },
                         label = { Text(stringResource(destination.label)) },
                         onClick = { mainRootNavigator.replace(destination) }
                     )

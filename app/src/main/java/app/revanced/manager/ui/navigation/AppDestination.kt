@@ -5,6 +5,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import app.revanced.manager.R
 import com.xinto.taxi.Destination
@@ -38,9 +41,10 @@ sealed interface AppDestination : Destination {
 @Parcelize
 enum class DashboardDestination(
     val icon: @RawValue ImageVector,
+    val outlinedIcon: @RawValue ImageVector,
     @StringRes val label: Int
 ) : Destination {
-    DASHBOARD(Icons.Default.Dashboard, R.string.dashboard),
-    PATCHER(Icons.Default.Build, R.string.patcher),
-    SETTINGS(Icons.Default.Settings, R.string.settings)
+    DASHBOARD(Icons.Default.Dashboard, Icons.Outlined.Dashboard, R.string.dashboard),
+    PATCHER(Icons.Default.Build, Icons.Outlined.Build, R.string.patcher),
+    SETTINGS(Icons.Default.Settings, Icons.Outlined.Settings, R.string.settings)
 }
