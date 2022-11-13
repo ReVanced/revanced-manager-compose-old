@@ -9,10 +9,14 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 @Composable
-fun AppIcon(drawable: Drawable?, contentDescription: String?) {
+fun AppIcon(
+    drawable: Drawable?,
+    contentDescription: String?,
+    size: Int = 48
+) {
     Image(
         rememberDrawablePainter(drawable),
         contentDescription,
-        Modifier.size(48.dp)
+        Modifier.size(size.dp)
     )
 }
