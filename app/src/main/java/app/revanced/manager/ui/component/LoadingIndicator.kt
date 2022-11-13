@@ -20,8 +20,8 @@ fun LoadingIndicator(id: Int? = null) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(stringResource(R.string.loading_body))
-        if (id != null) Text(stringResource(id))
+        if (id == null) Text(stringResource(R.string.loading_body))
+        else Text(stringResource(id))
         CircularProgressIndicator(modifier = Modifier.padding(vertical = 16.dp))
     }
 }
