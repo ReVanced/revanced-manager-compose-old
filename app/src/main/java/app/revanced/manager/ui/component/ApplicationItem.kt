@@ -1,52 +1,97 @@
 package app.revanced.manager.ui.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.revanced.manager.R
 
 @Composable
 fun ApplicationItem(
-    name: String,
-    released: String, // TODO: temp
-    icon: @Composable () -> Unit,
-    expandedContent: @Composable () -> Unit
+    appName: String,
+    appIcon: @Composable () -> Unit,
+    releaseAgo: String,
+    expandedContent: @Composable () -> Unit,
 ) {
-    ExpandableCard(
-        content = { arrowButton ->
+    var expandedState by remember { mutableStateOf(false) }
+    val rotateState by animateFloatAsState(targetValue = if (expandedState) 180f else 0f)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 68.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                alpha = 0.5f
+            )
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 2.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
-                    modifier = Modifier.height(68.dp),
+                    modifier = Modifier
+                        .height(68.dp)
+                        .weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    icon()
+                    appIcon()
                     Column(modifier = Modifier.padding(start = 8.dp)) {
-                        Text(name)
                         Text(
-                            text = released,
+                            text = appName,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = releaseAgo,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    arrowButton()
+                    IconButton(
+                        modifier = Modifier.rotate(rotateState),
+                        onClick = { expandedState = !expandedState },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ExpandMore,
+                            contentDescription = stringResource(R.string.expand)
+                        )
+                    }
+                    OutlinedButton(onClick = { /*TODO*/ }) {
+                        Text(stringResource(R.string.update))
+                    }
                 }
             }
-        },
-        expandedContent = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) { expandedContent() }
+            AnimatedVisibility(
+                visible = expandedState
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .fillMaxSize(),
+                ) {
+                    expandedContent()
+                }
+            }
         }
-    )
+    }
 }
