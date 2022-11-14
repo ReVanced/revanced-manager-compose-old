@@ -1,20 +1,20 @@
 package app.revanced.manager.ui.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.network.api.ManagerAPI
 import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.ui.Resource
+import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.FloatingActionButton
 import app.revanced.manager.ui.component.SplitAPKDialog
 import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
@@ -85,19 +85,32 @@ fun PatcherScreen(
                         text = stringResource(id = R.string.card_application_header),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Text(
-                        text = if (patchesLoaded) {
-                            if (selectedAppPackage.isPresent) {
-                                selectedAppPackage.get().packageName
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (selectedAppPackage.isPresent) {
+                            AppIcon(
+                                LocalContext.current.packageManager.getApplicationIcon(
+                                    selectedAppPackage.get().packageName
+                                ), contentDescription = null, size = 18
+                            )
+                            Spacer(Modifier.width(5.dp))
+                        }
+                        Text(
+                            text = if (patchesLoaded) {
+                                if (selectedAppPackage.isPresent) {
+                                    selectedAppPackage.get().packageName
+                                } else {
+                                    stringResource(R.string.card_application_not_selected)
+                                }
                             } else {
-                                stringResource(R.string.card_application_not_selected)
-                            }
-                        } else {
-                            stringResource(R.string.card_application_not_loaded)
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
+                                stringResource(R.string.card_application_not_loaded)
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
                 }
             }
             ElevatedCard(
