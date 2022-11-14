@@ -56,7 +56,7 @@ fun ExpandableCard(
                     )
                 }
                 OutlinedButton(onClick = { /*TODO*/ }, shape = CircleShape) {
-                    Text("Update")
+                    Text(stringResource(R.string.update))
                 }
             }
             if (expandedState) {

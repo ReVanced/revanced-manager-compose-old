@@ -48,8 +48,8 @@ fun PatcherScreen(
             FloatingActionButton(
                 enabled = hasAppSelected && psvm.anyPatchSelected(),
                 onClick = { onClickPatch(); patcherUtils.loadPatchBundle() }, // TODO: replace this with something better
-                icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
-                text = { Text(text = "Patch") }
+                icon = { Icon(Icons.Default.Build, contentDescription = stringResource(R.string.patch)) },
+                text = { Text(stringResource(R.string.patch)) }
             )
         }) { paddingValues ->
         Column(
@@ -114,7 +114,7 @@ fun PatcherScreen(
                     )
                     Text(
                         text = if (!hasAppSelected) {
-                            "Select an application first."
+                            stringResource(R.string.select_an_application_first)
                         } else if (psvm.anyPatchSelected()) {
                             "$selectedAmount patches selected."
                         } else {

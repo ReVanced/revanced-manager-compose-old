@@ -44,7 +44,7 @@ fun SettingsScreen(
                 onConfirm = viewModel::setTheme
             )
         }
-        GroupHeader(title = "Appearance")
+        GroupHeader(stringResource(R.string.appearance))
         ListItem(
             modifier = Modifier.clickable { viewModel.showThemePicker() },
             headlineText = { Text(stringResource(R.string.theme)) },

@@ -59,7 +59,7 @@ fun AppSelectorSubscreen(
                     filePicker.launch(arrayOf("application/vnd.android.package-archive"))
                 },
                 icon = { Icon(Icons.Default.SdStorage, contentDescription = null) },
-                text = { Text("Storage") },
+                text = { Text(stringResource(R.string.storage)) },
             )
         },
     ) { paddingValues ->

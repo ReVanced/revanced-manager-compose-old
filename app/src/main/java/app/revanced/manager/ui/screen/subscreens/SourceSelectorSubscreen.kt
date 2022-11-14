@@ -64,7 +64,7 @@ fun SourceSelectorSubscreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = stringResource(R.string.select_sources)) },
+                title = { Text(stringResource(R.string.select_sources)) },
                 navigationIcon = {
                     IconButton(onClick = navigator::pop) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)

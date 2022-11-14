@@ -39,7 +39,7 @@ fun PatchCompatibilityDialog(
         },
         confirmButton = {
             TextButton(onClick = onClose) {
-                Text(text = "Dismiss")
+                Text(stringResource(R.string.dismiss))
             }
         }
     )

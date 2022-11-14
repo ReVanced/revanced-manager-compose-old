@@ -69,15 +69,15 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
-                text = "Patched Applications",
+                text = stringResource(R.string.patched_applications),
                 style = MaterialTheme.typography.headlineSmall
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = true, onClick = { /*TODO*/ }, label = {
-                    Text("Updates Available")
+                    Text(stringResource(R.string.updates_available))
                 })
                 FilterChip(selected = false, onClick = { /*TODO*/ }, label = {
-                    Text("Installed")
+                    Text(stringResource(R.string.installed))
                 })
             }
 
@@ -133,7 +133,7 @@ fun CommitDate(@StringRes label: Int, date: String) {
 fun ChangelogText(text: String) {
     Column {
         Text(
-            text = "Changelog",
+            text = stringResource(R.string.changelog),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold

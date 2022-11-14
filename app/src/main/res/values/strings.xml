@@ -5,12 +5,20 @@
     <string name="dynamic_color">Dynamic Color</string>
     <string name="github" translatable="false">GitHub</string>
     <string name="settings">Settings</string>
+    <string name="update">Update</string>
     <string name="updates">Updates</string>
+    <string name="changelog">Changelog</string>
+    <string name="updates_available">Updates available</string>
+    <string name="installed">Installed</string>
     <string name="manager">Manager</string>
+    <string name="clear">Clear</string>
+    <string name="search">Search</string>
     <string name="update_patch_bundle">Update Patches</string>
     <string name="expand">Expand</string>
+    <string name="appearance">Appearance</string>
     <string name="app_selector_title">Select an app…</string>
     <string name="card_application_header">Select Application</string>
+    <string name="select_an_application_first">Select an application first.</string>
     <string name="card_patches_header">Select Patches</string>
     <string name="card_application_not_loaded">Loading applications.</string>
     <string name="card_application_not_selected">No application selected.</string>
@@ -35,7 +43,13 @@
     <string name="opensource_licenses">Open source licenses</string>
     <string name="select_sources">Select sources</string>
     <string name="sentry">Sentry</string>
+    <string name="storage">Storage</string>
+    <string name="patched_applications">Patched Applications</string>
+    <string name="please_select_an_application">Please select an application.</string>
     <string name="select_bundle_from_storage">Select a bundle from storage</string>
     <string name="text_continue">Continue</string>
     <string name="cancel">Cancel</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="patch">Patch</string>
+    <string name="no_compatible_patches">No compatible patches found.</string>
 </resources>

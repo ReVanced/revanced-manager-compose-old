@@ -91,14 +91,14 @@ fun PatchesSelectorSubscreen(
                                         query = newValue
                                     },
                                     leadingIcon = {
-                                        Icon(Icons.Default.Search, "Search")
+                                        Icon(Icons.Default.Search, stringResource(R.string.search))
                                     },
                                     trailingIcon = {
                                         if (query.isNotEmpty()) {
                                             IconButton(onClick = {
                                                 query = ""
                                             }) {
-                                                Icon(Icons.Default.Clear, "Clear")
+                                                Icon(Icons.Default.Clear, stringResource(R.string.clear))
                                             }
                                         }
                                     },
@@ -133,7 +133,7 @@ fun PatchesSelectorSubscreen(
                             Arrangement.Center,
                             Alignment.CenterHorizontally
                         ) {
-                            Text(text = "No compatible patches found.")
+                            Text(stringResource(R.string.no_compatible_patches))
                         }
                     }
                 }
