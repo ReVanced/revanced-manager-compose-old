@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.ApplicationItem
+import app.revanced.manager.ui.component.ApplicationItemDualTint
 import app.revanced.manager.ui.component.HeadlineWithCard
 import app.revanced.manager.ui.viewmodel.DashboardViewModel
 import org.koin.androidx.compose.getViewModel
@@ -98,7 +99,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                         """.trimIndent()
                     )
                 }
-                ApplicationItem(
+                ApplicationItemDualTint(
                     appName = "Flutter Manager",
                     releaseAgo = "9d ago",
                     appIcon = { AppIcon(drawable = LocalContext.current.packageManager.getApplicationIcon("app.revanced.manager.flutter"), contentDescription = null, size = 38) }
