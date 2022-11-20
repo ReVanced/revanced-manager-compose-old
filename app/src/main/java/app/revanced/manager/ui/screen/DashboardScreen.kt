@@ -19,6 +19,7 @@ import app.revanced.manager.ui.component.ApplicationItem
 import app.revanced.manager.ui.component.ApplicationItemDualTint
 import app.revanced.manager.ui.component.HeadlineWithCard
 import app.revanced.manager.ui.viewmodel.DashboardViewModel
+import app.revanced.manager.util.loadIcon
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,7 +90,11 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                 ApplicationItem(
                     appName = "Compose Manager",
                     appIcon = {
-                        AppIcon(drawable = LocalContext.current.packageManager.getApplicationIcon("app.revanced.manager.compose"), contentDescription = null, size = 38)
+                        AppIcon(
+                            drawable = context.loadIcon("app.revanced.manager.compose"),
+                            contentDescription = null,
+                            size = 38
+                        )
                     },
                     releaseAgo = "9d ago"
                 ) {
@@ -102,7 +107,13 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                 ApplicationItemDualTint(
                     appName = "Flutter Manager",
                     releaseAgo = "9d ago",
-                    appIcon = { AppIcon(drawable = LocalContext.current.packageManager.getApplicationIcon("app.revanced.manager.flutter"), contentDescription = null, size = 38) }
+                    appIcon = {
+                        AppIcon(
+                            drawable = context.loadIcon("app.revanced.manager.flutter"),
+                            contentDescription = null,
+                            size = 38
+                        )
+                    }
                 ) {
                     ChangelogText(
                         """

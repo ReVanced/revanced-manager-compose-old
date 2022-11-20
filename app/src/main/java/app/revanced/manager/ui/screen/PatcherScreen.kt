@@ -1,12 +1,6 @@
 package app.revanced.manager.ui.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
@@ -22,6 +16,7 @@ import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.FloatingActionButton
 import app.revanced.manager.ui.component.SplitAPKDialog
 import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
+import app.revanced.manager.util.loadIcon
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +31,8 @@ fun PatcherScreen(
     var showDialog by remember { mutableStateOf(false) }
     val hasAppSelected by mutableStateOf(vm.selectedAppPackage.isPresent)
     val patchesLoaded by mutableStateOf(vm.patchesLoaded is Resource.Success)
+    val context = LocalContext.current
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -84,9 +81,8 @@ fun PatcherScreen(
                     ) {
                         if (vm.selectedAppPackage.isPresent) {
                             AppIcon(
-                                LocalContext.current.packageManager.getApplicationIcon(
-                                    vm.selectedAppPackage.get().packageName
-                                ), contentDescription = null, size = 18
+                                context.loadIcon(vm.selectedAppPackage.get().packageName),
+                                contentDescription = null, size = 18
                             )
                             Spacer(Modifier.width(5.dp))
                         }
