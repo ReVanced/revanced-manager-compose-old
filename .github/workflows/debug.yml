@@ -2,9 +2,9 @@ name: Android Debug
 
 on:
   push:
-    branches: [ "compose" ]
+    branches: [ "compose", "dev" ]
   pull_request:
-    branches: [ "compose" ]
+    branches: [ "compose", "dev" ]
 
 jobs:
   build:
