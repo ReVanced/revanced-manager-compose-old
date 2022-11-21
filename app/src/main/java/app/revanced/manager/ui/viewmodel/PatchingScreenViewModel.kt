@@ -1,36 +1,53 @@
 package app.revanced.manager.ui.viewmodel
 
-import  android.app.Application
+import android.app.Application
+import android.content.Context
+import android.os.Environment
+import android.os.PowerManager
+import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.work.*
-import app.revanced.manager.patcher.worker.PatcherWorker
+import androidx.lifecycle.viewModelScope
+import app.revanced.manager.network.api.ManagerAPI
+import app.revanced.manager.patcher.PatcherUtils
+import app.revanced.manager.patcher.aapt.Aapt
+import app.revanced.manager.patcher.aligning.ZipAligner
+import app.revanced.manager.patcher.aligning.zip.ZipFile
+import app.revanced.manager.patcher.aligning.zip.structures.ZipEntry
+import app.revanced.manager.patcher.signing.Signer
+import app.revanced.manager.util.tag
+import app.revanced.patcher.Patcher
+import app.revanced.patcher.PatcherOptions
+import app.revanced.patcher.logging.Logger
+import io.sentry.Sentry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileNotFoundException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.concurrent.CancellationException
 
-class PatchingScreenViewModel(val app: Application) : ViewModel() {
+class PatchingScreenViewModel(
+    private val app: Application,
+    private val managerAPI: ManagerAPI,
+    private val patcherUtils: PatcherUtils
+) : ViewModel() {
 
-    private val patcherWorker =
-        OneTimeWorkRequest.Builder(PatcherWorker::class.java) // create Worker
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setInputData(
-                Data.Builder()
-                    .build()
-            ).build()
+    sealed interface PatchLog {
+        val message: String
 
-    private val liveData =
-        WorkManager.getInstance(app).getWorkInfoByIdLiveData(patcherWorker.id) // get LiveData
-
-    private val observer = Observer { workInfo: WorkInfo -> // observer for observing patch status
-        status = when (workInfo.state) {
-            WorkInfo.State.RUNNING -> Status.Patching
-            WorkInfo.State.SUCCEEDED -> Status.Success
-            WorkInfo.State.FAILED -> Status.Failure
-            else -> Status.Idle
-        }
+        data class Success(override val message: String) : PatchLog
+        data class Info(override val message: String) : PatchLog
+        data class Error(override val message: String) : PatchLog
     }
 
+    val logs = mutableStateListOf<PatchLog>()
     var status by mutableStateOf<Status>(Status.Idle)
 
     sealed class Status {
@@ -42,27 +59,149 @@ class PatchingScreenViewModel(val app: Application) : ViewModel() {
 
     fun startPatcher() {
         cancelPatching() //  cancel patching if its still running
-        Logging.log = "" // clear logs
-
-        WorkManager.getInstance(app)
-            .enqueueUniqueWork(
-                "patching",
-                ExistingWorkPolicy.KEEP,
-                patcherWorker
-            ) // enqueue patching process
-        liveData.observeForever(observer) // start observing patch status
+        logs.clear()
+        status = Status.Patching
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                runPatcher(createWorkDir())
+            } catch (e: Exception) {
+                status = Status.Failure
+                Log.e(tag, "Error while patching: ${e.message ?: e::class.simpleName}")
+                Sentry.captureException(e)
+            }
+        }
     }
 
     private fun cancelPatching() {
-        WorkManager.getInstance(app).cancelWorkById(patcherWorker.id)
+        viewModelScope.coroutineContext.cancelChildren(CancellationException("Patching was cancelled by user."))
+        logs.clear()
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        liveData.removeObserver(observer) // remove observer when ViewModel is destroyed
-    }
-}
+    private suspend fun runPatcher(
+        workdir: File
+    ) {
+        val wakeLock: PowerManager.WakeLock =
+            (app.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.FULL_WAKE_LOCK, "$tag::Patcher").apply {
+                    acquire(10 * 60 * 1000L)
+                }
+            }
+        Log.d(tag, "Acquired wakelock.")
+        val aaptPath = Aapt.binary(app)?.absolutePath
+        if (aaptPath == null) {
+            log(PatchLog.Error("AAPT2 not found."))
+            throw FileNotFoundException()
+        }
+        val frameworkPath = app.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
+        val integrationsCacheDir = app.filesDir.resolve("integrations-cache").also { it.mkdirs() }
+        val reVancedFolder =
+            Environment.getExternalStorageDirectory().resolve("ReVanced").also { it.mkdirs() }
+        val appInfo = patcherUtils.selectedAppPackage.value.get()
 
-object Logging {
-    var log by mutableStateOf("")
+        log(PatchLog.Info("Checking prerequisites..."))
+        val patches = patcherUtils.findPatchesByIds(patcherUtils.selectedPatches)
+        if (patches.isEmpty()) return
+
+        log(PatchLog.Info("Creating directories..."))
+        val inputFile = File(app.filesDir, "input.apk")
+        val patchedFile = File(workdir, "patched.apk")
+        val outputFile = File(app.filesDir, "output.apk")
+        val cacheDirectory = workdir.resolve("cache")
+
+        val integrations = managerAPI.downloadIntegrations(integrationsCacheDir)
+
+        log(PatchLog.Info("Copying APK from device..."))
+        withContext(Dispatchers.IO) {
+            Files.copy(
+                File(appInfo.publicSourceDir).toPath(),
+                inputFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING
+            )
+        }
+
+        try {
+            log(PatchLog.Info("Decoding resources"))
+            val patcher = Patcher( // start patcher
+                PatcherOptions(inputFile,
+                    cacheDirectory.absolutePath,
+                    aaptPath = aaptPath,
+                    frameworkFolderLocation = frameworkPath,
+                    logger = object : Logger {
+                        override fun error(msg: String) {
+                            Log.e(tag, msg)
+                        }
+
+                        override fun warn(msg: String) {
+                            Log.w(tag, msg)
+                        }
+
+                        override fun info(msg: String) {
+                            Log.i(tag, msg)
+                        }
+
+                        override fun trace(msg: String) {
+                            Log.v(tag, msg)
+                        }
+                    })
+            )
+
+
+            Log.d(tag, "Adding ${patches.size} patch(es)")
+            patcher.addPatches(patches)
+
+            log(PatchLog.Info("Merging integrations"))
+            patcher.addFiles(listOf(integrations)) {}
+
+            val patchesString = if (patches.size > 1) "patches" else "patch"
+            log(PatchLog.Info("Applying ${patches.size} $patchesString"))
+            patcher.executePatches().forEach { (patch, result) ->
+                if (result.isFailure) {
+                    log(PatchLog.Info("Failed to apply $patch" + result.exceptionOrNull()!!.cause))
+                    return@forEach
+                }
+            }
+
+            log(PatchLog.Info("Saving file"))
+            val result = patcher.save() // compile apk
+
+            ZipFile(patchedFile).use { fs ->
+                result.dexFiles.forEach {
+                    log(PatchLog.Info("Writing dex file ${it.name}"))
+                    fs.addEntryCompressData(ZipEntry.createWithName(it.name), it.stream.readBytes())
+                }
+
+                log(PatchLog.Info("Aligning apk..."))
+                result.resourceFile?.let {
+                    fs.copyEntriesFromFileAligned(ZipFile(it), ZipAligner::getEntryAlignment)
+                }
+                fs.copyEntriesFromFileAligned(ZipFile(inputFile), ZipAligner::getEntryAlignment)
+            }
+
+            log(PatchLog.Info("Signing apk..."))
+            Signer("ReVanced", "s3cur3p@ssw0rd").signApk(patchedFile, outputFile)
+            withContext(Dispatchers.IO) {
+                Files.copy(
+                    outputFile.inputStream(),
+                    reVancedFolder.resolve(appInfo.packageName + ".apk").toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+                )
+            }
+            log(PatchLog.Success("Successfully patched!"))
+            patcherUtils.cleanup()
+            status = Status.Success
+        } finally {
+            Log.d(tag, "Deleting workdir")
+            workdir.deleteRecursively()
+            wakeLock.release()
+            Log.d(tag, "Released wakelock.")
+        }
+    }
+
+    private fun createWorkDir(): File {
+        return app.cacheDir.resolve("tmp-${System.currentTimeMillis()}").also { it.mkdirs() }
+    }
+
+    private fun log(data: PatchLog) {
+        logs.add(data)
+    }
 }

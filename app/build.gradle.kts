@@ -81,19 +81,17 @@ dependencies {
 
     // AndroidX activity
     implementation("androidx.activity:activity-compose:1.6.1")
-    implementation("androidx.work:work-runtime-ktx:2.7.1")
 
     // Koin
     val koinVersion = "3.3.0"
     implementation("io.insert-koin:koin-android:$koinVersion")
     implementation("io.insert-koin:koin-androidx-compose:3.3.0")
-    implementation("io.insert-koin:koin-androidx-workmanager:$koinVersion")
 
     // Compose
     val composeVersion = "1.4.0-alpha01"
     implementation("androidx.compose.ui:ui:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha01")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha02")
     implementation("androidx.compose.material:material-icons-extended:${composeVersion}")
 
     // Accompanist
@@ -113,11 +111,11 @@ dependencies {
     implementation("com.github.X1nto:Taxi:1.2.0")
 
     // ReVanced
-    implementation("app.revanced:revanced-patcher:6.0.0")
+    implementation("app.revanced:revanced-patcher:6.0.2")
 
     // Signing & aligning
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("com.android.tools.build:apksig:8.0.0-alpha07")
+    implementation("com.android.tools.build:apksig:8.0.0-alpha08")
 
     // Licenses
     implementation("com.mikepenz:aboutlibraries-compose:10.5.1")

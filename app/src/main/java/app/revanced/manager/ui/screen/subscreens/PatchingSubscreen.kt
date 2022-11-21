@@ -1,11 +1,9 @@
 package app.revanced.manager.ui.screen.subscreens
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -14,14 +12,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.revanced.manager.ui.navigation.AppDestination
-import app.revanced.manager.ui.viewmodel.Logging
 import app.revanced.manager.ui.viewmodel.PatchingScreenViewModel
+import app.revanced.manager.ui.viewmodel.PatchingScreenViewModel.PatchLog
+import app.revanced.manager.ui.viewmodel.PatchingScreenViewModel.Status
 import com.xinto.taxi.BackstackNavigator
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 
@@ -33,8 +31,6 @@ fun PatchingSubscreen(
     vm: PatchingScreenViewModel = getViewModel()
 ) {
     var patching by mutableStateOf(false)
-    val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(patching) {
         if (!patching) {
             patching = true
@@ -70,7 +66,7 @@ fun PatchingSubscreen(
                 ) {
 
                     when (vm.status) {
-                        is PatchingScreenViewModel.Status.Failure -> {
+                        is Status.Failure -> {
                             Icon(
                                 Icons.Default.Close,
                                 "failed",
@@ -80,7 +76,7 @@ fun PatchingSubscreen(
                             )
                             Text(text = "Failed!", fontSize = 30.sp)
                         }
-                        is PatchingScreenViewModel.Status.Patching -> {
+                        is Status.Patching -> {
                             CircularProgressIndicator(
                                 modifier = Modifier
                                     .padding(vertical = 16.dp)
@@ -88,7 +84,7 @@ fun PatchingSubscreen(
                             )
                             Text(text = "Patching...", fontSize = 30.sp)
                         }
-                        is PatchingScreenViewModel.Status.Success -> {
+                        is Status.Success -> {
                             Icon(
                                 Icons.Default.Done,
                                 "done",
@@ -98,7 +94,7 @@ fun PatchingSubscreen(
                             )
                             Text(text = "Completed!", fontSize = 30.sp)
                         }
-                        PatchingScreenViewModel.Status.Idle -> {}
+                        Status.Idle -> {}
                     }
                 }
             }
@@ -108,24 +104,24 @@ fun PatchingSubscreen(
                     .padding(20.dp)
             ) {
                 ElevatedCard {
-                    Text(
-                        text = Logging.log,
-                        modifier = Modifier
+                    LazyColumn(
+                        Modifier
                             .padding(horizontal = 20.dp, vertical = 10.dp)
                             .fillMaxSize()
-                            .verticalScroll(scrollState),
-                        fontSize = 20.sp,
-                        lineHeight = 35.sp,
-                        overflow = TextOverflow.Visible,
-                        onTextLayout = {
-                            coroutineScope.launch {
-                                scrollState.animateScrollTo(
-                                    it.size.height,
-                                    tween(1000, easing = LinearEasing)
-                                )
-                            }
+                    ) {
+                        items(vm.logs) { log ->
+                            Text(
+                                modifier = Modifier.height(36.dp),
+                                text = log.message,
+                                color = when (log) {
+                                    is PatchLog.Success -> Color.Green
+                                    is PatchLog.Info -> LocalContentColor.current
+                                    is PatchLog.Error -> Color.Red
+                                },
+                                fontSize = 20.sp,
+                            )
                         }
-                    )
+                    }
                 }
             }
         }
