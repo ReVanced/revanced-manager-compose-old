@@ -14,7 +14,7 @@ import java.nio.file.StandardCopyOption
 class SourceSelectorViewModel(val app: Application, val patcherUtils: PatcherUtils) : ViewModel() {
     fun loadBundle(uri: Uri) {
         try {
-            val patchesFile = app.cacheDir.resolve(File(uri.path!!).name)
+            val patchesFile = app.cacheDir.resolve("patches.jar")
             Files.copy(
                 app.contentResolver.openInputStream(uri),
                 patchesFile.toPath(),
