@@ -1,5 +1,9 @@
 package app.revanced.manager
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +14,8 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import app.revanced.manager.domain.manager.PreferencesManager
+import app.revanced.manager.installer.service.InstallService
+import app.revanced.manager.installer.service.UninstallService
 import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.navigation.DashboardDestination
 import app.revanced.manager.ui.navigation.back
@@ -27,6 +33,18 @@ import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val prefs: PreferencesManager by inject()
+
+    private val installBroadcastReceiver = object : BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                InstallService.APP_INSTALL_ACTION -> {
+                }
+                UninstallService.APP_UNINSTALL_ACTION -> {
+                }
+            }
+        }
+    }
 
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,4 +109,23 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        registerReceiver(
+            installBroadcastReceiver,
+            IntentFilter().apply {
+                addAction(InstallService.APP_INSTALL_ACTION)
+                addAction(UninstallService.APP_UNINSTALL_ACTION)
+            }
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        unregisterReceiver(installBroadcastReceiver)
+    }
+
 }
