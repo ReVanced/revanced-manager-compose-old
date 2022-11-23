@@ -16,23 +16,21 @@ import androidx.compose.ui.res.stringResource
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.LoadingIndicator
-import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.viewmodel.AppSelectorViewModel
-import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("QueryPermissionsNeeded", "UnrememberedMutableState")
 @Composable
 fun AppSelectorSubscreen(
-    navigator: BackstackNavigator<AppDestination>,
+    onBackClick: () -> Unit,
     vm: AppSelectorViewModel = getViewModel(),
 ) {
 
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
             vm.setSelectedAppPackageFromFile(uri)
-            navigator.pop()
+            onBackClick()
         }
     }
 
@@ -40,7 +38,7 @@ fun AppSelectorSubscreen(
         topBar = {
             MediumTopAppBar(title = { Text(stringResource(R.string.app_selector_title)) },
                 navigationIcon = {
-                    IconButton(onClick = navigator::pop) {
+                    IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 })
@@ -65,7 +63,7 @@ fun AppSelectorSubscreen(
                     val same = packageName == label
                     ListItem(modifier = Modifier.clickable {
                         vm.setSelectedAppPackage(app)
-                        navigator.pop()
+                        onBackClick()
                     }, leadingContent = {
                         AppIcon(vm.loadIcon(app), packageName)
                     }, headlineText = {

@@ -14,20 +14,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.LoadingIndicator
-import app.revanced.manager.ui.navigation.AppDestination
+import app.revanced.manager.ui.component.PatchCard
 import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
 import app.revanced.patcher.extensions.PatchExtensions.patchName
-import com.xinto.taxi.BackstackNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
-import app.revanced.manager.ui.component.PatchCard
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatchesSelectorSubscreen(
-    navigator: BackstackNavigator<AppDestination>,
+    onBackClick: () -> Unit,
     vm: PatchesSelectorViewModel = getViewModel(),
 ) {
     val patches = vm.filteredPatches
@@ -45,7 +43,7 @@ fun PatchesSelectorSubscreen(
                 style = MaterialTheme.typography.headlineLarge
             )
         }, navigationIcon = {
-            IconButton(onClick = navigator::pop) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack, contentDescription = null
                 )

@@ -21,15 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.SourceItem
-import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.viewmodel.SourceSelectorViewModel
-import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SourceSelectorSubscreen(
-    navigator: BackstackNavigator<AppDestination>,
+    onBackClick: () -> Unit,
     viewModel: SourceSelectorViewModel = getViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -41,7 +39,7 @@ fun SourceSelectorSubscreen(
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         it?.let { uri ->
             viewModel.loadBundle(uri)
-            navigator.pop()
+            onBackClick()
             return@rememberLauncherForActivityResult
         }
         Toast.makeText(context, "Couldn't load local patch bundle.", Toast.LENGTH_SHORT).show()
@@ -54,7 +52,7 @@ fun SourceSelectorSubscreen(
             LargeTopAppBar(
                 title = { Text(stringResource(R.string.select_sources)) },
                 navigationIcon = {
-                    IconButton(onClick = navigator::pop) {
+                    IconButton(onClick = onBackClick) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
                     }
                 },

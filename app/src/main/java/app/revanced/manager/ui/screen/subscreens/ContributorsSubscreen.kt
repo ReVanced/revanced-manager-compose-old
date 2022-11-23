@@ -16,17 +16,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.ContributorsCard
-import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.viewmodel.ContributorsViewModel
 import app.revanced.manager.util.ghOrganization
 import app.revanced.manager.util.openUrl
-import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ContributorsSubscreen(
-    navigator: BackstackNavigator<AppDestination>,
+    onBackClick: () -> Unit,
     vm: ContributorsViewModel = getViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -45,7 +43,7 @@ fun ContributorsSubscreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = navigator::pop) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null

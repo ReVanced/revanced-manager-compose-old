@@ -15,11 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.viewmodel.PatchingScreenViewModel
 import app.revanced.manager.ui.viewmodel.PatchingScreenViewModel.PatchLog
 import app.revanced.manager.ui.viewmodel.PatchingScreenViewModel.Status
-import com.xinto.taxi.BackstackNavigator
 import org.koin.androidx.compose.getViewModel
 
 
@@ -27,7 +25,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun PatchingSubscreen(
-    navigator: BackstackNavigator<AppDestination>,
+    onBackClick: () -> Unit,
     vm: PatchingScreenViewModel = getViewModel()
 ) {
     var patching by mutableStateOf(false)
@@ -41,7 +39,7 @@ fun PatchingSubscreen(
     Scaffold(
         topBar = {
             Row {
-                IconButton(onClick = navigator::pop) {
+                IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null
