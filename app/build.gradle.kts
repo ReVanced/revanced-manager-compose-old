@@ -57,7 +57,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "11"
-        freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn"
+        freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn" + "-Xcontext-receivers"
     }
 
     packagingOptions {
@@ -107,11 +107,11 @@ dependencies {
     // KotlinX
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    // Taxi (navigation)
-    implementation("com.github.X1nto:Taxi:1.2.0")
+    // Navigatio
+    implementation("dev.olshevski.navigation:reimagined:1.3.0")
 
     // ReVanced
-    implementation("app.revanced:revanced-patcher:6.0.2")
+    implementation("app.revanced:revanced-patcher:6.1.0")
 
     // Signing & aligning
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
@@ -129,5 +129,5 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
     // Sentry
-    implementation("io.sentry:sentry-android:6.7.0")
+    implementation("io.sentry:sentry-android:6.8.0")
 }

@@ -9,15 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import app.revanced.manager.R
-import app.revanced.manager.ui.navigation.AppDestination
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
-import com.xinto.taxi.BackstackNavigator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LicensesSubscreen(
-    navigator: BackstackNavigator<AppDestination>,
+    onBackClick: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         state = rememberTopAppBarState(),
@@ -30,7 +28,7 @@ fun LicensesSubscreen(
             LargeTopAppBar(
                 title = { Text(stringResource(R.string.opensource_licenses)) },
                 navigationIcon = {
-                    IconButton(onClick = navigator::pop) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null

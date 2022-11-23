@@ -1,10 +1,6 @@
 package app.revanced.manager.ui.screen
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -14,20 +10,19 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.navigation.DashboardDestination
-import com.xinto.taxi.BackstackNavigator
-import com.xinto.taxi.Taxi
-import com.xinto.taxi.rememberNavigator
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
+fun MainDashboardScreen(
+    currentDestination: DashboardDestination,
+    bottomNavItems: List<DashboardDestination>,
+    onNavChanged: (AppDestination) -> Unit,
+    content: @Composable () -> Unit
+) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         state = rememberTopAppBarState(),
         canScroll = { true }
     )
-
-    val mainRootNavigator = rememberNavigator(DashboardDestination.DASHBOARD)
-    val currentDestination = mainRootNavigator.currentDestination
 
     Scaffold(
         modifier = Modifier
@@ -37,7 +32,7 @@ fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = stringResource(mainRootNavigator.currentDestination.label),
+                        text = stringResource(currentDestination.label),
                         style = MaterialTheme.typography.headlineLarge
                     )
                 },
@@ -46,39 +41,28 @@ fun MainDashboardScreen(navigator: BackstackNavigator<AppDestination>) {
         },
         bottomBar = {
             NavigationBar {
-                DashboardDestination.values().forEach { destination ->
+                bottomNavItems.forEach { destination ->
                     NavigationBarItem(
                         selected = currentDestination == destination,
-                        icon = { Icon(if (currentDestination == destination) destination.icon else destination.outlinedIcon, stringResource(destination.label)) },
+                        icon = {
+                            Icon(
+                                if (currentDestination == destination) destination.icon else destination.outlinedIcon,
+                                stringResource(destination.label)
+                            )
+                        },
                         label = { Text(stringResource(destination.label)) },
-                        onClick = { mainRootNavigator.replace(destination) }
+                        onClick = { onNavChanged(destination) }
                     )
                 }
             }
         }
     ) { paddingValues ->
-        Row(
-            modifier = Modifier.padding(paddingValues)
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
         ) {
-            Taxi(
-                modifier = Modifier.weight(1f, true),
-                navigator = mainRootNavigator,
-                transitionSpec = { fadeIn() with fadeOut() }
-            ) { destination ->
-                when (destination) {
-                    DashboardDestination.DASHBOARD -> DashboardScreen()
-                    DashboardDestination.PATCHER -> PatcherScreen(
-                        onClickAppSelector = { navigator.push(AppDestination.AppSelector) },
-                        onClickPatchSelector = { navigator.push(AppDestination.PatchSelector) },
-                        onClickPatch = { navigator.push(AppDestination.Patcher) },
-                        onClickSourceSelector = { navigator.push(AppDestination.SourceSelector) }
-                    )
-                    DashboardDestination.SETTINGS -> SettingsScreen(
-                        onClickContributors = { navigator.push(AppDestination.Contributors) },
-                        onClickLicenses = { navigator.push(AppDestination.Licenses) }
-                    )
-                }
-            }
+            content()
         }
     }
 }
