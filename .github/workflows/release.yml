@@ -3,9 +3,11 @@ name: Android Release
 
 on:
   push:
-    branches: [ "compose", "dev", "navigation" ]
+    branches:
+      - "**"
   pull_request:
-    branches: [ "compose", "dev", "navigation" ]
+    branches: 
+      - "**"
 
 jobs:
   build:
