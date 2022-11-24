@@ -75,9 +75,9 @@ class MainActivity : ComponentActivity() {
                                     onClickSourceSelector = { navController.navigate(AppDestination.SourceSelector) }
                                 )
                                 AppDestination.Settings -> SettingsScreen(
-                                    onClickContributors = { navController.navigate(AppDestination.Contributors) }) {
-
-                                }
+                                    onClickContributors = { navController.navigate(AppDestination.Contributors) },
+                                    onClickLicenses = { navController.navigate(AppDestination.Licenses) }
+                                )
                             }
                         }
                         is AppDestination.AppSelector -> AppSelectorSubscreen(onBackClick = { navController.back() })
