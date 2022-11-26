@@ -50,6 +50,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <service android:name=".installer.service.InstallService" />
+        <service android:name=".installer.service.UninstallService" />
+    </application>
 </manifest>
