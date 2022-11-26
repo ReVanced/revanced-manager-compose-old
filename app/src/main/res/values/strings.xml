@@ -52,4 +52,17 @@
     <string name="dismiss">Dismiss</string>
     <string name="patch">Patch</string>
     <string name="no_compatible_patches">No compatible patches found.</string>
+    <string name="status_failure_blocked">Installation failed due to installer being blocked by the operating system.</string>
+    <string name="status_failure">Installation failed due to an unknown error.</string>
+    <string name="status_failure_conflict">Installation failed due to conflicting packages. Please uninstall the conflicting app before retrying installation.</string>
+    <string name="status_failure_aborted">Installation failed due to user abortion.</string>
+    <string name="status_failure_incompatible">Installation failed due to the app you\'re trying to install being incompatible with current device.</string>
+    <string name="status_failure_invalid">Installation failed due to package being invalid. This might be caused by unsigned or corrupted package.</string>
+    <string name="status_failure_storage">Installation failed due to insufficient storage.</string>
+    <string name="details">Details</string>
+    <string name="install">Install</string>
+    <string name="ok">OK</string>
+    <string name="patching">Patching…</string>
+    <string name="completed">Completed!</string>
+    <string name="failed">Failed!</string>
 </resources>
