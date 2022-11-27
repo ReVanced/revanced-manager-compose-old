@@ -100,6 +100,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-placeholder-material:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-drawablepainter:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-permissions:0.27.1")
 
     // Coil (async image loading, network image)
     implementation("io.coil-kt:coil-compose:2.2.2")

@@ -65,4 +65,6 @@
     <string name="patching">Patching…</string>
     <string name="completed">Completed!</string>
     <string name="failed">Failed!</string>
+    <string name="permissions">Permissions</string>
+    <string name="permission_request">ReVanced Manager relies on some permissions to function properly, please give required permissions by pressing OK.</string>
 </resources>

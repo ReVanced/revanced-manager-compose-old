@@ -10,6 +10,7 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import app.revanced.manager.domain.manager.PreferencesManager
+import app.revanced.manager.ui.component.PermissionsDialog
 import app.revanced.manager.ui.navigation.AppDestination
 import app.revanced.manager.ui.navigation.DashboardDestination
 import app.revanced.manager.ui.navigation.back
@@ -53,6 +54,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController<AppDestination>(AppDestination.Dashboard)
 
                 NavBackHandler(navController)
+
+                PermissionsDialog()
 
                 AnimatedNavHost(
                     controller = navController,

@@ -14,7 +14,6 @@ import app.revanced.manager.R
 import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.FloatingActionButton
-import app.revanced.manager.ui.component.SplitAPKDialog
 import app.revanced.manager.ui.viewmodel.PatcherScreenViewModel
 import app.revanced.manager.util.loadIcon
 import org.koin.androidx.compose.getViewModel
@@ -28,7 +27,6 @@ fun PatcherScreen(
     onClickSourceSelector: () -> Unit,
     vm: PatcherScreenViewModel = getViewModel(),
 ) {
-    var showDialog by remember { mutableStateOf(false) }
     val hasAppSelected by mutableStateOf(vm.selectedAppPackage.isPresent)
     val patchesLoaded by mutableStateOf(vm.patchesLoaded is Resource.Success)
     val context = LocalContext.current
@@ -48,8 +46,6 @@ fun PatcherScreen(
                 .padding(paddingValues)
                 .padding(16.dp),
         ) {
-            if (showDialog)
-                SplitAPKDialog(onDismiss = { showDialog = false }, onConfirm = onClickPatch)
             ElevatedCard(
                 modifier = Modifier
                     .padding(vertical = 4.dp)
