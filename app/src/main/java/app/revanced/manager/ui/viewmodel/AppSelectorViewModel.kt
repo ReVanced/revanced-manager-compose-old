@@ -2,7 +2,6 @@ package app.revanced.manager.ui.viewmodel
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
@@ -84,7 +83,7 @@ class AppSelectorViewModel(
             }
             setSelectedAppPackage(
                 app.packageManager.getPackageArchiveInfo(
-                    apkDir.path, PackageManager.GET_META_DATA
+                    apkDir.path, 0
                 )!!.applicationInfo
             )
         } catch (e: Exception) {

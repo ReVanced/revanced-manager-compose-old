@@ -3,7 +3,6 @@ package app.revanced.manager.patcher
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +49,7 @@ class PatcherUtils(val app: Application) {
     fun getSelectedPackageInfo(): PackageInfo? {
         return if (selectedAppPackage.value.isPresent) {
             app.packageManager.getPackageArchiveInfo(
-                selectedAppPackage.value.get().publicSourceDir, PackageManager.GET_META_DATA
+                selectedAppPackage.value.get().publicSourceDir, 0
             )
         } else {
             null
