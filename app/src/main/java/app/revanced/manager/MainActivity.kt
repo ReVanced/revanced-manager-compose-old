@@ -24,6 +24,7 @@ import dev.olshevski.navigation.reimagined.*
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
 import org.koin.android.ext.android.inject
+import java.util.concurrent.CancellationException
 
 class MainActivity : ComponentActivity() {
     private val prefs: PreferencesManager by inject()
@@ -35,6 +36,7 @@ class MainActivity : ComponentActivity() {
             it.dsn = if (prefs.sentry) BuildConfig.SENTRY_DSN else ""
             it.environment = BuildConfig.BUILD_TYPE
             it.release = BuildConfig.VERSION_NAME
+            it.addIgnoredExceptionForType(CancellationException::class.java)
 
             it.beforeSend = SentryOptions.BeforeSendCallback { event, _ ->
                 if (prefs.sentry) {
