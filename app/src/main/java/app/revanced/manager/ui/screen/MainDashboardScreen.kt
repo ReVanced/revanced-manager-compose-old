@@ -51,7 +51,11 @@ fun MainDashboardScreen(
                             )
                         },
                         label = { Text(stringResource(destination.label)) },
-                        onClick = { onNavChanged(destination) }
+                        onClick = {
+                            if (destination != currentDestination) {
+                                onNavChanged(destination)
+                            }
+                        }
                     )
                 }
             }
