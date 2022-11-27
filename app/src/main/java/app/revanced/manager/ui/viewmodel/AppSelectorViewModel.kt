@@ -40,7 +40,7 @@ class AppSelectorViewModel(
                 patch.compatiblePackages?.forEach { pkg ->
                     try {
                         if (!(filteredApps.any { it.packageName == pkg.name })) {
-                            val appInfo = app.packageManager.getApplicationInfo(pkg.name, 0)
+                            val appInfo = app.packageManager.getApplicationInfo(pkg.name, 1)
                             filteredApps.add(appInfo)
                             return@forEach
                         }
@@ -83,7 +83,7 @@ class AppSelectorViewModel(
             }
             setSelectedAppPackage(
                 app.packageManager.getPackageArchiveInfo(
-                    apkDir.path, 0
+                    apkDir.path, 1
                 )!!.applicationInfo
             )
         } catch (e: Exception) {

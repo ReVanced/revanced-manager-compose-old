@@ -49,7 +49,7 @@ class PatcherUtils(val app: Application) {
     fun getSelectedPackageInfo(): PackageInfo? {
         return if (selectedAppPackage.value.isPresent) {
             app.packageManager.getPackageArchiveInfo(
-                selectedAppPackage.value.get().publicSourceDir, 0
+                selectedAppPackage.value.get().publicSourceDir, 1
             )
         } else {
             null
