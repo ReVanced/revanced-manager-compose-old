@@ -189,7 +189,8 @@ class PatchingScreenViewModel(
             log(PatchLog.Info("Applying ${patches.size} $patchesString"))
             patcher.executePatches().forEach { (patch, result) ->
                 if (result.isFailure) {
-                    log(PatchLog.Info("Failed to apply $patch" + result.exceptionOrNull()!!.cause))
+                    log(PatchLog.Info("Failed to apply $patch: " + "${result.exceptionOrNull()!!.message ?: result.exceptionOrNull()!!::class.simpleName}"))
+                    result.exceptionOrNull()!!.printStackTrace()
                     return@forEach
                 }
             }
