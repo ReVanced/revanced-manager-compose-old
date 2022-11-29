@@ -27,6 +27,7 @@ class AppSelectorViewModel(
     val patches = patcherUtils.patches
     private val filteredPatches = patcherUtils.filteredPatches
     private val selectedAppPackage = patcherUtils.selectedAppPackage
+    private val selectedAppPackagePath = patcherUtils.selectedAppPackagePath
     private val selectedPatches = patcherUtils.selectedPatches
 
     init {
@@ -64,7 +65,7 @@ class AppSelectorViewModel(
         return app.packageManager.getApplicationIcon(info)
     }
 
-    fun setSelectedAppPackage(appId: ApplicationInfo) {
+    fun setSelectedAppPackage(appId: ApplicationInfo, appPackagePath: String? = null) {
         selectedAppPackage.value.ifPresent { s ->
             if (s != appId) {
                 selectedPatches.clear()
@@ -72,6 +73,7 @@ class AppSelectorViewModel(
             }
         }
         selectedAppPackage.value = Optional.of(appId)
+        selectedAppPackagePath.value = appPackagePath
     }
 
     fun setSelectedAppPackageFromFile(file: Uri?) {
@@ -84,7 +86,8 @@ class AppSelectorViewModel(
             setSelectedAppPackage(
                 app.packageManager.getPackageArchiveInfo(
                     apkDir.path, 1
-                )!!.applicationInfo
+                )!!.applicationInfo,
+                apkDir.absolutePath
             )
         } catch (e: Exception) {
             Log.e(tag, "Failed to load apk", e)

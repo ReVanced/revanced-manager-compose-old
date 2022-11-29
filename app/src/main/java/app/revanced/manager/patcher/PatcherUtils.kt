@@ -21,6 +21,7 @@ class PatcherUtils(val app: Application) {
     val patches = mutableStateOf<Resource<List<Class<out Patch<Context>>>>>(Resource.Loading)
     val filteredPatches = mutableStateListOf<PatchClass>()
     val selectedAppPackage = mutableStateOf(Optional.empty<ApplicationInfo>())
+    val selectedAppPackagePath = mutableStateOf<String?>(null)
     val selectedPatches = mutableStateListOf<String>()
     lateinit var patchBundleFile: String
 
@@ -48,8 +49,9 @@ class PatcherUtils(val app: Application) {
 
     fun getSelectedPackageInfo(): PackageInfo? {
         return if (selectedAppPackage.value.isPresent) {
+            val path = selectedAppPackage.value.get().publicSourceDir ?: selectedAppPackagePath.value ?: return null
             app.packageManager.getPackageArchiveInfo(
-                selectedAppPackage.value.get().publicSourceDir, 1
+                path, 1
             )
         } else {
             null

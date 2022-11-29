@@ -131,6 +131,7 @@ class PatchingScreenViewModel(
             val reVancedFolder =
                 Environment.getExternalStorageDirectory().resolve("ReVanced").also { it.mkdirs() }
             val appInfo = patcherUtils.selectedAppPackage.value.get()
+            val appPath = patcherUtils.selectedAppPackagePath.value
 
             log(PatchLog.Info("Checking prerequisites..."))
             val patches = patcherUtils.findPatchesByIds(patcherUtils.selectedPatches)
@@ -146,7 +147,7 @@ class PatchingScreenViewModel(
             log(PatchLog.Info("Copying APK from device..."))
             withContext(Dispatchers.IO) {
                 Files.copy(
-                    File(appInfo.publicSourceDir).toPath(),
+                    File(appPath ?: appInfo.publicSourceDir).toPath(),
                     inputFile.toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
