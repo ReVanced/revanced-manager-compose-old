@@ -30,54 +30,44 @@ fun PermissionsDialog() {
     }
 }
 
+@Composable
+private fun PermissionsAlertDialog(onSuccess: () -> Unit) {
+    AlertDialog(onDismissRequest = {}, shape = RoundedCornerShape(12.dp), title = {
+        Text(stringResource(R.string.permissions))
+    }, text = {
+        Text(stringResource(R.string.permission_request))
+    }, confirmButton = {
+        TextButton(onClick = onSuccess) {
+            Text(stringResource(R.string.ok))
+        }
+    }, properties = DialogProperties(
+        dismissOnBackPress = false, dismissOnClickOutside = false
+    ))
+}
+
 @SuppressLint("NewApi")
 @Composable
-fun AllFilesAccess() {
+private fun AllFilesAccess() {
     var hasAccess by remember { mutableStateOf(Environment.isExternalStorageManager()) }
-    if (!hasAccess) {
-        AlertDialog(onDismissRequest = {}, shape = RoundedCornerShape(12.dp), title = {
-            Text(stringResource(id = R.string.permissions))
-        }, text = {
-            Text(stringResource(R.string.permission_request))
-        }, confirmButton = {
-            val launcher =
-                rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                    if (Environment.isExternalStorageManager()) {
-                        hasAccess = true
-                    }
-                }
-            TextButton(onClick = {
-                Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    .setData("package:${BuildConfig.APPLICATION_ID}".toUri())
-                    .let { launcher.launch(it) }
-            }) {
-                Text(text = stringResource(R.string.ok))
-            }
-        })
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        hasAccess = Environment.isExternalStorageManager()
+    }
+    if (!hasAccess) PermissionsAlertDialog {
+        Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            .setData("package:${BuildConfig.APPLICATION_ID}".toUri())
+            .let { launcher.launch(it) }
     }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun StoragePermission() {
+private fun StoragePermission() {
     val permission = rememberMultiplePermissionsState(
         listOf(
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
     )
-    if (!permission.allPermissionsGranted) {
-        AlertDialog(onDismissRequest = {}, shape = RoundedCornerShape(12.dp), title = {
-            Text(stringResource(id = R.string.permissions))
-        }, text = {
-            R.string.permission_request
-        }, confirmButton = {
-            TextButton(onClick = permission::launchMultiplePermissionRequest) {
-                Text(text = stringResource(R.string.ok))
-            }
-        }, properties = DialogProperties(
-            dismissOnBackPress = false, dismissOnClickOutside = false
-        )
-        )
-    }
+    if (!permission.allPermissionsGranted)
+        PermissionsAlertDialog(permission::launchMultiplePermissionRequest)
 }
