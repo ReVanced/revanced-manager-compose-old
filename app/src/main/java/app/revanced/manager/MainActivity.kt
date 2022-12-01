@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import app.revanced.manager.domain.manager.PreferencesManager
 import app.revanced.manager.ui.component.PermissionsDialog
 import app.revanced.manager.ui.navigation.AppDestination
@@ -47,7 +46,6 @@ class MainActivity : ComponentActivity() {
             }
         }
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
             ReVancedManagerTheme(
