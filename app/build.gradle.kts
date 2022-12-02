@@ -112,7 +112,7 @@ dependencies {
     implementation("dev.olshevski.navigation:reimagined:1.3.0")
 
     // ReVanced
-    implementation("app.revanced:revanced-patcher:6.1.0")
+    implementation("app.revanced:revanced-patcher:6.3.0")
 
     // Signing & aligning
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
