@@ -131,4 +131,9 @@ dependencies {
 
     // Sentry
     implementation("io.sentry:sentry-android:6.8.0")
+
+    // Libsu
+    val libsuVersion = "5.0.3"
+    implementation("com.github.topjohnwu.libsu:core:$libsuVersion")
+    implementation("com.github.topjohnwu.libsu:io:$libsuVersion")
 }
