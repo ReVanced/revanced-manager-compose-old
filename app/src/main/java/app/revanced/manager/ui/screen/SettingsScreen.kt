@@ -46,8 +46,8 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 48.dp, start = 18.dp, end = 18.dp)
-            .verticalScroll(state = rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .padding(top = 48.dp, start = 18.dp, end = 18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         if (vm.showThemePicker) {

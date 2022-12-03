@@ -32,8 +32,8 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 18.dp)
-            .verticalScroll(state = rememberScrollState()),
+            .verticalScroll(state = rememberScrollState())
+            .padding(horizontal = 18.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
