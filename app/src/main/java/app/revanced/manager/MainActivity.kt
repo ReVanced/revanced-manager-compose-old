@@ -21,6 +21,7 @@ import app.revanced.manager.ui.screen.SettingsScreen
 import app.revanced.manager.ui.screen.subscreens.*
 import app.revanced.manager.ui.theme.ReVancedManagerTheme
 import app.revanced.manager.ui.theme.Theme
+import com.topjohnwu.superuser.Shell
 import dev.olshevski.navigation.reimagined.*
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        initShell()
         SentryAndroid.init(this) {
             it.dsn = if (prefs.sentry) BuildConfig.SENTRY_DSN else ""
             it.environment = BuildConfig.BUILD_TYPE
@@ -95,5 +97,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun initShell() {
+        Shell.enableVerboseLogging = BuildConfig.DEBUG
+        Shell.setDefaultBuilder(
+            Shell.Builder
+                .create()
+                .setFlags(Shell.FLAG_REDIRECT_STDERR)
+        )
     }
 }

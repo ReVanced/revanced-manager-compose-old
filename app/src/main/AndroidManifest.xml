@@ -51,7 +51,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".installer.service.InstallService" />
-        <service android:name=".installer.service.UninstallService" />
+        <service android:name="app.revanced.manager.installer.service.InstallService" />
+        <service android:name="app.revanced.manager.installer.service.UninstallService" />
     </application>
 </manifest>
