@@ -1,11 +1,16 @@
 package app.revanced.manager.ui.theme
 
+import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorScheme = darkColorScheme(
@@ -36,11 +41,22 @@ fun ReVancedManagerTheme(
     }
 
     val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setSystemBarsColor(
-            color = colorScheme.background,
-            darkIcons = !darkTheme
-        )
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val activity = view.context as Activity
+            activity.window.navigationBarColor = colorScheme.primary.copy(alpha = 0.08f)
+                .compositeOver(colorScheme.surface.copy()).toArgb()
+            activity.window.statusBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(
+                activity.window,
+                view
+            ).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(
+                activity.window,
+                view
+            ).isAppearanceLightNavigationBars = !darkTheme
+        }
     }
 
     MaterialTheme(

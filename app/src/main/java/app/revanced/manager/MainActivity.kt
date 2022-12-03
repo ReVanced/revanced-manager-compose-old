@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         super.onCreate(savedInstanceState)
+
         setContent {
             ReVancedManagerTheme(
                 dynamicColor = prefs.dynamicColor,
