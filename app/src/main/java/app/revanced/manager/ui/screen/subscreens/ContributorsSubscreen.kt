@@ -39,7 +39,7 @@ fun ContributorsSubscreen(
             FloatingActionButton(onClick = { ctx.openUrl(ghOrganization) }) {
                 Icon(painterResource(id = R.drawable.ic_github), contentDescription = null)
             }
-        },
+        }
     ) { paddingValues ->
         Column(
             Modifier

@@ -23,7 +23,7 @@ fun LicensesSubscreen(
                 scrollBehavior = scrollBehavior,
                 onBackClick = onBackClick
             )
-        },
+        }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             LibrariesContainer(

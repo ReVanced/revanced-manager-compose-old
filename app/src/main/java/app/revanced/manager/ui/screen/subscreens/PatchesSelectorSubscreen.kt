@@ -54,7 +54,7 @@ fun PatchesSelectorSubscreen(
               },
               onBackClick = onBackClick
           )
-        },
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues)

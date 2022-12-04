@@ -51,7 +51,7 @@ fun AppSelectorSubscreen(
                 icon = { Icon(Icons.Default.SdStorage, contentDescription = null) },
                 text = { Text(stringResource(R.string.storage)) },
             )
-        },
+        }
     ) { paddingValues ->
         if (vm.filteredApps.isNotEmpty()) {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
