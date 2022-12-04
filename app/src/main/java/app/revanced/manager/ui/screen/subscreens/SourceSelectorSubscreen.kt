@@ -5,21 +5,22 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.ui.component.AppLargeTopBar
+import app.revanced.manager.ui.component.AppScaffold
 import app.revanced.manager.ui.component.SourceItem
 import app.revanced.manager.ui.viewmodel.SourceSelectorViewModel
 import org.koin.androidx.compose.getViewModel
@@ -30,10 +31,6 @@ fun SourceSelectorSubscreen(
     onBackClick: () -> Unit,
     viewModel: SourceSelectorViewModel = getViewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-        state = rememberTopAppBarState(),
-        canScroll = { true }
-    )
     val context = LocalContext.current
 
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
@@ -44,19 +41,12 @@ fun SourceSelectorSubscreen(
         }
         Toast.makeText(context, "Couldn't load local patch bundle.", Toast.LENGTH_SHORT).show()
     }
-
-    Scaffold(
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = { Text(stringResource(R.string.select_sources)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                },
-                scrollBehavior = scrollBehavior
+    AppScaffold(
+        topBar = { scrollBehavior ->
+            AppLargeTopBar(
+                topBarTitle = stringResource(R.string.select_sources),
+                scrollBehavior = scrollBehavior,
+                onBackClick = onBackClick
             )
         },
         floatingActionButton = {
@@ -67,9 +57,10 @@ fun SourceSelectorSubscreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
         ) {
             ListItem(
                 modifier = Modifier

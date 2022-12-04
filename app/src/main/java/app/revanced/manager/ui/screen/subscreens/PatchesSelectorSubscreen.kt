@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.ui.component.AppMediumTopBar
+import app.revanced.manager.ui.component.AppScaffold
 import app.revanced.manager.ui.component.LoadingIndicator
 import app.revanced.manager.ui.component.PatchCard
 import app.revanced.manager.ui.viewmodel.PatchesSelectorViewModel
@@ -36,28 +38,24 @@ fun PatchesSelectorSubscreen(
             vm.filterPatches()
         }
     }
-    Scaffold(topBar = {
-        MediumTopAppBar(title = {
-            Text(
-                text = stringResource(R.string.card_patches_header),
-                style = MaterialTheme.typography.headlineLarge
-            )
-        }, navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack, contentDescription = null
-                )
-            }
-        }, actions = {
-            IconButton(onClick = {
-                vm.selectAllPatches(patches, vm.selectedPatches.isEmpty())
-            }) {
-                if (vm.selectedPatches.isEmpty()) Icon(
-                    Icons.Default.SelectAll, contentDescription = null
-                ) else Icon(Icons.Default.Deselect, contentDescription = null)
-            }
-        })
-    }) { paddingValues ->
+    AppScaffold(
+        topBar = { scrollBehavior ->
+          AppMediumTopBar(
+              topBarTitle = stringResource(id = R.string.card_patches_header),
+              scrollBehavior = scrollBehavior,
+              actions = {
+                  IconButton(onClick = {
+                      vm.selectAllPatches(patches, vm.selectedPatches.isEmpty())
+                  }) {
+                      if (vm.selectedPatches.isEmpty()) Icon(
+                          Icons.Default.SelectAll, contentDescription = null
+                      ) else Icon(Icons.Default.Deselect, contentDescription = null)
+                  }
+              },
+              onBackClick = onBackClick
+          )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
