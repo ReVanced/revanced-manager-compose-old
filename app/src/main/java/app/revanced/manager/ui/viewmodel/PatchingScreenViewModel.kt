@@ -227,7 +227,8 @@ class PatchingScreenViewModel(
             status = Status.Success
         } catch (e: Exception) {
             status = Status.Failure
-            Log.e(tag, "Error while patching: ${e.message ?: e::class.simpleName}")
+            log(PatchLog.Error("Error while patching: ${e::class.simpleName}: ${e.message}"))
+            Log.e(tag, e.stackTraceToString())
             Sentry.captureException(e)
         }
         Log.d(tag, "Deleting workdir")
