@@ -86,7 +86,6 @@ class PatchingScreenViewModel(
     }
 
     init {
-        status = Status.Patching
         app.registerReceiver(
             installBroadcastReceiver,
             IntentFilter().apply {
@@ -111,6 +110,9 @@ class PatchingScreenViewModel(
     }
 
     private val patcher = viewModelScope.launch(Dispatchers.IO) {
+        withContext(Dispatchers.Main) {
+            status = Status.Patching
+        }
         val workdir = createWorkDir()
         val wakeLock: PowerManager.WakeLock =
             (app.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
