@@ -10,6 +10,7 @@ import app.revanced.manager.ui.Resource
 import app.revanced.manager.ui.viewmodel.PatchClass
 import app.revanced.manager.util.tag
 import app.revanced.patcher.data.Context
+import app.revanced.patcher.extensions.PatchExtensions.compatiblePackages
 import app.revanced.patcher.extensions.PatchExtensions.patchName
 import app.revanced.patcher.patch.Patch
 import app.revanced.patcher.util.patch.PatchBundle
@@ -60,6 +61,6 @@ class PatcherUtils(val app: Application) {
 
     fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<Context>>> {
         val (patches) = patches.value as? Resource.Success ?: return listOf()
-        return patches.filter { patch -> ids.any { it == patch.patchName } }
+        return patches.filter { patch -> ids.any { it == patch.patchName } && patch.compatiblePackages!!.any { it.name == getSelectedPackageInfo()?.packageName } }
     }
 }
