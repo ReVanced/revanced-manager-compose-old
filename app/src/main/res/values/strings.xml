@@ -34,8 +34,7 @@
     <string name="manager_contributors">Manager</string>
     <string name="integrations_contributors">Integrations</string>
     <string name="unsupported_version">Unsupported version</string>
-    <string name="patcher_notification_title">Patching</string>
-    <string name="patcher_notification_message">ReVanced Manager is patching</string>
+    <string name="patcher_notification_message">Patching in progress…</string>
     <string name="theme">Theme</string>
     <string name="apply">Apply</string>
     <string name="warning">Warning</string>

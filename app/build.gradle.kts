@@ -81,11 +81,13 @@ dependencies {
 
     // AndroidX activity
     implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
 
     // Koin
     val koinVersion = "3.3.0"
     implementation("io.insert-koin:koin-android:$koinVersion")
     implementation("io.insert-koin:koin-androidx-compose:3.3.0")
+    implementation("io.insert-koin:koin-androidx-workmanager:$koinVersion")
 
     // Compose
     val composeVersion = "1.4.0-alpha01"
@@ -116,7 +118,7 @@ dependencies {
 
     // Signing & aligning
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("com.android.tools.build:apksig:8.0.0-alpha08")
+    implementation("com.android.tools.build:apksig:8.0.0-alpha09")
 
     // Licenses
     implementation("com.mikepenz:aboutlibraries-compose:10.5.1")
