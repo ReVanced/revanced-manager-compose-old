@@ -16,9 +16,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.revanced.manager.installer.nonroot.NonRootAppInstaller
+import app.revanced.manager.installer.root.RootAppInstaller
+import app.revanced.manager.installer.root.RootUtils
 import app.revanced.manager.installer.service.InstallService
 import app.revanced.manager.installer.service.UninstallService
-import app.revanced.manager.installer.utils.PM
 import app.revanced.manager.network.api.ManagerAPI
 import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.patcher.aapt.Aapt
@@ -97,8 +99,14 @@ class PatchingScreenViewModel(
     }
 
     fun installApk(apk: File) {
-        PM.installApp(apk, app)
+        NonRootAppInstaller.installApp(apk, app)
         log(PatchLog.Info("Installing..."))
+    }
+
+    fun installAppWithRoot(apk: File) {
+        val appInfo = patcherUtils.selectedAppPackage.value.get()
+        log(PatchLog.Info("Installing as root..."))
+        RootAppInstaller.installApp(apk, appInfo, app)
     }
 
     fun postInstallStatus() {
@@ -131,7 +139,10 @@ class PatchingScreenViewModel(
             val reVancedFolder =
                 Environment.getExternalStorageDirectory().resolve("ReVanced").also { it.mkdirs() }
             val appInfo = patcherUtils.selectedAppPackage.value.get()
-            val appPath = patcherUtils.selectedAppPackagePath.value
+            val appPath = if (RootUtils.isRootAvailable()) {
+                RootAppInstaller.getOriginalApkPath(appInfo.packageName)
+                    ?: patcherUtils.selectedAppPackagePath.value
+            } else patcherUtils.selectedAppPackagePath.value
 
             log(PatchLog.Info("Checking prerequisites..."))
             val patches = patcherUtils.findPatchesByIds(patcherUtils.selectedPatches)
@@ -221,7 +232,6 @@ class PatchingScreenViewModel(
                 )
             }
             log(PatchLog.Success("Successfully patched!"))
-            patcherUtils.cleanup()
             status = Status.Success
         } catch (e: Exception) {
             status = Status.Failure
@@ -239,6 +249,7 @@ class PatchingScreenViewModel(
         app.unregisterReceiver(installBroadcastReceiver)
         patcher.cancel(CancellationException("ViewModel cleared"))
         logs.clear()
+        patcherUtils.cleanup()
     }
 
     private fun createWorkDir(): File {

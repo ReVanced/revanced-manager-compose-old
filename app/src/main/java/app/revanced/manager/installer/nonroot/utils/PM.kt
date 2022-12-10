@@ -1,4 +1,4 @@
-package app.revanced.manager.installer.utils
+package app.revanced.manager.installer.nonroot.utils
 
 import android.app.PendingIntent
 import android.content.Context

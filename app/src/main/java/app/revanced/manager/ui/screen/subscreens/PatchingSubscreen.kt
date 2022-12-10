@@ -148,9 +148,11 @@ fun PatchingSubscreen(
                             .padding(4.dp)
                     ) {
                         Spacer(Modifier.weight(1f, true))
-                        Button(onClick = {
-                            vm.installApk(vm.outputFile)
-                        }) {
+                        OutlinedButton(onClick = { vm.installAppWithRoot(vm.outputFile) }) {
+                            Text(text = "Install as root") // TODO: Add string resource
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = { vm.installApk(vm.outputFile) }) {
                             Text(text = stringResource(R.string.install))
                         }
                     }
