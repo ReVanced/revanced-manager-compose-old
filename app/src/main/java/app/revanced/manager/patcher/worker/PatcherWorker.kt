@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
-import android.os.Environment
 import android.os.PowerManager
 import android.util.Log
 import android.view.WindowManager
@@ -23,6 +22,7 @@ import app.revanced.manager.patcher.aligning.ZipAligner
 import app.revanced.manager.patcher.aligning.zip.ZipFile
 import app.revanced.manager.patcher.aligning.zip.structures.ZipEntry
 import app.revanced.manager.patcher.signing.Signer
+import app.revanced.manager.util.reVancedFolder
 import app.revanced.manager.util.tag
 import app.revanced.patcher.Patcher
 import app.revanced.patcher.PatcherOptions
@@ -112,8 +112,6 @@ class PatcherWorker(
                 applicationContext.filesDir.resolve("framework").also { it.mkdirs() }.absolutePath
             val integrationsCacheDir =
                 applicationContext.filesDir.resolve("integrations-cache").also { it.mkdirs() }
-            val reVancedFolder =
-                Environment.getExternalStorageDirectory().resolve("ReVanced").also { it.mkdirs() }
             val appInfo = patcherUtils.selectedAppPackage.value.get()
             val appPath = patcherUtils.selectedAppPackagePath.value
 
@@ -208,7 +206,6 @@ class PatcherWorker(
                 )
             }
             log("Successfully patched!", SUCCESS)
-            patcherUtils.cleanup()
         } finally {
             Log.d(tag, "Deleting workdir")
             workdir.deleteRecursively()

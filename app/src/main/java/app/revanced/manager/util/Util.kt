@@ -2,6 +2,7 @@ package app.revanced.manager.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.drawable.Drawable
 import androidx.core.net.toUri
@@ -19,4 +20,8 @@ fun Context.loadIcon(string: String): Drawable? {
     } catch (e: NameNotFoundException) {
         null
     }
+}
+
+fun Context.appName(info: ApplicationInfo): String {
+    return packageManager.getApplicationLabel(info).toString()
 }

@@ -39,20 +39,20 @@ fun ApplicationItem(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 2.dp)
+                .fillMaxSize()
+                .padding(horizontal = 14.dp, vertical = 2.dp),
+            verticalArrangement = Arrangement.Center
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
                     modifier = Modifier
                         .height(68.dp)
                         .weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     appIcon()
                     Column(modifier = Modifier.padding(start = 8.dp)) {
@@ -68,7 +68,7 @@ fun ApplicationItem(
                         )
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row {
                     IconButton(
                         modifier = Modifier.rotate(rotateState),
                         onClick = { expandedState = !expandedState },
@@ -78,7 +78,7 @@ fun ApplicationItem(
                             contentDescription = stringResource(R.string.expand)
                         )
                     }
-                    OutlinedButton(onClick = { /*TODO*/ }) {
+                    OutlinedButton(onClick = {}) {
                         Text(stringResource(R.string.update))
                     }
                 }

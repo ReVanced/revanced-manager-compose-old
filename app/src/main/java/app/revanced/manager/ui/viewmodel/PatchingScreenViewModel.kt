@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -16,11 +17,14 @@ import androidx.work.*
 import app.revanced.manager.installer.service.InstallService
 import app.revanced.manager.installer.service.UninstallService
 import app.revanced.manager.installer.utils.PM
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.patcher.worker.PatcherWorker
+import app.revanced.manager.util.appName
 import java.io.File
 
 class PatchingScreenViewModel(
     private val app: Application,
+    private val patcherUtils: PatcherUtils,
 ) : ViewModel() {
 
     sealed interface PatchLog {
@@ -38,7 +42,7 @@ class PatchingScreenViewModel(
         object Failure : Status()
     }
 
-    val workManager = WorkManager.getInstance(app)
+    private val workManager = WorkManager.getInstance(app)
     var installFailure by mutableStateOf(false)
     var pmStatus by mutableStateOf(-999)
     var extra by mutableStateOf("")
@@ -109,11 +113,23 @@ class PatchingScreenViewModel(
     fun postInstallStatus() {
         if (pmStatus == PackageInstaller.STATUS_SUCCESS) {
             log(PatchLog.Success("Successfully installed!"))
+            patcherUtils.getSelectedPackageInfo()?.let { saveApp(it) }
         } else {
             installFailure = true
             log(PatchLog.Error("Failed to install!"))
         }
     }
+
+    private fun saveApp(packageInfo: PackageInfo) = patcherUtils.savePatchedApp(
+        packageInfo.run {
+            PatchedApp(
+                appName = app.appName(applicationInfo),
+                pkgName = applicationInfo.packageName,
+                version = versionName,
+                appliedPatches = patcherUtils.selectedPatches
+            )
+        }
+    )
 
     override fun onCleared() {
         super.onCleared()

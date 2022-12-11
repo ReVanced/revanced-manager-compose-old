@@ -10,13 +10,21 @@ import androidx.lifecycle.viewModelScope
 import app.revanced.manager.domain.repository.ReVancedRepositoryImpl
 import app.revanced.manager.network.dto.Assets
 import app.revanced.manager.network.utils.getOrNull
+import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.util.ghManager
 import app.revanced.manager.util.ghPatcher
+import io.ktor.http.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
 
-class DashboardViewModel(private val reVancedApi: ReVancedRepositoryImpl) : ViewModel() {
+class DashboardViewModel(
+    private val reVancedApi: ReVancedRepositoryImpl,
+    private val patcherUtils: PatcherUtils
+) : ViewModel() {
+    val apps = patcherUtils.patchedApps
+
     private var _latestPatcherCommit: Assets? by mutableStateOf(null)
     val patcherCommitDate: String
         get() = _latestPatcherCommit?.commitDate ?: "unknown"
@@ -26,22 +34,23 @@ class DashboardViewModel(private val reVancedApi: ReVancedRepositoryImpl) : View
         get() = _latestManagerCommit?.commitDate ?: "unknown"
 
     init {
-        fetchLastCommit()
+        viewModelScope.launch {
+            patcherUtils.getPatchedApps()
+            fetchLastCommit()
+        }
     }
 
-    private fun fetchLastCommit() {
-        viewModelScope.launch {
-                val repo = reVancedApi.getAssets().getOrNull() ?: return@launch
-                for (asset in repo.tools) {
-                    when (asset.repository) {
-                        ghPatcher -> {
-                            _latestPatcherCommit = asset
-                        }
-                        ghManager -> {
-                            _latestManagerCommit = asset
-                        }
-                    }
+    private suspend fun fetchLastCommit() {
+        val repo = reVancedApi.getAssets().getOrNull() ?: return
+        for (asset in repo.tools) {
+            when (asset.repository) {
+                ghPatcher -> {
+                    _latestPatcherCommit = asset
                 }
+                ghManager -> {
+                    _latestManagerCommit = asset
+                }
+            }
         }
     }
 
@@ -57,3 +66,11 @@ class DashboardViewModel(private val reVancedApi: ReVancedRepositoryImpl) : View
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
     }
 }
+
+@Serializable
+class PatchedApp(
+    val appName: String,
+    val pkgName: String,
+    val version: String,
+    val appliedPatches: List<String>
+)

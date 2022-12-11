@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.ApplicationItem
-import app.revanced.manager.ui.component.ApplicationItemDualTint
 import app.revanced.manager.ui.component.HeadlineWithCard
 import app.revanced.manager.ui.viewmodel.DashboardViewModel
 import app.revanced.manager.util.loadIcon
@@ -25,10 +24,10 @@ import org.koin.androidx.compose.getViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
+    var showUpdates by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val padHoriz = 16.dp
     val padVert = 10.dp
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -73,10 +72,10 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                 style = MaterialTheme.typography.headlineSmall
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(selected = true, onClick = { /*TODO*/ }, label = {
-                    Text(stringResource(R.string.updates_available))
-                })
-                FilterChip(selected = false, onClick = { /*TODO*/ }, label = {
+                //FilterChip(selected = showUpdates, onClick = { showUpdates = true }, label = {
+                //    Text(stringResource(R.string.updates_available))
+                //})
+                FilterChip(selected = !showUpdates, onClick = { showUpdates = false }, label = {
                     Text(stringResource(R.string.installed))
                 })
             }
@@ -87,39 +86,19 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ApplicationItem(
-                    appName = "Compose Manager",
-                    appIcon = {
-                        AppIcon(
-                            drawable = context.loadIcon("app.revanced.manager.compose"),
-                            contentDescription = null,
-                            size = 38
-                        )
-                    },
-                    releaseAgo = "9d ago"
-                ) {
-                    ChangelogText(
-                        """
-                            cossal will explode
-                        """.trimIndent()
-                    )
-                }
-                ApplicationItemDualTint(
-                    appName = "Flutter Manager",
-                    releaseAgo = "9d ago",
-                    appIcon = {
-                        AppIcon(
-                            drawable = context.loadIcon("app.revanced.manager.flutter"),
-                            contentDescription = null,
-                            size = 38
-                        )
+                viewModel.apps.forEach {
+                    ApplicationItem(
+                        appName = it.appName,
+                        appIcon = {
+                            AppIcon(
+                                drawable = context.loadIcon(it.pkgName),
+                                contentDescription = null,
+                                size = 38
+                            )
+                        },
+                        releaseAgo = it.version
+                    ) {
                     }
-                ) {
-                    ChangelogText(
-                        """
-                            cossal will explode
-                        """.trimIndent()
-                    )
                 }
             }
         }

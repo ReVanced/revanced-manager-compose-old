@@ -19,6 +19,7 @@ import app.revanced.manager.ui.component.AppMediumTopBar
 import app.revanced.manager.ui.component.AppScaffold
 import app.revanced.manager.ui.component.LoadingIndicator
 import app.revanced.manager.ui.viewmodel.AppSelectorViewModel
+import app.revanced.manager.util.appName
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,10 +55,12 @@ fun AppSelectorSubscreen(
         }
     ) { paddingValues ->
         if (vm.filteredApps.isNotEmpty()) {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            LazyColumn(modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)) {
                 items(count = vm.filteredApps.size) { int ->
                     val app = vm.filteredApps[int]
-                    val label = vm.applicationLabel(app)
+                    val label = vm.app.appName(app)
                     val packageName = app.packageName
 
                     val same = packageName == label
