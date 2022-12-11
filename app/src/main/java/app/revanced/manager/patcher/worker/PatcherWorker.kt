@@ -163,7 +163,7 @@ class PatcherWorker(
             )
 
 
-            Log.d(tag, "Adding ${patches.size} patch(es)")
+            Log.d(tag, "Adding ${patches.joinToString(", ") { it.name }} patch(es)")
             patcher.addPatches(patches)
 
             log("Merging integrations", INFO)
