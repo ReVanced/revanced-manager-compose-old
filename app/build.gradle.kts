@@ -63,10 +63,6 @@ android {
     packagingOptions {
         resources {
             excludes += "/prebuilt/**"
-            excludes += "/**/*.version"
-            excludes += "/kotlin-tooling-metadata.json"
-            excludes += "/okhttp3/**"
-            excludes += "/DebugProbesKt.bin"
         }
     }
 
