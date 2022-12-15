@@ -21,5 +21,5 @@ class PatcherScreenViewModel(
 
     val selectedPatches = patcherUtils.selectedPatches
     val selectedAppPackage by patcherUtils.selectedAppPackage
-    val patchesLoaded by patcherUtils.patches
+    val patches by patcherUtils.patches
 }

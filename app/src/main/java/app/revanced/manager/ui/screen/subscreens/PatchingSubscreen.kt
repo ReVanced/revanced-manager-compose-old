@@ -53,7 +53,7 @@ fun PatchingSubscreen(
         Column {
             if (vm.installFailure) {
                 InstallFailureDialog(
-                    onDismiss = { vm.installFailure = false },
+                    onDismiss = { vm.dismissDialog() },
                     status = vm.pmStatus,
                     result = vm.extra
                 )
@@ -149,7 +149,7 @@ fun PatchingSubscreen(
                     ) {
                         Spacer(Modifier.weight(1f, true))
                         Button(onClick = {
-                            vm.installApk(vm.outputFile)
+                            vm.installApk()
                         }) {
                             Text(text = stringResource(R.string.install))
                         }

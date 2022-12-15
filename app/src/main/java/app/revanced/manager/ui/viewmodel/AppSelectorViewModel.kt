@@ -25,7 +25,6 @@ class AppSelectorViewModel(
 
     val filteredApps = mutableStateListOf<ApplicationInfo>()
     val patches = patcherUtils.patches
-    private val filteredPatches = patcherUtils.filteredPatches
     private val selectedAppPackage = patcherUtils.selectedAppPackage
     private val selectedAppPackagePath = patcherUtils.selectedAppPackagePath
     private val selectedPatches = patcherUtils.selectedPatches
@@ -34,21 +33,26 @@ class AppSelectorViewModel(
         viewModelScope.launch { filterApps() }
     }
 
-    private suspend fun filterApps() = withContext(Dispatchers.Default) {
+    @Suppress("RemoveExplicitTypeArguments")
+    private suspend fun filterApps() = withContext(Dispatchers.IO) {
         try {
             val (patches) = patches.value as Resource.Success
-            patches.forEach patch@{ patch ->
-                patch.compatiblePackages?.forEach { pkg ->
-                    try {
-                        if (!(filteredApps.any { it.packageName == pkg.name })) {
-                            val appInfo = app.packageManager.getApplicationInfo(pkg.name, 1)
-                            filteredApps.add(appInfo)
+            val apps = buildList<ApplicationInfo> {
+                patches.forEach patch@{ patch ->
+                    patch.compatiblePackages?.forEach { pkg ->
+                        try {
+                            if (!any { it.packageName == pkg.name }) {
+                                add(app.packageManager.getApplicationInfo(pkg.name, 1))
+                                return@forEach
+                            }
+                        } catch (e: Exception) {
                             return@forEach
                         }
-                    } catch (e: Exception) {
-                        return@forEach
                     }
                 }
+            }
+            withContext(Dispatchers.Main) {
+                filteredApps.addAll(apps)
             }
             Log.d(tag, "Filtered apps.")
         } catch (e: Exception) {
@@ -69,7 +73,6 @@ class AppSelectorViewModel(
         selectedAppPackage.value.ifPresent { s ->
             if (s != appId) {
                 selectedPatches.clear()
-                filteredPatches.clear()
             }
         }
         selectedAppPackage.value = Optional.of(appId)
@@ -86,8 +89,7 @@ class AppSelectorViewModel(
             setSelectedAppPackage(
                 app.packageManager.getPackageArchiveInfo(
                     apkDir.path, 1
-                )!!.applicationInfo,
-                apkDir.absolutePath
+                )!!.applicationInfo, apkDir.absolutePath
             )
         } catch (e: Exception) {
             Log.e(tag, "Failed to load apk", e)

@@ -17,6 +17,7 @@ import app.revanced.manager.installer.service.InstallService
 import app.revanced.manager.installer.service.UninstallService
 import app.revanced.manager.installer.utils.PM
 import app.revanced.manager.patcher.worker.PatcherWorker
+import app.revanced.manager.util.toast
 import java.io.File
 
 class PatchingScreenViewModel(
@@ -38,32 +39,43 @@ class PatchingScreenViewModel(
         object Failure : Status()
     }
 
-    val workManager = WorkManager.getInstance(app)
-    var installFailure by mutableStateOf(false)
-    var pmStatus by mutableStateOf(-999)
-    var extra by mutableStateOf("")
+    private var output: String? = null
 
-    val outputFile = File(app.cacheDir, "output.apk")
+    var installFailure by mutableStateOf(false)
+        private set
+
+    var pmStatus by mutableStateOf(-999)
+        private set
+
+    var extra by mutableStateOf("")
+        private set
+
+    private val workManager = WorkManager.getInstance(app)
 
     private val patcherWorker =
         OneTimeWorkRequest.Builder(PatcherWorker::class.java) // create Worker
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).setInputData(
-                Data.Builder().putString("output", outputFile.path).build()
+                Data.Builder().putString(PatcherWorker.OUTPUT, null).build()
             ).build()
 
-    private val liveData = workManager.getWorkInfoByIdLiveData(patcherWorker.id) // get LiveData
+    private val liveData = workManager.getWorkInfoByIdLiveData(patcherWorker.id)
 
-    private val observer = Observer { workInfo: WorkInfo -> // observer for observing patch status
+    private val observer = Observer { workInfo: WorkInfo ->
         status = when (workInfo.state) {
             WorkInfo.State.RUNNING -> Status.Patching
             WorkInfo.State.SUCCEEDED -> Status.Success
             WorkInfo.State.FAILED -> Status.Failure
             else -> Status.Idle
         }
+        if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+            output = workInfo.outputData.getString("output")
+        }
     }
 
     val logs = mutableStateListOf<PatchLog>()
+
     var status by mutableStateOf<Status>(Status.Idle)
+        private set
 
     private val installBroadcastReceiver = object : BroadcastReceiver() {
 
@@ -95,15 +107,25 @@ class PatchingScreenViewModel(
         workManager.enqueueUniqueWork("patching", ExistingWorkPolicy.KEEP, patcherWorker)
         liveData.observeForever(observer)
         app.registerReceiver(installBroadcastReceiver, IntentFilter().apply {
-            addAction(InstallService.APP_INSTALL_ACTION)
-            addAction(UninstallService.APP_UNINSTALL_ACTION)
-            addAction(PatcherWorker.PATCH_LOG)
+            arrayOf(
+                InstallService.APP_INSTALL_ACTION,
+                UninstallService.APP_UNINSTALL_ACTION,
+                PatcherWorker.PATCH_LOG
+            ).forEach {
+                addAction(it)
+            }
         })
     }
 
-    fun installApk(apk: File) {
-        PM.installApp(apk, app)
-        log(PatchLog.Info("Installing..."))
+    fun dismissDialog() {
+        installFailure = false
+    }
+
+    fun installApk() {
+        if (output != null) {
+            PM.installApp(File(output!!), app)
+            log(PatchLog.Info("Installing..."))
+        } else app.toast("Couldn't find APK file.")
     }
 
     fun postInstallStatus() {

@@ -7,11 +7,11 @@ import androidx.lifecycle.ViewModel
 import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.util.tag
 import io.sentry.Sentry
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-class SourceSelectorViewModel(val app: Application, val patcherUtils: PatcherUtils) : ViewModel() {
+class SourceSelectorViewModel(val app: Application, private val patcherUtils: PatcherUtils) :
+    ViewModel() {
     fun loadBundle(uri: Uri) {
         try {
             val patchesFile = app.cacheDir.resolve("patches.jar")
@@ -20,10 +20,7 @@ class SourceSelectorViewModel(val app: Application, val patcherUtils: PatcherUti
                 patchesFile.toPath(),
                 StandardCopyOption.REPLACE_EXISTING
             )
-            patchesFile.absolutePath.also {
-                patcherUtils.patchBundleFile = it
-                patcherUtils.loadPatchBundle(it)
-            }
+            patcherUtils.loadPatchBundle(patchesFile.absolutePath)
         } catch (e: Exception) {
             Log.e(tag, "Failed to load bundle", e)
             Sentry.captureException(e)

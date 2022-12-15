@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import app.revanced.manager.R
@@ -80,20 +81,6 @@ class PatcherWorker(
             Sentry.captureException(e)
         }
 
-        return try {
-            runPatcher(workdir)
-            Result.success()
-        } catch (e: Exception) {
-            log("Error while patching: ${e::class.simpleName}: ${e.message}", ERROR)
-            Log.e(tag, e.stackTraceToString())
-            Sentry.captureException(e)
-            Result.failure()
-        }
-    }
-
-    private suspend fun runPatcher(
-        workdir: File
-    ): Boolean {
         val wakeLock: PowerManager.WakeLock =
             (applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
                 newWakeLock(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, "$tag::Patcher").apply {
@@ -102,7 +89,8 @@ class PatcherWorker(
             }
         Log.d(tag, "Acquired wakelock.")
 
-        try {
+        return try {
+
             val aaptPath = Aapt.binary(applicationContext)?.absolutePath
             if (aaptPath == null) {
                 log("AAPT2 not found.", ERROR)
@@ -118,13 +106,14 @@ class PatcherWorker(
             val appPath = patcherUtils.selectedAppPackagePath.value
 
             log("Checking prerequisites...", INFO)
-            val patches = patcherUtils.findPatchesByIds(patcherUtils.selectedPatches)
+            val patches = patcherUtils.selectedPatches
             if (patches.isEmpty()) throw IllegalStateException("No patches selected.")
 
             log("Creating directories...", INFO)
             val inputFile = File(workdir, "input.apk")
             val patchedFile = File(workdir, "patched.apk")
-            val outputFile = File(inputData.getString("output")!!)
+            val outputFile = File(workdir, "output.apk")
+            val finalFile = reVancedFolder.resolve(appInfo.packageName + ".apk")
             val cacheDirectory = workdir.resolve("cache")
 
             val integrations = managerAPI.downloadIntegrations(integrationsCacheDir)
@@ -203,19 +192,24 @@ class PatcherWorker(
             withContext(Dispatchers.IO) {
                 Files.copy(
                     outputFile.inputStream(),
-                    reVancedFolder.resolve(appInfo.packageName + ".apk").toPath(),
+                    finalFile.toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
             }
             log("Successfully patched!", SUCCESS)
-            patcherUtils.cleanup()
+            Result.success(Data.Builder().putString(OUTPUT, finalFile.absolutePath).build())
+
+        } catch (e: Exception) {
+            log("Error while patching: ${e::class.simpleName}: ${e.message}", ERROR)
+            Log.e(tag, e.stackTraceToString())
+            Sentry.captureException(e)
+            Result.failure()
         } finally {
             Log.d(tag, "Deleting workdir")
             workdir.deleteRecursively()
             wakeLock.release()
             Log.d(tag, "Released wakelock.")
         }
-        return false
     }
 
 
@@ -236,6 +230,7 @@ class PatcherWorker(
         const val PATCH_MESSAGE = "PATCH_MESSAGE"
         const val PATCH_STATUS = "PATCH_STATUS"
         const val PATCH_LOG = "PATCH_LOG"
+        const val OUTPUT = "output"
 
         const val INFO = 0
         const val ERROR = 1

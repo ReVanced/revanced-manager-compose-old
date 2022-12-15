@@ -26,7 +26,7 @@ fun ContributorsSubscreen(
     onBackClick: () -> Unit,
     vm: ContributorsViewModel = getViewModel()
 ) {
-    val ctx = LocalContext.current.applicationContext
+    val ctx = LocalContext.current
     AppScaffold(
         topBar = { scrollBehavior ->
           AppLargeTopBar(

@@ -38,7 +38,7 @@ class ManagerAPI(
         return out
     }
 
-    suspend fun downloadPatches() = withContext(Dispatchers.Default) {
+    suspend fun downloadPatches() = withContext(Dispatchers.IO) {
         try {
             val asset =
                 if (prefs.srcPatches!! == ghPatches) reVancedAPI.findAsset(ghPatches, ".jar")
@@ -46,7 +46,6 @@ class ManagerAPI(
             asset.run {
                 downloadAsset(app.cacheDir, downloadUrl).run {
                     patcherUtils.run {
-                        patchBundleFile = absolutePath
                         loadPatchBundle(absolutePath)
                     }
                 }

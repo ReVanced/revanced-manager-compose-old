@@ -29,14 +29,12 @@ fun PatcherScreen(
     onClickSourceSelector: () -> Unit,
     vm: PatcherScreenViewModel = getViewModel(),
 ) {
-    val hasAppSelected by mutableStateOf(vm.selectedAppPackage.isPresent)
-    val patchesLoaded by mutableStateOf(vm.patchesLoaded is Resource.Success)
     val context = LocalContext.current
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                enabled = hasAppSelected && vm.selectedPatches.isNotEmpty(),
+                enabled = vm.selectedAppPackage.isPresent && vm.selectedPatches.isNotEmpty(),
                 onClick = onClickPatch,
                 icon = { Icon(Icons.Default.Build, contentDescription = "Patch") },
                 text = { Text(stringResource(R.string.patch)) }
@@ -66,7 +64,7 @@ fun PatcherScreen(
                 modifier = Modifier
                     .padding(vertical = 4.dp)
                     .fillMaxWidth(),
-                enabled = patchesLoaded,
+                enabled = vm.patches is Resource.Success,
                 onClick = onClickAppSelector
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -86,7 +84,7 @@ fun PatcherScreen(
                             Spacer(Modifier.width(5.dp))
                         }
                         Text(
-                            text = if (patchesLoaded) {
+                            text = if (vm.patches is Resource.Success) {
                                 if (vm.selectedAppPackage.isPresent) {
                                     vm.selectedAppPackage.get().packageName
                                 } else {
@@ -105,7 +103,7 @@ fun PatcherScreen(
                 modifier = Modifier
                     .padding(vertical = 4.dp)
                     .fillMaxWidth(),
-                enabled = hasAppSelected,
+                enabled = vm.selectedAppPackage.isPresent,
                 onClick = onClickPatchSelector
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -114,7 +112,7 @@ fun PatcherScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = if (!hasAppSelected) {
+                        text = if (!vm.selectedAppPackage.isPresent) {
                             stringResource(R.string.select_an_application_first)
                         } else if (vm.selectedPatches.isNotEmpty()) {
                             "${vm.selectedPatches.size} patches selected."

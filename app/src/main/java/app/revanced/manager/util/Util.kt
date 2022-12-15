@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.drawable.Drawable
+import android.widget.Toast
 import androidx.core.net.toUri
 
 
@@ -19,4 +20,8 @@ fun Context.loadIcon(string: String): Drawable? {
     } catch (e: NameNotFoundException) {
         null
     }
+}
+
+fun Context.toast(string: String, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(this, string, duration).show()
 }
