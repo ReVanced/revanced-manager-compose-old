@@ -34,54 +34,44 @@ fun PatchCard(patchClass: PatchClass, isSelected: Boolean, onSelected: () -> Uni
         enabled = !patchClass.unsupported,
         onClick = onSelected
     ) {
-        Column(modifier = Modifier.padding(12.dp, 0.dp, 12.dp, 12.dp)) {
-            Row {
-                Column(
-                    Modifier
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Text(
-                        text = name.replace("-", " ").split(" ")
-                            .joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
+        Column(modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = name.replace("-", " ").split(" ")
+                        .joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(Modifier.width(4.dp))
-                Row(
-                    Modifier
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Text(
-                        text = patch.version ?: "unknown",
-                        style = Typography.bodySmall
-                    )
-                }
+                Text(
+                    text = patch.version ?: "unknown",
+                    style = Typography.bodySmall
+                )
                 Spacer(Modifier.weight(1f, true))
-                Column(modifier = Modifier.padding(0.dp, 6.dp)) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        if (patchClass.patch.options != null) {
-                            CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides false) {
-                                IconButton(onClick = { }, modifier = Modifier.size(24.dp)) {
-                                    Icon(
-                                        Icons.Outlined.Settings,
-                                        contentDescription = "Patch Options"
-                                    )
-                                }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    if (patchClass.patch.options != null) {
+                        CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides false) {
+                            IconButton(onClick = { }, modifier = Modifier.size(24.dp)) {
+                                Icon(
+                                    Icons.Outlined.Settings,
+                                    contentDescription = "Patch Options"
+                                )
                             }
                         }
-                        Spacer(Modifier.width(8.dp))
-                        CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides false) {
-                            Checkbox(
-                                enabled = !patchClass.unsupported,
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    CompositionLocalProvider(LocalMinimumTouchTargetEnforcement provides false) {
+                        Checkbox(
+                            enabled = !patchClass.unsupported,
                                 checked = isSelected,
                                 onCheckedChange = { onSelected() }
                             )
                         }
-                    }
                 }
             }
             var isExpanded by remember { mutableStateOf(false) }
@@ -89,10 +79,11 @@ fun PatchCard(patchClass: PatchClass, isSelected: Boolean, onSelected: () -> Uni
                 Text(
                     text = desc,
                     modifier = Modifier
-                        .padding(0.dp, 8.dp, 22.dp, 8.dp)
+                        .padding(0.dp, 4.dp, 30.dp, 4.dp)
                         .clickable { isExpanded = !isExpanded },
                     maxLines = if (isExpanded) Int.MAX_VALUE else 1,
                     overflow = TextOverflow.Ellipsis,
+                    softWrap = true,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
