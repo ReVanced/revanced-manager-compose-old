@@ -1,5 +1,6 @@
 package app.revanced.manager.ui.component
 
+import android.media.Image
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.security.InvalidParameterException
 
 @Composable
 fun ButtonRow(
@@ -43,8 +46,9 @@ fun ButtonRow(
 
 @Composable
 fun RowScope.ButtonRowItem(
-    icon: ImageVector,
-    @StringRes label: Int,
+    label: String,
+    icon: Any,
+    contentDescription: String? = null,
     onClick: (() -> Unit)? = null
 ) {
     Column(
@@ -60,16 +64,30 @@ fun RowScope.ButtonRowItem(
             }
             .fillMaxSize()
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = stringResource(id = label),
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
+        when (icon) {
+            is ImageVector -> {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            is Painter -> {
+                Icon(
+                    painter = icon,
+                    contentDescription = contentDescription,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            else -> {
+                throw InvalidParameterException()
+            }
+        }
     }
+    Text(
+        text = label,
+        color = MaterialTheme.colorScheme.primary,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold
+    )
 }

@@ -119,9 +119,9 @@ fun SettingsScreen(
                 Switch(checked = prefs.sentry, onCheckedChange = { prefs.sentry = it })
             })
         Divider()
-        SocialItem(R.string.github, R.drawable.ic_github, vm::openGitHub)
-        SocialItem(R.string.opensource_licenses, Icons.Default.LibraryBooks, onClickLicenses)
-        SocialItem(R.string.screen_contributors_title, Icons.Default.Group, onClickContributors)
+        SocialItem(stringResource(id = R.string.github), R.drawable.ic_github, vm::openGitHub)
+        SocialItem(stringResource(id = R.string.opensource_licenses), Icons.Default.LibraryBooks, onClickLicenses)
+        SocialItem(stringResource(id = R.string.screen_contributors_title), Icons.Default.Group, onClickContributors)
     }
 }
 

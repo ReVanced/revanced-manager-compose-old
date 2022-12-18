@@ -79,7 +79,7 @@ fun AppInfoSubscreen(
                 )
                 Text(patchedApp.appVersion)
                 ButtonRow {
-                    ButtonRowItem(icon = Icons.Outlined.Launch, label = R.string.launch)
+                    ButtonRowItem(icon = Icons.Outlined.Launch, label = stringResource(id = R.string.launch))
                     Divider(
                         modifier = Modifier
                             .width(.5.dp)
@@ -87,7 +87,7 @@ fun AppInfoSubscreen(
                             .padding(vertical = 16.dp),
                         color = MaterialTheme.colorScheme.background
                     )
-                    ButtonRowItem(icon = Icons.Outlined.Delete, label = R.string.uninstall)
+                    ButtonRowItem(icon = Icons.Outlined.Delete, label = stringResource(id = R.string.uninstall))
                     Divider(
                         modifier = Modifier
                             .width(.5.dp)
@@ -95,7 +95,7 @@ fun AppInfoSubscreen(
                             .padding(vertical = 16.dp),
                         color = MaterialTheme.colorScheme.background
                     )
-                    ButtonRowItem(icon = Icons.Outlined.Build, label = R.string.patch)
+                    ButtonRowItem(icon = Icons.Outlined.Build, label = stringResource(id = R.string.patch))
                 }
                 ListItem(
                     headlineText = {
