@@ -1,6 +1,7 @@
 package app.revanced.manager.ui.viewmodel
 
 import android.annotation.SuppressLint
+import android.os.Parcelable
 import android.text.format.DateUtils
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +16,7 @@ import app.revanced.manager.util.ghManager
 import app.revanced.manager.util.ghPatcher
 import io.ktor.http.*
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
@@ -67,10 +69,12 @@ class DashboardViewModel(
     }
 }
 
+@Parcelize
 @Serializable
-class PatchedApp(
+data class PatchedApp(
     val appName: String,
     val pkgName: String,
-    val version: String,
-    val appliedPatches: List<String>
-)
+    val appVersion: String,
+    val appliedPatches: List<String>,
+    val patchedDate: String
+) : Parcelable

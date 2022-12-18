@@ -12,17 +12,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
+import app.revanced.manager.ui.navigation.AppDestination
+import dev.olshevski.navigation.reimagined.navController
+import dev.olshevski.navigation.reimagined.navigate
 
 @Composable
 fun ApplicationItem(
     appName: String,
     appIcon: @Composable () -> Unit,
-    releaseAgo: String,
-    expandedContent: @Composable () -> Unit,
+    appVersion: String,
+    onClick: () -> Unit,
+    expandedContent: (@Composable () -> Unit)? = null,
 ) {
     var expandedState by remember { mutableStateOf(false) }
     val rotateState by animateFloatAsState(targetValue = if (expandedState) 180f else 0f)
@@ -62,36 +67,40 @@ fun ApplicationItem(
                             maxLines = 1
                         )
                         Text(
-                            text = releaseAgo,
+                            text = appVersion,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
                 Row {
-                    IconButton(
-                        modifier = Modifier.rotate(rotateState),
-                        onClick = { expandedState = !expandedState },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ExpandMore,
-                            contentDescription = stringResource(R.string.expand)
-                        )
+                    if (expandedContent != null) {
+                        IconButton(
+                            modifier = Modifier.rotate(rotateState),
+                            onClick = { expandedState = !expandedState },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ExpandMore,
+                                contentDescription = stringResource(R.string.expand)
+                            )
+                        }
                     }
-                    OutlinedButton(onClick = {}) {
-                        Text(stringResource(R.string.update))
+                    OutlinedButton(onClick = onClick) {
+                        Text(stringResource(R.string.info))
                     }
                 }
             }
-            AnimatedVisibility(
-                visible = expandedState
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(bottom = 10.dp)
-                        .fillMaxSize(),
+            if (expandedContent != null) {
+                AnimatedVisibility(
+                    visible = expandedState
                 ) {
-                    expandedContent()
+                    Box(
+                        modifier = Modifier
+                            .padding(bottom = 10.dp)
+                            .fillMaxSize(),
+                    ) {
+                        expandedContent()
+                    }
                 }
             }
         }
@@ -102,19 +111,17 @@ fun ApplicationItem(
 fun ApplicationItemDualTint(
     appName: String,
     appIcon: @Composable () -> Unit,
-    releaseAgo: String,
-    expandedContent: @Composable () -> Unit,
+    appVersion: String,
+    onClick: () -> Unit,
+    expandedContent: (@Composable () -> Unit)? = null,
 ) {
     var expandedState by remember { mutableStateOf(false) }
     val rotateState by animateFloatAsState(targetValue = if (expandedState) 180f else 0f)
 
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 68.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E2630)
-        )
+            .defaultMinSize(minHeight = 68.dp)
     ) {
         Column(
             modifier = Modifier
@@ -132,8 +139,7 @@ fun ApplicationItemDualTint(
                         modifier = Modifier
                             .height(68.dp)
                             .weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         appIcon()
                         Column(modifier = Modifier.padding(start = 8.dp)) {
@@ -143,38 +149,44 @@ fun ApplicationItemDualTint(
                                 maxLines = 1
                             )
                             Text(
-                                text = releaseAgo,
+                                text = appVersion,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(
-                            modifier = Modifier.rotate(rotateState),
-                            onClick = { expandedState = !expandedState },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ExpandMore,
-                                contentDescription = stringResource(R.string.expand)
-                            )
+                        if (expandedContent != null) {
+                            IconButton(
+                                modifier = Modifier.rotate(rotateState),
+                                onClick = { expandedState = !expandedState },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ExpandMore,
+                                    contentDescription = stringResource(R.string.expand)
+                                )
+                            }
                         }
-                        OutlinedButton(onClick = { /*TODO*/ }) {
-                            Text(stringResource(R.string.update))
+                        Button(onClick = onClick) {
+                            Text(stringResource(R.string.info))
                         }
                     }
                 }
             }
-            AnimatedVisibility(
-                visible = expandedState
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = Color(0xFF11161C))
-                        .padding(14.dp, 10.dp),
+            if (expandedContent != null) {
+                AnimatedVisibility(
+                    visible = expandedState
                 ) {
-                    expandedContent()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = MaterialTheme.colorScheme.surface.copy(alpha = .4f).compositeOver(
+                                MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp)
+                            ))
+                            .padding(14.dp, 10.dp),
+                    ) {
+                        expandedContent()
+                    }
                 }
             }
         }
