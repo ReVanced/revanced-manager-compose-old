@@ -68,4 +68,6 @@
     <string name="permission_request">ReVanced Manager relies on some permissions to function properly, please give required permissions by pressing OK.</string>
     <string name="app_info">App info</string>
     <string name="info">Info</string>
+    <string name="launch">Launch</string>
+    <string name="uninstall">Uninstall</string>
 </resources>
