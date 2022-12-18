@@ -16,14 +16,19 @@ import androidx.compose.ui.unit.dp
 import app.revanced.manager.R
 import app.revanced.manager.ui.component.AppIcon
 import app.revanced.manager.ui.component.ApplicationItem
+import app.revanced.manager.ui.component.ApplicationItemDualTint
 import app.revanced.manager.ui.component.HeadlineWithCard
 import app.revanced.manager.ui.viewmodel.DashboardViewModel
+import app.revanced.manager.ui.viewmodel.PatchedApp
 import app.revanced.manager.util.loadIcon
 import org.koin.androidx.compose.getViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
+fun DashboardScreen(
+    viewModel: DashboardViewModel = getViewModel(),
+    onClickAppInfo: (PatchedApp) -> Unit
+) {
     var showUpdates by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val padHoriz = 16.dp
@@ -87,7 +92,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 viewModel.apps.forEach {
-                    ApplicationItem(
+                    ApplicationItemDualTint(
                         appName = it.appName,
                         appIcon = {
                             AppIcon(
@@ -96,9 +101,10 @@ fun DashboardScreen(viewModel: DashboardViewModel = getViewModel()) {
                                 size = 38
                             )
                         },
-                        releaseAgo = it.version
-                    ) {
-                    }
+                        appVersion = it.appVersion,
+                        onClick = { onClickAppInfo(it) },
+                        expandedContent = { Text("CANNNNNNNNNNNNNNNNNNNNNNNNNNNNNY") }
+                    )
                 }
             }
         }

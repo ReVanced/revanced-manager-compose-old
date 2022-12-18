@@ -21,6 +21,9 @@ import app.revanced.manager.patcher.PatcherUtils
 import app.revanced.manager.patcher.worker.PatcherWorker
 import app.revanced.manager.util.appName
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class PatchingScreenViewModel(
     private val app: Application,
@@ -125,8 +128,9 @@ class PatchingScreenViewModel(
             PatchedApp(
                 appName = app.appName(applicationInfo),
                 pkgName = applicationInfo.packageName,
-                version = versionName,
-                appliedPatches = patcherUtils.selectedPatches
+                appVersion = versionName,
+                appliedPatches = patcherUtils.selectedPatches,
+                patchedDate = LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)).toString()
             )
         }
     )

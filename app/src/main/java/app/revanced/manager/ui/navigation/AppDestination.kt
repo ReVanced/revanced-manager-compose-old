@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import app.revanced.manager.R
+import app.revanced.manager.ui.viewmodel.PatchedApp
 import dev.olshevski.navigation.reimagined.NavController
 import dev.olshevski.navigation.reimagined.pop
 import dev.olshevski.navigation.reimagined.replaceAll
@@ -44,6 +45,9 @@ sealed interface AppDestination : Parcelable {
 
     @Parcelize
     object Patching : AppDestination
+
+    @Parcelize
+    class AppInfo(val patchedApp: PatchedApp) : AppDestination
 
     @Parcelize
     object SourceSelector : AppDestination

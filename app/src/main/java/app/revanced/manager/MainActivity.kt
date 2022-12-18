@@ -21,6 +21,7 @@ import app.revanced.manager.ui.screen.SettingsScreen
 import app.revanced.manager.ui.screen.subscreens.*
 import app.revanced.manager.ui.theme.ReVancedManagerTheme
 import app.revanced.manager.ui.theme.Theme
+import app.revanced.manager.ui.viewmodel.PatchedApp
 import dev.olshevski.navigation.reimagined.*
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
@@ -73,7 +74,9 @@ class MainActivity : ComponentActivity() {
                             onNavChanged = { navController.replaceLast(it) }
                         ) {
                             when (destination) {
-                                AppDestination.Dashboard -> DashboardScreen()
+                                AppDestination.Dashboard -> DashboardScreen(
+                                    onClickAppInfo = { PatchedApp -> navController.navigate(AppDestination.AppInfo(PatchedApp)) }
+                                )
                                 AppDestination.Patcher -> PatcherScreen(
                                     onClickAppSelector = { navController.navigate(AppDestination.AppSelector) },
                                     onClickPatchSelector = { navController.navigate(AppDestination.PatchSelector) },
@@ -86,6 +89,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+                        is AppDestination.AppInfo -> AppInfoSubscreen(onBackClick = { navController.back() }, patchedApp = destination.patchedApp)
                         is AppDestination.AppSelector -> AppSelectorSubscreen(onBackClick = { navController.back() })
                         is AppDestination.PatchSelector -> PatchesSelectorSubscreen(onBackClick = { navController.back() })
                         is AppDestination.Contributors -> ContributorsSubscreen(onBackClick = { navController.back() })
