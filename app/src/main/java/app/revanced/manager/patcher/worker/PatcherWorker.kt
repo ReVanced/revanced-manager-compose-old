@@ -199,7 +199,7 @@ class PatcherWorker(
             log("Successfully patched!", SUCCESS)
             Result.success(Data.Builder().putString(OUTPUT, finalFile.absolutePath).build())
 
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             log("Error while patching: ${e::class.simpleName}: ${e.message}", ERROR)
             Log.e(tag, e.stackTraceToString())
             Sentry.captureException(e)
