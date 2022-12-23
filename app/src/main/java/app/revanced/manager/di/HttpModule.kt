@@ -1,17 +1,14 @@
 package app.revanced.manager.di
 
 import android.content.Context
-import android.util.Log
-import app.revanced.manager.util.tag
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.cache.*
+import io.ktor.client.plugins.cache.storage.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import okhttp3.Cache
 import okhttp3.Dns
-import okhttp3.Protocol
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -32,13 +29,16 @@ val httpModule = module {
                         }
                     }
                 })
-                cache(Cache(context.cacheDir.resolve("cache").also { it.mkdirs() }, 1024 * 1024 * 100))
                 followRedirects(true)
                 followSslRedirects(true)
             }
         }
         install(ContentNegotiation) {
             json(json)
+        }
+        install(HttpCache) {
+            val cache = context.cacheDir.resolve("cache")
+            publicStorage(FileStorage(cache))
         }
     }
 
