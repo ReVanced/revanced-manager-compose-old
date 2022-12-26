@@ -61,6 +61,6 @@ class PatcherUtils(val app: Application) {
 
     fun findPatchesByIds(ids: Iterable<String>): List<Class<out Patch<Context>>> {
         val (patches) = patches.value as? Resource.Success ?: return listOf()
-        return patches.filter { patch -> ids.any { it == patch.patchName } && patch.compatiblePackages!!.any { it.name == getSelectedPackageInfo()?.packageName } }
+        return patches.filter { patch -> ids.any { it == patch.patchName } && (patch.compatiblePackages?.any { it.name == getSelectedPackageInfo()?.packageName } == true || patch.compatiblePackages == null) }
     }
 }

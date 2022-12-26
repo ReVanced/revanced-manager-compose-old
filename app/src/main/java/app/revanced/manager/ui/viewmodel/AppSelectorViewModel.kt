@@ -1,7 +1,9 @@
 package app.revanced.manager.ui.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
@@ -34,9 +36,21 @@ class AppSelectorViewModel(
         viewModelScope.launch { filterApps() }
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     private suspend fun filterApps() = withContext(Dispatchers.Default) {
         try {
             val (patches) = patches.value as Resource.Success
+            val allAppsIncluded = patches.find { it.compatiblePackages == null }
+            if (allAppsIncluded != null) {
+                val allPackages = app.packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
+                allPackages.forEach { pkg ->
+                    if (!filteredApps.any { it.packageName == pkg.packageName }) {
+                        val appInfo = app.packageManager.getApplicationInfo(pkg.packageName, 1)
+                        if ((appInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0) filteredApps.add(appInfo)
+                    }
+                }
+                Log.d(tag, "${allAppsIncluded.name} patch supports all apps, listed user apps.")
+            }
             patches.forEach patch@{ patch ->
                 patch.compatiblePackages?.forEach { pkg ->
                     try {

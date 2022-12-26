@@ -45,14 +45,18 @@ class PatchesSelectorViewModel(
             loading = false; return
         }
         patches.forEach patch@{ patch ->
-            var unsupported = false
-            patch.compatiblePackages?.forEach { pkg ->
-                // if we detect unsupported once, don't overwrite it
-                if (pkg.name == selected.packageName) {
-                    if (!unsupported)
-                        unsupported =
-                            pkg.versions.isNotEmpty() && !pkg.versions.any { it == selected.versionName }
-                    filteredPatches.add(PatchClass(patch, unsupported))
+            if (patch.compatiblePackages == null) {
+                filteredPatches.add(PatchClass(patch, false))
+            } else {
+                var unsupported = false
+                patch.compatiblePackages?.forEach { pkg ->
+                    // if we detect unsupported once, don't overwrite it
+                    if (pkg.name == selected.packageName) {
+                        if (!unsupported)
+                            unsupported =
+                                pkg.versions.isNotEmpty() && !pkg.versions.any { it == selected.versionName }
+                        filteredPatches.add(PatchClass(patch, unsupported))
+                    }
                 }
             }
         }
