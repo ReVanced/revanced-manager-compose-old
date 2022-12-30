@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                 dynamicColor = prefs.dynamicColor,
                 darkTheme = prefs.theme == Theme.SYSTEM && isSystemInDarkTheme() || prefs.theme == Theme.DARK,
             ) {
-                val navController = rememberNavController<AppDestination>(AppDestination.Dashboard)
+                val navController = navController<AppDestination>(AppDestination.Dashboard)
 
                 NavBackHandler(navController)
 
