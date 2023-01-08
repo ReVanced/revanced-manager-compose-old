@@ -37,6 +37,28 @@ fun SocialItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SocialItem(
+    label: String,
+    @DrawableRes painterResource: Int? = null,
+    onClick: () -> Unit
+) {
+    ListItem(
+        modifier = Modifier.clickable { onClick() },
+        leadingContent = {
+            if (painterResource != null) {
+                Icon(
+                    painter = painterResource(painterResource),
+                    contentDescription = label
+                )
+            }
+        },
+        headlineText = { Text(label) }
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SocialItem(
     @StringRes label: Int,
     @DrawableRes painterResource: Int? = null,
     onClick: () -> Unit

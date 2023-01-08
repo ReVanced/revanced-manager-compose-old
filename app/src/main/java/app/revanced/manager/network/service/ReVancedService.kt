@@ -5,6 +5,7 @@ import app.revanced.manager.network.api.MissingAssetException
 import app.revanced.manager.network.api.PatchesAsset
 import app.revanced.manager.network.dto.ReVancedReleases
 import app.revanced.manager.network.dto.ReVancedRepositories
+// import app.revanced.manager.network.dto.ReVancedSocials
 import app.revanced.manager.network.utils.APIResponse
 import app.revanced.manager.network.utils.getOrNull
 import io.ktor.client.request.*
@@ -15,6 +16,8 @@ interface ReVancedService {
     suspend fun getAssets(): APIResponse<ReVancedReleases>
 
     suspend fun getContributors(): APIResponse<ReVancedRepositories>
+
+    suspend fun getSocials(): APIResponse<HashMap<String, String>>
 
     suspend fun findAsset(repo: String, file: String): PatchesAsset
 }
@@ -34,6 +37,14 @@ class ReVancedServiceImpl(
         return withContext(Dispatchers.IO) {
             client.request {
                 url("$apiUrl/contributors")
+            }
+        }
+    }
+    // override suspend fun getSocials(): APIResponse<ReVancedSocials> {
+    override suspend fun getSocials(): APIResponse<HashMap<String, String>> {
+        return withContext(Dispatchers.IO) {
+            client.request {
+                url("$apiUrl/socials")
             }
         }
     }
