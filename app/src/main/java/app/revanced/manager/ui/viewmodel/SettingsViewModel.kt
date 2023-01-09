@@ -27,8 +27,11 @@ class SettingsViewModel(
     private suspend fun loadSocials() = withContext(Dispatchers.IO) {
         val socials = reVancedService.getSocials().getOrNull() ?: return@withContext
         // don't know if there is a better way to do this :breaddoge2:
-        socials.forEach { (key, value) ->
-            socialsMap[key] = value;
+        //socials.forEach { (key, value) ->
+        //    socialsMap[key] = value
+        //}
+        withContext(Dispatchers.Main) {
+            socialsMap.putAll(socials)
         }
     }
 
