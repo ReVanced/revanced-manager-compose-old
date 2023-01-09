@@ -119,7 +119,12 @@ fun SettingsScreen(
                 Switch(checked = prefs.sentry, onCheckedChange = { prefs.sentry = it })
             })
         Divider()
-        SocialItem(R.string.github, R.drawable.ic_github, vm::openGitHub)
+        // SocialItem(R.string.github, R.drawable.ic_github, vm::openGitHub)
+        vm.socialsMap.keys.forEach { service ->
+            SocialItem(service.replaceFirstChar { if (it.isLowerCase()) it.titlecase(java.util.Locale.ROOT) else it.toString() }, R.drawable.ic_github) { ->
+                vm.openSocialUrl(service)
+            }
+        }
         SocialItem(R.string.opensource_licenses, Icons.Default.LibraryBooks, onClickLicenses)
         SocialItem(R.string.screen_contributors_title, Icons.Default.Group, onClickContributors)
     }
